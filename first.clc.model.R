@@ -4,7 +4,7 @@
 #Shorthands used: popSize  : Intial population size 
                 # resProp  : resource property, a matrix with first row being juvenile resources and second row being adult resources
                 # resFreq  : resource freq, should be relative i.e. add up to one once again first row is juvenile, second is adult. 
-                # resGen   : A measure of how generalist the consumers are
+                # resGen   : A measure of how generalist the consumers are a matrix with 1 column 2 rows, first row is juvenile
                 # fmax     : A measure of the maximum number of offspring possible
                 # kA/kJ    : A measure of how density dependent the fecundity and survival is. Half saturation constant 
                 # mutProb  : Mutation probabilty
@@ -20,7 +20,7 @@
 
 
 
-resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax = 2, kA = 0.5, kJ = 0.2, mutProb=0.001, mutVar=0.1, years=200, iniPA=5, iniPJ=5){
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 10, kA = 0.5, kJ = 0.2, mutProb=0.001, mutVar=0.1, years=200, iniPA=5, iniPJ=5){
   
   # initialize population ......................................
   pop           <- matrix(NA, ncol=3, nrow=sum(popSize))                        # Creating a matrix where each row is an indivdual. 
@@ -45,7 +45,7 @@ resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax 
       
       rp <- resProp[2,r]                                                        # Resource property for adult resource [2,]
       
-      alpha     <- exp(-(adults[,1]-rp)^2/ (2*resGen[2]) )                      # Compute  alphas for all adults, if different generalities for stages want to be added modify resGen
+      alpha     <- exp(-(adults[, 1]-rp)^2/ (2*resGen[2,1]) )                   # Compute  alphas for all adults, if different generalities for stages want to be added modify resGen
       alphaA    <- cbind(alphaA, alpha)                                         # Store alphas for all resources for all individuals 
       alphaSumA <- c(alphaSumA, sum(alpha) )                                    # Store the sum of all alphas for each resource
       
@@ -72,9 +72,11 @@ resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax 
   
     for(i in 1:nrow(adults)) {
       N.juv         <- rpois(n = 1, lambda = adults[i,3])                       # This calculates the number of juveniles based on a possion distribution.
+      if(N.juv>0){
       new.juveniles <- matrix(data = c(adults[i,1], adults[i,2], 0), 
                        nrow = N.juv, ncol = ncol(pop), byrow = T)               # Create N.juv rows in an entry with the parents phenotypes
       juveniles     <- rbind(juveniles, new.juveniles)                          # adds together all juveniles created.
+      }                                                                          
     }
     
     # Mutate new generation   --------------------
@@ -114,7 +116,7 @@ resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax 
       
       rp <- resProp[1,r] 
       
-      alpha     <- exp(-(juveniles[,2]-rp)^2/ (2*resGen[1]) )
+      alpha     <- exp(-(juveniles[,2]-rp)^2/ (2*resGen[1,1]) )
       alphaJ    <- cbind(alphaJ, alpha)
       alphaSumJ <- c(alphaSumJ, sum(alpha) )
       
@@ -176,7 +178,7 @@ row.names(resPropMatrix)<-c("Juvenile", "Adult")
 
 
 
-output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 100, resGen=c(0.1,0.1), mutProb=0.005, mutVar=0.002, years=100)
+output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 100, mutProb=0.005, mutVar=0.002, years=100)
 
 stats <- output$stats
 phenotypes <- output$phenotypes
