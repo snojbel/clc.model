@@ -18,16 +18,16 @@
 # Note for myself, there might not be a need for the "life-stage" column since its done in sequence? then again you might want to start 
 # with some juveniles as well as adults. 
 
+rpois(n = 1, lambda = 10)
 
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 10, kA = 0.5, kJ = 0.2, mutProb=0.001, mutVar=0.1, years=200, iniPA=5, iniPJ=5){
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 10, kA = 0.5, kJ = 0.2, mutProb=0.001, mutVar=0.1, years=200, iniPA=4, iniPJ=4){
   
   # initialize population ......................................
   pop           <- matrix(NA, ncol=3, nrow=sum(popSize))                        # Creating a matrix where each row is an indivdual. 
-  colnames(pop) <- c("Phenotype A", "Phenotype J", 
-                     "Fecundity(A)/Survival(J) Proxy")                          # Their phenotype will be used to determine fecunidty
-  
-  #pop[,1] <- c(rep.int(1,popSize[1]), rep.int(2, popSize[2]))                  # Numbers all the indivduals first column as either juvenile(1) or adult(2)
+  colnames(pop) <- c("phenotypeA", "phenotypeJ", 
+                     "fecundity(A)/survival(J)")                                # Their phenotype will be used to determine fecunidty
+
   pop[,1] <- iniPA                                                              # Sets inital phenotype of all individuals
   pop[,2] <- iniPJ                                                              # rnorm(n=sum(popSize), mean=iniPmean, sd=0.05), inital population can have one phenotype or several
   
@@ -106,7 +106,6 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       
     }
     
-    #pop <- juveniles                                                           # Since all adults die, we can simply replace current pop with juveniles
     
     # Survival proxy psi?(currently alpha) - juveniles ............................................................
     # juveniles   <- pop
@@ -141,19 +140,24 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
     for(i in 1:nrow(juveniles)){
       juveniles[i, 3] <- rbinom(n = 1, size = 1, juveniles[i, 3])
     }
-    pop <- juveniles[juveniles[,3] == 1, ] 
     
+    pop <- juveniles[juveniles[,3] == 1, ] 
     
     
     # extract stats           ----
     adults.stats       <- adults
     juveniles.stats    <- juveniles
     
-    stats <- rbind( stats, c(t,nrow(juveniles.stats), mean(adults.stats[,1]), var(adults.stats[,1]), mean(juveniles.stats[,2]), var(juveniles.stats[,2]))) 
+    stats <- rbind( stats, c(t,nrow(juveniles.stats), mean(adults.stats[,1]), 
+                             var(adults.stats[,1]), mean(juveniles.stats[,2]), 
+                             var(juveniles.stats[,2]))) 
     #extract phenotypes of each individual each year
-    phenotypes.stats <- cbind(rep(t, nrow(juveniles)), juveniles[,1], juveniles[,2])
-    phenotype <- rbind(phenotype, phenotypes.stats)
+    phenotype.stats <- cbind(rep(t, nrow(juveniles)), juveniles[,1], juveniles[,2])
+    phenotype <- rbind(phenotype, phenotype.stats)
     
+    if(length(pop) == 0){                                                       # Checks wheter population has reached zero, then it breaks the for loop.                                   
+      break
+      }
                                                                
   }
   
@@ -165,17 +169,18 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
 }
 
 # first test run                        ----
-resource.frequency <- c(0.2,0.2,0.2,0.2,0.2,  #res. freq. of patch 1
-                        0.2,0.2,0.2,0.2,0.2)  #res. freq. pf patch 2
-resource.property<- c(-2, 1, 0, 1, 2,  #res. property of patch 1
-                      -2, 1, 0, 1, 2) #res. property pf patch 2
+resource.frequency <- c(0.2,0.2,0.2,0.2,0.2,  #res. freq. of juveniles
+                        0.2,0.2,0.2,0.2,0.2)  #res. freq. pf adults
+resource.property<- c(2, 3, 4, 5, 6,  #res. property of juveniles
+                      2, 3, 4, 5, 6) #res. property pf adults
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=5, byrow = TRUE) 
-row.names(resFreqMatrix)<-c("Juvenile", "Adult")
+rownames(resFreqMatrix) <- c("Juvenile", "Adult")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
 
 resPropMatrix <- matrix(resource.property, nrow=2, ncol=5, byrow = TRUE)          
-row.names(resPropMatrix)<-c("Juvenile", "Adult")
-
+rownames(resPropMatrix)<-c("Juvenile", "Adult")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 100, mutProb=0.005, mutVar=0.002, years=100)
