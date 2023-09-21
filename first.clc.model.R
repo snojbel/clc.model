@@ -1,9 +1,9 @@
 
-# My first attempt at modifying the Schmid code to my "liking"
+# My first attempt at modifying the Schmid code to my CLC model
 
-#Shorthands used: popSize : Intial population size 
-                # resProp  : resource property, a matrix with first column being juvenile resources and second column being adult resources
-                # resFreq  : resource freq, should be relative i.e. add up to one once again first column is juvenile, second is adult. 
+#Shorthands used: popSize  : Intial population size 
+                # resProp  : resource property, a matrix with first row being juvenile resources and second row being adult resources
+                # resFreq  : resource freq, should be relative i.e. add up to one once again first row is juvenile, second is adult. 
                 # resGen   : A measure of how generalist the consumers are
                 # fmax     : A measure of the maximum number of offspring possible
                 # kA/kJ    : A measure of how density dependent the fecundity and survival is. Half saturation constant 
@@ -18,15 +18,14 @@
 # Note for myself, there might not be a need for the "life-stage" column since its done in sequence? then again you might want to start 
 # with some juveniles as well as adults. 
 
-juveniles <- matrix(data = NA, nrow = 0, ncol = 2)
-n.j       <- matrix(data = c(1, 0), nrow = 3, ncol = 2, byrow = T)
-juveniles <- rbind(juveniles, n.j)
 
-resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, years=200, iniPA=5, iniPJ=5){
+
+resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax = 2, kA = 0.5, kJ = 0.2, mutProb=0.001, mutVar=0.1, years=200, iniPA=5, iniPJ=5){
   
   # initialize population ......................................
   pop           <- matrix(NA, ncol=3, nrow=sum(popSize))                        # Creating a matrix where each row is an indivdual. 
-  colnames(pop) <- c("Phenotype A", "Phenotype J, Fecundity(A)/Survival(J) Proxy")              # Their phenotype will be used to determine fecunidty
+  colnames(pop) <- c("Phenotype A", "Phenotype J", 
+                     "Fecundity(A)/Survival(J) Proxy")                          # Their phenotype will be used to determine fecunidty
   
   #pop[,1] <- c(rep.int(1,popSize[1]), rep.int(2, popSize[2]))                  # Numbers all the indivduals first column as either juvenile(1) or adult(2)
   pop[,1] <- iniPA                                                              # Sets inital phenotype of all individuals
@@ -62,9 +61,10 @@ resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax 
         fec <- fec + R * (alphaA[i,r]/alphaSumA[r])                             # Total fecundity is the sum of fecundities gained 
                                                                                 # from all the different resources. Which is derived
       }                                                                         # both the ability to consume a resource, alphaM, and the 
-      adult[i,3] <- fmax* (fec/(kA+fec))                                        # the total ability of all individuals to consume 
+      adults[i,3] <- fmax* (fec/(kA+fec))                                        # the total ability of all individuals to consume 
                                                                                 # said resource, alphaSum. R = resource available
     }                                                                           # the kA business is there to create a saturating function.
+    
     
     # Create juveniles based fecundity -------------
     
@@ -73,7 +73,7 @@ resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax 
     for(i in 1:nrow(adults)) {
       N.juv         <- rpois(n = 1, lambda = adults[i,3])                       # This calculates the number of juveniles based on a possion distribution.
       new.juveniles <- matrix(data = c(adults[i,1], adults[i,2], 0), 
-                       nrow = N.juv, ncol = ncol(pop), byrow = T)               # Create N.juv rows in an entry with the parents phenotype
+                       nrow = N.juv, ncol = ncol(pop), byrow = T)               # Create N.juv rows in an entry with the parents phenotypes
       juveniles     <- rbind(juveniles, new.juveniles)                          # adds together all juveniles created.
     }
     
@@ -107,7 +107,7 @@ resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax 
     #pop <- juveniles                                                           # Since all adults die, we can simply replace current pop with juveniles
     
     # Survival proxy psi?(currently alpha) - juveniles ............................................................
-    #juveniles   <- pop
+    # juveniles   <- pop
     alphaSumJ <- NULL
     alphaJ    <- NULL
     for(r in 1:ncol(resProp)){                                                  # Survival of juveniles also depends on resource availability.
@@ -120,46 +120,64 @@ resourceCompetition <- function(popSize,resProp, resFreq, resGen = c(1,1), fmax 
       
     }
     
-    # Survival ............................................................
-    for(i in 1:nrow(pop)){
+    # Survival probability, computed similarly to fecundity .....................................................
+    for(i in 1:nrow(juveniles)){
       
-      juveniles <- 
-      
+      sur <- 0
+      for(r in 1:ncol(resProp)){                                                # Goes through each resource and calculates source specific  
+                                                                                # survival and then adds them together to create the total sur
+        R  <- resFreq[1,r]
+        sur <- sur + R * (alphaJ[i,r]/alphaSumJ[r])                             
+                                                                                
+      }                                                                         
+      juveniles[i,3] <- (sur/(kJ+sur))  
+
     }
     
-    
-    
-    # Move Juveniles into adults ?              ----
-    dispInds <- runif(n=nrow(pop))<dispProb
-    dispInds <- which(dispInds==TRUE)
-    if(length(dispInds)>=1){
-      for(i in 1:length(dispInds)){
-        if(pop[dispInds[i],1]==1){
-          pop[dispInds[i],1] <- 2
-        } else {
-          pop[dispInds[i],1] <- 1
-        }
-      }
+    # Create next generation of adults based on juvenile survival probability
+
+    for(i in 1:nrow(juveniles)){
+      juveniles[i, 3] <- rbinom(n = 1, size = 1, juveniles[i, 3])
     }
+    pop <- juveniles[juveniles[,3] == 1, ] 
+    
+    
     
     # extract stats           ----
-    patch1    <- pop[pop[,1]==1,]
-    patch2    <- pop[pop[,1]==2,]
+    adults.stats       <- adults
+    juveniles.stats    <- juveniles
     
-    stats <- rbind( stats, c(t, mean(patch1[,2]), var(patch1[,2]), mean(patch2[,2]), var(patch2[,2]))) 
+    stats <- rbind( stats, c(t,nrow(juveniles.stats), mean(adults.stats[,1]), var(adults.stats[,1]), mean(juveniles.stats[,2]), var(juveniles.stats[,2]))) 
     #extract phenotypes of each individual each year
-    phenotypes_patch1 <- cbind(rep(t, nrow(patch1)), rep(1, nrow(patch1)), patch1[,2])
-    phenotypes_patch2 <- cbind(rep(t, nrow(patch2)), rep(2, nrow(patch2)), patch2[,2])
+    phenotypes.stats <- cbind(rep(t, nrow(juveniles)), juveniles[,1], juveniles[,2])
+    phenotype <- rbind(phenotype, phenotypes.stats)
     
-    phenotype <- rbind(phenotype, phenotypes_patch1, phenotypes_patch2)
-    #Remberber to set new adults into pop!
+                                                               
   }
   
   # return output stats .............................................
-  colnames(stats) <- c("year", "mean1", "var1", "mean2", "var2")
-  colnames(phenotype) <- c("year", "patch", "phenotype")
+  colnames(stats) <- c("year", "population size", "mean A", "var A", "mean J", "var J")
+  colnames(phenotype) <- c("year", "Phenotype A", "Phenotype J")
   return(list(stats=stats, phenotype=phenotype))  #returns both the stats and the phenotype
   
 }
 
+# first test run                        ----
+resource.frequency <- c(0.2,0.2,0.2,0.2,0.2,  #res. freq. of patch 1
+                        0.2,0.2,0.2,0.2,0.2)  #res. freq. pf patch 2
+resource.property<- c(-2, 1, 0, 1, 2,  #res. property of patch 1
+                      -2, 1, 0, 1, 2) #res. property pf patch 2
+
+resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=5, byrow = TRUE) 
+row.names(resFreqMatrix)<-c("Juvenile", "Adult")
+
+resPropMatrix <- matrix(resource.property, nrow=2, ncol=5, byrow = TRUE)          
+row.names(resPropMatrix)<-c("Juvenile", "Adult")
+
+
+
+output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 100, resGen=c(0.1,0.1), mutProb=0.005, mutVar=0.002, years=100)
+
+stats <- output$stats
+phenotypes <- output$phenotypes
 
