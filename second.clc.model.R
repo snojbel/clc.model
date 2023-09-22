@@ -17,18 +17,18 @@
                 # nmorphs   : Number of morphs in intial run
 
 list <- matrix(data = 1:10, ncol = 1, nrow = 10)
+traits <- matrix(data = c(0.2, 0.3, 0.4, 0.1, 0.5), ncol = 1, nrow = 10, byrow = T)
 
-muts <- c()
+sum(traits*list[,1])
 
 list[1,1] <- 20
          # Generates number of mutations
-probs <- list[,1]/(sum(list[, 1])*10)                                 # Generates probability of morph being mutated based upon number of indivduals.
-mutation.pos <- rmultinom(n = muts, size = 6, prob = probs)
+probs <- list[,1]/(sum(list[, 1]))                                 # Generates probability of morph being mutated based upon number of indivduals
+sum(probs)
 
+rmultinom(n = 1, size = nrow(list), prob = probs)
 
-rmultinom(n = rbinom(n = 1, size = 10, prob = 0.2), size = list[,1], prob = probs)
-
-probs
+rbinom(n = 1, size = 10, prob = 0.2)
 
 
 resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 10, kA = 0.5, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=4, iniPJ=4, nmorphs = 1){
@@ -58,8 +58,8 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
         rp <- resProp[1,r]                                                        # Resource property for adult resource [2,]
         
         alpha     <- exp(-(adults[, 2]-rp)^2/ (2*resGen[1,1]) )                   # Compute  alphas for all adults, if different generalities for stages want to be added modify resGen
-        alphaA    <- cbind(alphaA, alpha)                                         # Store alphas for all resources for all individuals 
-        alphaSumA <- c(alphaSumA, sum(alpha) )                                    # Store the sum of all alphas for each resource
+        alphaA    <- cbind(alphaA, alpha)                                         # Store alphas for all resources for all morphs
+        alphaSumA <- c(alphaSumA, sum(alpha*adults[,1]))                                    # Store the sum of all alphas for each resource
         
       }
       
