@@ -81,29 +81,34 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       random.choice <- rmultinom(n = N.mut , size = 1, prob = probs)  # Randomly chooses which morphs to mutate based on probs
       mutation.pos <- as.numeric(which(random.choice == 1))
       
-                                      
-      for (i in  0:length(mutation.pos)){
+      if (sum(mutation.pos) > 0){
+      
+        for (i in  1:length(mutation.pos)){
         
         mutChange <- rnorm(n=1, mean=0, sd=mutVar)
         juveniles[mutation.pos[i], 1] <- juveniles[mutation.pos[i], 1] - 1       # Removes the mutated individual from the morph
         
-        if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                            # Randomly choose whether adult or juvenile trait gets morphed.
-          
-              
-          new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] + mutChange, #Changes adult trait to a new trait and adds it to the juveniles
-                                       juveniles[mutation.pos[i], 3], 0), 
-                              ncol = ncol(juveniles), nrow = 1)
-          juveniles <- rbind(juveniles, new.morph)
-        }
-        else {
-              # Removes the mutated individual from the morph
-          new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] ,        #Changes juvenile trait to a new trait and adds it to the juveniles
-                                       juveniles[mutation.pos[i], 3]+ mutChange, 0), 
-                              ncol = ncol(juveniles), nrow = 1)
-          juveniles <- rbind(juveniles, new.morph)
-        }
+          if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                            # Randomly choose whether adult or juvenile trait gets morphed.
+            
+                
+            new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] + mutChange, #Changes adult trait to a new trait and adds it to the juveniles
+                                         juveniles[mutation.pos[i], 3], 0), 
+                                ncol = ncol(juveniles), nrow = 1)
+            juveniles <- rbind(juveniles, new.morph)
+          }
+          else {
+                # Removes the mutated individual from the morph
+            new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] ,        #Changes juvenile trait to a new trait and adds it to the juveniles
+                                         juveniles[mutation.pos[i], 3]+ mutChange, 0), 
+                                ncol = ncol(juveniles), nrow = 1)
+            juveniles <- rbind(juveniles, new.morph)
+          }
+        
+      } 
         
       }
+                                      
+      
       
       # Kill off offspring -----------------------------------------------------
       
@@ -131,7 +136,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
         }                                                                         
       
       det.sur <- sur/(kJ+sur)                                                    # this is to create a saturating function, survival can never be over 1 higher kJ means flatter curve
-      juveniles[1,i] <- rbinom(n = 1 , size = juveniles[1,i], prob = det.sur )   # sees how many survive given their det. survival.
+      juveniles[i,1] <- as.numeric(rbinom(n = 1 , size = juveniles[i,1], prob = det.sur))   # sees how many survive given their det. survival.
       }
       
     pop <- juveniles                                                             # all adults die after reproducing, so the new generation is only juveniles
@@ -143,6 +148,11 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
     
     phenotype.stats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2], pop[,3])
     phenotypes <- rbind(phenotypes, phenotype.stats)
+    
+    if(sum(pop[, 1]) == 0){                                                       # Checks wheter population has reached zero, then it breaks the for loop.                                   
+      break
+    }
+    
       
   }
   
@@ -170,12 +180,32 @@ rownames(resPropMatrix)<-c("Juvenile", "Adult")
 colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
-output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 5, mutProb=0.005, mutVar=0.002, time.steps = 1)
+output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.001, mutVar=0.002, time.steps = 10)
 
 stats <- output$stats
 phenotypes <- output$phenotypes
 
 
+
+# Plot phenotypes (not modified yet)  -------------------------
+
+par(mfrow=c(1,1))
+
+#creating colors takes maybe to long to always be worth it.
+colors <- rgb((phenotypes[,2]-0.9)*0.7,0.59,0.8, alpha =0.1)    #Creates a vector of characters that have two different color identities based on patch idenity.
+
+plot(phenotype_data[,1], phenotypes_data[,3], pch=16, col=colors, xlab="Year", ylab="Phenotype")
+
+#one color, for computational purposes
+#plot(phenotype_data[,1], phenotype_data[,3], pch=16, col=rgb(0.8, 0.59, 0.8, alpha=0.3), xlab="Year", ylab="Phenotype")
+
+# Add a legend to distinguish between patches
+legend("topright", legend=c("Patch 1", "Patch 2"), col=c(rgb((1-0.9)*0.7,0.59,0.8, alpha =0.6), rgb((2-0.9)*0.7,0.59,0.8, alpha =0.6)), pch=19)
+
+# Add a title to the plot
+title("Individual Phenotypes Over Years for Patch 1 and Patch 2")
+
+# -------------------------------
 
 
 
