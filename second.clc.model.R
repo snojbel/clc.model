@@ -323,11 +323,7 @@ death <- function(pop, resPropJ, resFreqJ, resGenJ, kJ){
   
   pop <- juveniles[juveniles[, 1] != 0, ]  
   
-  stats <- juveniles.N
-  rownames(stats) <- paste0("Year", 1:nrow(juveniles.N)) 
-  colnames(stats) <- "Number of indivduals"
-  
-  return(list(stats=stats, pop=pop))
+  return(pop)
 }
 
 
