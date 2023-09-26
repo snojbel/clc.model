@@ -391,7 +391,7 @@ pop[,3] <- iniPJ
 
 colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
 
-mutProb = 0.001
+mutProb = 0.01
 mutVar = 0.01
 
 populationSize <- c()
@@ -405,14 +405,19 @@ resGenA  <- 0.3
 kA       <- 0.3
 fmax     <- 10 
 
+# --------------------- Resource initialization (juvenile)
 
-#----------------------------------------------------------------------------
+resFreqJ <- c(2,2,5,2,2)  # res. freq. of adults
+resPropJ <- c(2, 3, 4, 5, 6)          # res. property of adults
+resGenJ  <- 0.3
+kJ       <- 0.3
+
 
 for(t in 1:timesteps){
   
   pop <- birth(pop = pop, resPropA = resPropA , resFreqA = resFreqA, resGenA = resGenA, kA = kA, fmax = 3)
 
-  
+  pop <- mutation(pop=pop, mutProb = mutProb, mutVar = mutVar)
   
   pop <- death(pop = pop, resPropJ = resPropJ, resFreqJ = resFreqJ, resGenJ = resGenJ, kJ = kJ)
 
@@ -442,18 +447,10 @@ plot(x = 1:nrow(populationSize), y = populationSize, type = "l", xlab = "Years",
 
 
 
-#-----------------
 
 
 
 
-
-#----------------- Output and stats generating
-
-
-
-
-#-----------------
 
 
 
