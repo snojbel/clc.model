@@ -16,7 +16,7 @@
                 # iniP(A/J) : inital phenotype of adult and juvenile(different)
                 # nmorphs   : Number of morphs in intial run
 
-
+# Full function ----------------------------------------------------------------
 
 resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.4,0.4),ncol=1, nrow=2), fmax = 5, kA = 0.3, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=4, iniPJ=4, nmorphs = 1){
   
@@ -166,7 +166,8 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.4,0
 }
 
 
-# first test run                        ----
+
+                    
 resource.frequency <- c(2,2,4,3,2,  # res. freq. of adults
                         2,2,2,2,2)  # res. freq. pf juveniles
 resource.property<- c(2, 3, 4, 5, 6,          # res. property of juveniles
@@ -186,12 +187,12 @@ output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popS
 stats <- output$stats
 phenotypes <- output$phenotypes
 
+#-------------------------------------------------------------------------------
 
-
-# Attempt at splitting function into smaller parts:
+# Attempt at splitting function into smaller parts: -----------------------------------------------------------------------------------------
 
 #----------------- Population initialization:
-popSize <- 10
+popSize <- 15
 iniPA   <- 4
 iniPJ   <- 4
 nmorphs <- 1
@@ -204,7 +205,7 @@ pop[,3] <- iniPJ
 
 colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
 
-# --------------------- Resource initialization
+# --------------------- Resource initialization (adult)
 
 resFreqA <- c(2,2,5,2,2)  # res. freq. of adults
 resPropA <- c(2, 3, 4, 5, 6)          # res. property of adults
@@ -212,7 +213,8 @@ resGenA  <- 0.3
 kA       <- 0.3
 fmax     <- 10 
 
-#----------------- Fecundity and birth
+
+#----------------- Fecundity and birth  ----------------
 
 birth <- function (pop, resPropA, resFreqA, resGenA, kA, fmax) { 
     
@@ -277,12 +279,9 @@ colnames(populationSize) <- "Number of indivduals"
 
 plot(x = 1:nrow(populationSize), y = populationSize, type = "l", xlab = "Years", ylab = "Abundance")
 
-#----------------- Mutation
+#----------------- Mutation   -------------------
 
 #----------------- Resource initialization (Juvenile)
-
-# --------------------- Resource initialization
-
 resFreqJ <- c(2,2,5,2,2)  # res. freq. of adults
 resPropJ <- c(2, 3, 4, 5, 6)          # res. property of adults
 resGenJ  <- 0.3
@@ -290,7 +289,7 @@ kJ       <- 0.3
 
 
 
-#----------------- Survival
+#----------------- Survival  ------------------------------------
 
 death <- function(pop, resPropJ, resFreqJ, resGenJ, kJ){
   juveniles <- pop
@@ -311,19 +310,44 @@ death <- function(pop, resPropJ, resFreqJ, resGenJ, kJ){
     
     sur <- 0
     for(r in 1:length(resPropJ)){                                                # Goes through each resource and calculates source specific  
-      # survival and then adds them together to create the total sur
-      R  <- resFreq[r]
+                                                                                 # survival and then adds them together to create the total sur
+      R  <- resFreqJ[r]
       sur <- sur + R * (alphaJ[i,r]/alphaSumJ[r])                             
       
     }                                                                         
     
-    det.sur <- sur/(kJ+sur)                                                    # this is to create a saturating function, survival can never be over 1 higher kJ means flatter curve
+    det.sur <- sur/(kJ+sur)                                                       # this is to create a saturating function, survival can never be over 1 higher kJ means flatter curve
     juveniles[i,1] <- as.numeric(rbinom(n = 1 , size = juveniles[i,1], prob = det.sur))   # sees how many survive given their det. survival.
   }
   
-  pop <- juveniles[juveniles[, 1] != 0, ]  
+  pop <- as.matrix(juveniles[juveniles[, 1] != 0, ], ncol = 4, byrow = T)  
   
   return(pop)
+}
+
+# Test of survival and birth ---------------------------------------------------
+
+populationSize <- c()
+timesteps <- 50
+
+for(t in 1:timesteps){
+  
+  pop <- birth(pop = pop, resPropA = resPropA , resFreqA = resFreqA, resGenA = resGenA, kA = kA, fmax = 3)
+  pop <- death(pop = pop, resPropJ = resPropJ, resFreqJ = resFreqJ, resGenJ = resGenJ, kJ = kJ)
+  
+  
+  
+  if (nrow(pop) == 0) {
+    print(paste0("Loop ", t ," works"))
+  }
+  else {
+    print("Extinction!")
+    break
+  }
+  
+  
+  populationSize<- rbind(populationSize, sum(pop[,1])) 
+  
 }
 
 
