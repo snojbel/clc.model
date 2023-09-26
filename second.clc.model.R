@@ -16,6 +16,22 @@
                 # iniP(A/J) : inital phenotype of adult and juvenile(different)
                 # nmorphs   : Number of morphs in intial run
 
+popSize <- 15
+iniPA   <- 4
+iniPJ   <- 4
+nmorphs <- 1
+
+pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
+
+pop[,1] <- popSize
+pop[,2] <- iniPA
+pop[,3] <- iniPJ
+
+colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
+
+
+
+
 # Full function ----------------------------------------------------------------
 
 resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.4,0.4),ncol=1, nrow=2), fmax = 5, kA = 0.3, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=4, iniPJ=4, nmorphs = 1){
@@ -187,7 +203,7 @@ output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popS
 stats <- output$stats
 phenotypes <- output$phenotypes
 
-#-------------------------------------------------------------------------------
+
 
 # Attempt at splitting function into smaller parts: -----------------------------------------------------------------------------------------
 
@@ -214,7 +230,7 @@ kA       <- 0.3
 fmax     <- 10 
 
 
-#----------------- Fecundity and birth  ----------------
+#----------------- Fecundity  ----------------
 
 birth <- function (pop, resPropA, resFreqA, resGenA, kA, fmax) { 
     
@@ -281,12 +297,46 @@ plot(x = 1:nrow(populationSize), y = populationSize, type = "l", xlab = "Years",
 
 #----------------- Mutation   -------------------
 
-#----------------- Resource initialization (Juvenile)
-resFreqJ <- c(2,2,5,2,2)  # res. freq. of adults
-resPropJ <- c(2, 3, 4, 5, 6)          # res. property of adults
-resGenJ  <- 0.3
-kJ       <- 0.3
+mutation <- function(pop, mutProb, mutVar){
 
+juveniles <- pop
+probs <- juveniles[,1]/sum(juveniles[, 1])                                       # Generates probability of morph being mutated based upon number of individuals.
+N.mut <- as.integer(rbinom(n = 1, size = sum(juveniles[, 1]), prob = mutProb))
+random.choice <- rmultinom(n = N.mut , size = 1, prob = probs)                   # Randomly chooses which morphs to mutate based on probs
+mutation.pos <- as.numeric(which(random.choice == 1))
+
+if (sum(mutation.pos) > 0){                                                      # Checks if any mutations have occured
+  
+  for (i in  1:length(mutation.pos)){
+    
+    mutChange <- rnorm(n=1, mean=0, sd=mutVar)
+    juveniles[mutation.pos[i], 1] <- juveniles[mutation.pos[i], 1] - 1       # Removes the mutated individual from the morph
+    
+    if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                            # Randomly choose whether adult or juvenile trait gets morphed.
+      
+      
+      new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] + mutChange, #Changes adult trait to a new trait and adds it to the juveniles
+                                   juveniles[mutation.pos[i], 3], 0), 
+                          ncol = ncol(juveniles), nrow = 1)
+      juveniles <- rbind(juveniles, new.morph)
+    }
+    else {
+      # Removes the mutated individual from the morph
+      new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] ,        #Changes juvenile trait to a new trait and adds it to the juveniles
+                                   juveniles[mutation.pos[i], 3]+ mutChange, 0), 
+                          ncol = ncol(juveniles), nrow = 1)
+      juveniles <- rbind(juveniles, new.morph)
+    }
+    
+  } 
+  
+}
+
+pop <- juveniles
+
+return(pop)
+
+}
 
 
 #----------------- Survival  ------------------------------------
@@ -317,33 +367,66 @@ death <- function(pop, resPropJ, resFreqJ, resGenJ, kJ){
     }                                                                         
     
     det.sur <- sur/(kJ+sur)                                                       # this is to create a saturating function, survival can never be over 1 higher kJ means flatter curve
-    juveniles[i,1] <- as.numeric(rbinom(n = 1 , size = juveniles[i,1], prob = det.sur))   # sees how many survive given their det. survival.
+    juveniles[i,1] <- rbinom(n = 1 , size = juveniles[i,1], prob = det.sur)       # sees how many survive given their det. survival.
   }
   
-  pop <- as.matrix(juveniles[juveniles[, 1] != 0, ], ncol = 4, byrow = T)  
+  pop <- juveniles[juveniles[, 1] != 0, , drop = FALSE]
   
   return(pop)
 }
 
-# Test of survival and birth ---------------------------------------------------
+# Test of survival and birth and mutation together ---------------------------------------------------
+
+#----------------- Population initialization
+popSize <- 15
+iniPA   <- 4
+iniPJ   <- 4
+nmorphs <- 1
+
+pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
+
+pop[,1] <- popSize
+pop[,2] <- iniPA
+pop[,3] <- iniPJ
+
+colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
+
+mutProb = 0.001
+mutVar = 0.01
 
 populationSize <- c()
 timesteps <- 50
 
+# --------------------- Resource initialization (adult)
+
+resFreqA <- c(2,2,5,2,2)  # res. freq. of adults
+resPropA <- c(2, 3, 4, 5, 6)          # res. property of adults
+resGenA  <- 0.3
+kA       <- 0.3
+fmax     <- 10 
+
+
+#----------------------------------------------------------------------------
+
 for(t in 1:timesteps){
   
   pop <- birth(pop = pop, resPropA = resPropA , resFreqA = resFreqA, resGenA = resGenA, kA = kA, fmax = 3)
-  pop <- death(pop = pop, resPropJ = resPropJ, resFreqJ = resFreqJ, resGenJ = resGenJ, kJ = kJ)
+
   
+  
+  pop <- death(pop = pop, resPropJ = resPropJ, resFreqJ = resFreqJ, resGenJ = resGenJ, kJ = kJ)
+
   
   
   if (nrow(pop) == 0) {
-    print(paste0("Loop ", t ," works"))
-  }
-  else {
     print("Extinction!")
     break
   }
+  else {
+    
+   print(paste0("Loop ", t ," works"))
+    
+        }
   
   
   populationSize<- rbind(populationSize, sum(pop[,1])) 
@@ -351,11 +434,17 @@ for(t in 1:timesteps){
 }
 
 
+rownames(populationSize) <- paste0("Year", 1:nrow(populationSize)) 
+colnames(populationSize) <- "Number of indivduals"
+
+
+plot(x = 1:nrow(populationSize), y = populationSize, type = "l", xlab = "Years", ylab = "Abundance")
+
+
+
 #-----------------
 
-#----------------- Full function
 
-#----------------- Initialization
 
 
 
