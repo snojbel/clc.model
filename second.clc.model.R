@@ -29,8 +29,11 @@ pop[,3] <- iniPJ
 
 colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
 
+c <- as.numeric(which(rmultinom(n = 2 , size = 1, prob = c(0.8, 0.1, 0.1)) == 1))  
 
+d <- rmultinom(n = 2 , size = 1, prob = c(0.8, 0.1, 0.1))
 
+which(d == 1)
 
 # Full function ----------------------------------------------------------------
 
@@ -94,10 +97,15 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.4,0
       
       probs <- juveniles[,1]/sum(juveniles[, 1])  # Generates probability of morph being mutated based upon number of individuals.
       N.mut <- as.numeric(rbinom(n = 1, size = sum(juveniles[, 1]), prob = mutProb))
-      random.choice <- rmultinom(n = N.mut , size = 1, prob = probs)  # Randomly chooses which morphs to mutate based on probs
-      mutation.pos <- as.numeric(which(random.choice == 1))
       
-      if (sum(mutation.pos) > 0){
+      
+      if(N.mut > 0){
+        random.choice <- c()
+        
+        for (m in 1:length(N.mut)){
+        random.choice <- rmultinom(n = 1 , size = 1, prob = probs)    # Randomly chooses which morphs to mutate based on probs
+        mutation.pos[m] <- as.numeric(which(random.choice == 1))
+      }
       
         for (i in  1:length(mutation.pos)){
         
@@ -120,11 +128,11 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.4,0
             juveniles <- rbind(juveniles, new.morph)
           }
         
-      } 
+        }
         
       }
-                                      
       
+    
       
       # Kill off offspring -----------------------------------------------------
       
@@ -300,37 +308,44 @@ plot(x = 1:nrow(populationSize), y = populationSize, type = "l", xlab = "Years",
 mutation <- function(pop, mutProb, mutVar){
 
 juveniles <- pop
-probs <- juveniles[,1]/sum(juveniles[, 1])                                       # Generates probability of morph being mutated based upon number of individuals.
-N.mut <- as.integer(rbinom(n = 1, size = sum(juveniles[, 1]), prob = mutProb))
-random.choice <- rmultinom(n = N.mut , size = 1, prob = probs)                   # Randomly chooses which morphs to mutate based on probs
-mutation.pos <- as.integer(which(random.choice == 1))
+probs <- juveniles[,1]/sum(juveniles[, 1])  # Generates probability of morph being mutated based upon number of individuals.
+N.mut <- as.numeric(rbinom(n = 1, size = sum(juveniles[, 1]), prob = mutProb))
 
-if (sum(mutation.pos) > 0){                                                      # Checks if any mutations have occured
+
+if(N.mut > 0){
+  print("Mutation!")
+  random.choice <- c()
+  mutation.pos <- c()
+  for (m in 1:length(N.mut)){
+    random.choice <- rmultinom(n = 1 , size = 1, prob = probs)    # Randomly chooses which morphs to mutate based on probs
+    mutation.pos[m] <- as.numeric(which(random.choice == 1))
+  }
   
   for (i in  1:length(mutation.pos)){
     
     mutChange <- rnorm(n=1, mean=0, sd=mutVar)
-    juveniles[mutation.pos[i], 1] <- juveniles[mutation.pos[i], 1] - 1           # Removes the mutated individual from the morph
+    juveniles[mutation.pos[i], 1] <- juveniles[mutation.pos[i], 1] - 1       # Removes the mutated individual from the morph
     
-    if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                                # Randomly choose whether adult or juvenile trait gets morphed.
+    if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                            # Randomly choose whether adult or juvenile trait gets morphed.
       
       
-      new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] + mutChange, # Changes adult trait to a new trait and adds it to the juveniles
+      new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] + mutChange, #Changes adult trait to a new trait and adds it to the juveniles
                                    juveniles[mutation.pos[i], 3], 0), 
                           ncol = ncol(juveniles), nrow = 1)
       juveniles <- rbind(juveniles, new.morph)
     }
     else {
       # Removes the mutated individual from the morph
-      new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] ,            # Changes juvenile trait to a new trait and adds it to the juveniles
+      new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] ,        #Changes juvenile trait to a new trait and adds it to the juveniles
                                    juveniles[mutation.pos[i], 3]+ mutChange, 0), 
                           ncol = ncol(juveniles), nrow = 1)
       juveniles <- rbind(juveniles, new.morph)
     }
     
-  } 
+  }
   
 }
+
 
 pop <- juveniles
 
@@ -396,7 +411,7 @@ mutVar = 0.01
 
 populationSize <- c()
 numberPhenotypes <- c()
-Phenotypes <- matrix(data = c(1, popSize, iniPA, iniPJ), nrow = 1, ncol = 4)
+Phenotypes <- matrix(data = c(0, popSize, iniPA, iniPJ), nrow = 1, ncol = 4)
 colnames(Phenotypes) <- c("Year", "Number of indivduals", "Adult trait", "Juvenile trait")
 timesteps <- 50
 
