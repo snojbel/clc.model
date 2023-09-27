@@ -313,7 +313,7 @@ N.mut <- as.numeric(rbinom(n = 1, size = sum(juveniles[, 1]), prob = mutProb))
 
 
 if(N.mut > 0){
-  print("Mutation!")
+  #print("Mutation!")
   random.choice <- c()
   mutation.pos <- c()
   for (m in 1:length(N.mut)){
@@ -406,18 +406,18 @@ pop[,3] <- iniPJ
 
 colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
 
-mutProb = 0.01
-mutVar = 0.01
+mutProb = 0.005
+mutVar = 0.1
 
 populationSize <- c()
 numberPhenotypes <- c()
 Phenotypes <- matrix(data = c(0, popSize, iniPA, iniPJ), nrow = 1, ncol = 4)
 colnames(Phenotypes) <- c("Year", "Number of indivduals", "Adult trait", "Juvenile trait")
-timesteps <- 50
+timesteps <- 500
 
 # --------------------- Resource initialization (adult)
 
-resFreqA <- c(2,2,5,2,2)  # res. freq. of adults
+resFreqA <- c(2,2,5,2,2)              # res. freq. of adults
 resPropA <- c(2, 3, 4, 5, 6)          # res. property of adults
 resGenA  <- 0.3
 kA       <- 0.3
@@ -425,9 +425,9 @@ fmax     <- 10
 
 # --------------------- Resource initialization (juvenile)
 
-resFreqJ <- c(2,2,5,2,2)  # res. freq. of adults
-resPropJ <- c(2, 3, 4, 5, 6)          # res. property of adults
-resGenJ  <- 0.3
+resFreqJ <- c(10,3,1,3,10)              # res. freq. of juveniles
+resPropJ <- c(1, 3, 4, 5, 7)          # res. property of juveniles
+resGenJ  <- 0.2
 kJ       <- 0.3
 
 
@@ -447,12 +447,13 @@ for(t in 1:timesteps){
   }
   else {
     
-   print(paste0("Loop ", t ," works"))
+   #print(paste0("Loop ", t ," works"))
     
         }
   
   numberPhenotypes <- rbind(numberPhenotypes, nrow(pop))
-  Phenotypes <- rbind(Phenotypes, c(rep(t, nrow(pop)), pop[,1], pop[,2], pop[,3]))
+  pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2], pop[,3])
+  Phenotypes <- rbind(Phenotypes, pStats)
   populationSize<- rbind(populationSize, sum(pop[,1])) 
   
 }
