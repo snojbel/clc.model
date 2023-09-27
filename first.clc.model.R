@@ -18,7 +18,6 @@
 # Note for myself, there might not be a need for the "life-stage" column since its done in sequence? then again you might want to start 
 # with some juveniles as well as adults. 
 
-rpois(n = 1, lambda = 10)
 
 
 resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 10, kA = 0.5, kJ = 0.2, mutProb=0.001, mutVar=0.1, years=200, iniPA=4, iniPJ=4){
