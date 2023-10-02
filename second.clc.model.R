@@ -462,6 +462,10 @@ for(t in 1:timesteps){
 rownames(populationSize) <- paste0("Year", 1:nrow(populationSize)) 
 colnames(populationSize) <- "Number of indivduals"
 
+colnames(numberPhenotypes) <- "# of phenotypes"
+
+rownames(Phenotypes) <- NULL
+
 
 plot(x = 1:nrow(populationSize), y = populationSize, type = "l", xlab = "Years", ylab = "Abundance")
 
