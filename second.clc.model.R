@@ -29,15 +29,12 @@ pop[,3] <- iniPJ
 
 colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
 
-c <- as.numeric(which(rmultinom(n = 2 , size = 1, prob = c(0.8, 0.1, 0.1)) == 1))  
 
-d <- rmultinom(n = 2 , size = 1, prob = c(0.8, 0.1, 0.1))
-
-which(d == 1)
 
 # Full function ----------------------------------------------------------------
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), fmax = 10, kA = 2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=4, iniPJ=4, nmorphs = 1){
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), 
+                                fmax = 10, kA = 2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=4, iniPJ=4, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -228,8 +225,8 @@ plot(x = stats[, 1], y = stats[, 3], xlab = "Year", ylab = "Number of Phenotypes
 par(mfrow=c(2,1))
 
 pColors <- rgb(0.7, 0.1, 0.5, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
-plot(x = phenotypes[, 1], y = phenotypes[,3], col = pColors, xlab = NULL, ylab = "Adult trait")
-plot(x = phenotypes[, 1], y = phenotypes[,4], col = pColors, xlab = "Year", ylab = "Juvenile Trait")
+plot(x = phenotypes[, 1], y = phenotypes[,3], col = pColors, xlab = "Year", ylab = "Adult trait", pch = 16)
+plot(x = phenotypes[, 1], y = phenotypes[,4], col = pColors, xlab = "Year", ylab = "Juvenile Trait", pch = 16)
 
 
 # Add a legend to distinguish between patches
