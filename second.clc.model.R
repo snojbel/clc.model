@@ -29,11 +29,7 @@ pop[,3] <- iniPJ
 
 colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
 
-c <- as.numeric(which(rmultinom(n = 2 , size = 1, prob = c(0.8, 0.1, 0.1)) == 1))  
 
-d <- rmultinom(n = 2 , size = 1, prob = c(0.8, 0.1, 0.1))
-
-which(d == 1)
 
 # Full function ----------------------------------------------------------------
 
