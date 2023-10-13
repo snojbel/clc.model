@@ -113,7 +113,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0
         for (i in  1:length(mutation.pos)){
         
         mutChange <- rnorm(n=1, mean=0, sd=mutVar)
-        juveniles[mutation.pos[i], 1] <- juveniles[mutation.pos[i], 1] - 1       # Removes the mutated individual from the morph
+        juveniles[mutation.pos[i], 1] <- juveniles[mutation.pos[i], 1] - 1         # Removes the mutated individual from the morph
         
           if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                            # Randomly choose whether adult or juvenile trait gets morphed.
             
@@ -124,7 +124,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0
             juveniles <- rbind(juveniles, new.morph)
           }
           else {
-                # Removes the mutated individual from the morph
+                
             new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] ,        #Changes juvenile trait to a new trait and adds it to the juveniles
                                          juveniles[mutation.pos[i], 3]+ mutChange, 0), 
                                 ncol = ncol(juveniles), nrow = 1)
@@ -228,7 +228,7 @@ plot(x = stats[, 1], y = stats[, 3], xlab = "Year", ylab = "Number of Phenotypes
 par(mfrow=c(2,1))
 
 pColors <- rgb(0.7, 0.1, 0.5, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
-plot(x = phenotypes[, 1], y = phenotypes[,3], col = pColors, xlab = NULL, ylab = "Adult trait")
+plot(x = phenotypes[, 1], y = phenotypes[,3], col = pColors, xlab = "Year", ylab = "Adult trait")
 plot(x = phenotypes[, 1], y = phenotypes[,4], col = pColors, xlab = "Year", ylab = "Juvenile Trait")
 
 
