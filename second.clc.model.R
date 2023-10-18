@@ -32,7 +32,7 @@ pop[,4] <- (test/(3+test))
 
 # Full function ----------------------------------------------------------------
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), fmax = 5, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=4, iniPJ=4, nmorphs = 1){
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -181,21 +181,35 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0
 
 # Initialization ----------------------------------------------------------------
                   
-resource.frequency <- c(10,2,2,1,5,  # res. freq. of adults
-                        4,2,2,2,3)   # res. freq. pf juveniles
-resource.property<- c(1, 3, 4, 5, 10,            # res. property of adults
-                      2, 3, 4, 5, 7)             # res. property of juveniles
+resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1,   # res. freq. of adults (percentage)
+                        0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1)   # res. freq. pf juveniles
 
-resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=5, byrow = TRUE) 
-rownames(resFreqMatrix) <- c("Juvenile", "Adult")
+resource.property<- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
+                      1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
+
+resource.abundance.adults     <- 100                    # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 100
+
+resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
+
+resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
+resFreqMatrix[2, ] <- resFreqMatrix[2, ]*resource.abundance.juveniles
+
+rownames(resFreqMatrix) <- c("Adult", "Juvenile")
 colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
 
-resPropMatrix <- matrix(resource.property, nrow=2, ncol=5, byrow = TRUE)          
-rownames(resPropMatrix)<-c("Juvenile", "Adult")
+
+
+resPropMatrix <- matrix(resource.property, nrow=2, ncol=10, byrow = TRUE) 
+
+rownames(resPropMatrix)<-c("Adult", "Juvenile")
 colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
-output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.001, mutVar=0.05, time.steps = 500)
+
+
+
+output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
 
 stats <- output$stats
 phenotypes <- output$phenotypes
@@ -203,7 +217,17 @@ phenotypes <- output$phenotypes
 
 
 # Plotting  -------------------------------------------------------------------
+library(viridisLite)
+library(viridis)
+library(ggplot2)
+library(extrafont)
+library(gridExtra)
 
+# font_import()  Only needed first time in R
+# loadfonts()
+# fonts() to check names of fonts
+
+# Population size and number of phenotypes:
 par(mfrow=c(2,1))
 
 
@@ -211,11 +235,75 @@ plot(x = stats[, 1], y = stats[, 2], xlab = "Year", ylab = "Total population siz
 
 plot(x = stats[, 1], y = stats[, 3], xlab = "Year", ylab = "Number of Phenotypes", type = "l")
 
+# Trait divergence in adults and juveniles (2 plots)
 par(mfrow=c(2,1))
 
-pColors <- rgb(0.7, 0.1, 0.5, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
-plot(x = phenotypes[, 1], y = phenotypes[,3], col = pColors, xlab = "Year", ylab = "Adult trait")
-plot(x = phenotypes[, 1], y = phenotypes[,4], col = pColors, xlab = "Year", ylab = "Juvenile Trait")
+pColors <- rgb(0.5, 0.3, 0.7, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
+plot(x = phenotypes[, 1], y = phenotypes[,3], col = pColors, xlab = "Year", ylab = "Adult trait", pch = 16, family = "LM Roman 10", cex.lab = 1.5, cex.axis = 1.3, cex = 1.5)
+plot(x = phenotypes[, 1], y = phenotypes[,4], col = pColors, xlab = "Year", ylab = "Juvenile Trait", pch = 16, family = "LM Roman 10", cex.lab = 1.5, cex.axis = 1.3, cex = 1.5)
+
+# On same plot
+par(mfrow=c(1,1))
+AColors <- rgb(0.5, 0.3, 0.7, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
+JColors <- rgb(0.5, 0.7, 0.2, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
+plot(x = phenotypes[, 1], y = phenotypes[,3], col = AColors, xlab = "Year", ylab = "Adult trait", pch = 16, cex = 2)
+points(x = phenotypes[, 1], y = phenotypes[,4], col = JColors, xlab = "Year", ylab = "Juvenile Trait", pch = 16)
+
+# Prettification of plots -----------------------------------------------------
+
+# Creating data frame for easy plotting
+pheno_data <- data.frame(
+  Year = output$phenotypes[, 1],
+  Adult_Trait = output$phenotypes[, 3],
+  Juvenile_Trait = output$phenotypes[, 4],
+  Num_Individuals = output$phenotypes[, 2]
+)
+
+transparency <- pheno_data$Num_Individuals / max(pheno_data$Num_Individuals)
+
+# ------------- Trait divergence
+
+
+evoAdu <- ggplot(pheno_data, aes(x=Year, y=Adult_Trait)) + 
+                 geom_point(size = 3, alpha = transparency, color = rgb(0.5, 0.3, 0.7)) +
+                 xlab("Year") + ylab("Adult Trait") +
+                 theme(text=element_text(size=16,  family="LM Roman 10"))
+evoJuv <- ggplot(pheno_data, aes(x=Year, y=Juvenile_Trait)) + 
+                  geom_point(size = 3, alpha = transparency, color = rgb(0.7, 0.3, 0.5)) +
+                  xlab("Year") + ylab("Adult Trait") +
+                  theme(text=element_text(size=16,  family="LM Roman 10"))
+
+grid.arrange(evoAdu,evoJuv, nrow = 2, widths = c(1))
+
+
+# -----------------Scatter plot 
+
+last_year_data <- pheno_data %>% filter(Year == max(Year)) 
+color_palette <- mako(length(last_year_data$Adult_Trait))
+
+ggplot(last_year_data, aes(x = Adult_Trait, y = Juvenile_Trait)) +
+  geom_point(size = 5, color = color_palette) +                            # Add points
+  labs(x = "Adult Trait", y = "Juvenile Trait") +                                # Labels for the axes
+  theme(text=element_text(size=16,  family="LM Roman 10"))
+  
+
+# 3d plot try (not yet successfull) --------------------------------------------
+
+
+
+library(plotly)
+
+mycolors <- mako(n = nrow(phenotypes))
+
+plot <- plot_ly( x=~phenotypes[,3], y=~phenotypes[,4], z=~phenotypes[,1], type = 'scatter3d', mode = 'lines',
+       
+       line = list(width = 4, color = ~1:nrow(phenotypes), colorscale = "Viridis"))
+
+plot <- plot %>% layout(scene = list(zaxis = list(title = "Time"), xaxis = list(title = "Adult Trait"),yaxis = list(title = "Juvenile Trait")))
+plot
+
+
+
 
 
 # Add a legend to distinguish between patches
