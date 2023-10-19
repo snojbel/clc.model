@@ -305,6 +305,12 @@ plot
 
 #Test 2 s text oooh boo
 
+#TESSSSTINGGGGG
+#ADDING COMMENTS
+
+#Adding things that might conflict!
+
+#Fixing things
 
 # Add a legend to distinguish between patches
 #legend("topright", legend=c("Patch 1", "Patch 2"), col=c(rgb((1-0.9)*0.7,0.59,0.8, alpha =0.6), rgb((2-0.9)*0.7,0.59,0.8, alpha =0.6)), pch=19)
