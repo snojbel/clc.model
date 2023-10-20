@@ -16,18 +16,7 @@
                 # iniP(A/J) : initial phenotype of adult and juvenile(different)
                 # nmorphs   : Number of morphs in initial run
 
-pop <- matrix(data = NA, ncol = 4, nrow = 5)                             # Each column in this matrix is one phenotype combination.
 
-pop[,1] <- 20
-pop[,2] <- 1
-pop[,3] <- 1
-for (i in 1:5){
-  pop[i,4] <- runif(1)
-}
-
-test <- rowSums(pop)
-
-pop[,4] <- (test/(3+test))
 
 
 # Full function ----------------------------------------------------------------
@@ -217,15 +206,11 @@ phenotypes <- output$phenotypes
 
 
 # Plotting  -------------------------------------------------------------------
-library(viridisLite)
-library(viridis)
-library(ggplot2)
 library(extrafont)
-library(gridExtra)
 
-# font_import()  Only needed first time in R
-# loadfonts()
-# fonts() to check names of fonts
+#font_import()  #Only needed first time in R
+#loadfonts()
+#fonts() #to check names of fonts
 
 # Population size and number of phenotypes:
 par(mfrow=c(2,1))
@@ -253,7 +238,6 @@ points(x = phenotypes[, 1], y = phenotypes[,4], col = JColors, xlab = "Year", yl
 library(viridisLite)
 library(viridis)
 library(ggplot2)
-library(extrafont)
 library(gridExtra)
 
 
@@ -273,24 +257,28 @@ transparency <- pheno_data$Num_Individuals / max(pheno_data$Num_Individuals)
 evoAdu <- ggplot(pheno_data, aes(x=Year, y=Adult_Trait)) + 
                  geom_point(size = 3, alpha = transparency, color = rgb(0.5, 0.3, 0.7)) +
                  xlab("Year") + ylab("Adult Trait") +
-                 theme(text=element_text(size=16,  family="LM Roman 10"))
+                 theme_minimal(base_family = "LM Roman 10", base_size = 16)
+                 
+                 
+
 evoJuv <- ggplot(pheno_data, aes(x=Year, y=Juvenile_Trait)) + 
                   geom_point(size = 3, alpha = transparency, color = rgb(0.7, 0.3, 0.5)) +
-                  xlab("Year") + ylab("Adult Trait") +
-                  theme(text=element_text(size=16,  family="LM Roman 10"))
+                  xlab("Year") + ylab("Juvenile Trait") +
+                  theme_minimal(base_family = "LM Roman 10", base_size = 16) 
+                  
 
 grid.arrange(evoAdu,evoJuv, nrow = 2, widths = c(1))
 
 
 # -----------------Scatter plot 
 
-last_year_data <- pheno_data %>% filter(Year == max(Year)) 
+last_year_data <- pheno_data[pheno_data$Year == max(pheno_data$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
 
 ggplot(last_year_data, aes(x = Adult_Trait, y = Juvenile_Trait)) +
   geom_point(size = 5, color = color_palette) +                                  # Add points
   labs(x = "Adult Trait", y = "Juvenile Trait") +                                # Labels for the axes
-  theme(text=element_text(size=16,  family="LM Roman 10"))
+  theme_minimal(base_family = "LM Roman 10", base_size = 16)
   
 
 # 3d plot try (not yet successfull) --------------------------------------------
