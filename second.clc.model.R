@@ -250,6 +250,12 @@ plot(x = phenotypes[, 1], y = phenotypes[,3], col = AColors, xlab = "Year", ylab
 points(x = phenotypes[, 1], y = phenotypes[,4], col = JColors, xlab = "Year", ylab = "Juvenile Trait", pch = 16)
 
 # Prettification of plots -----------------------------------------------------
+library(viridisLite)
+library(viridis)
+library(ggplot2)
+library(extrafont)
+library(gridExtra)
+
 
 # Creating data frame for easy plotting
 pheno_data <- data.frame(
@@ -282,7 +288,7 @@ last_year_data <- pheno_data %>% filter(Year == max(Year))
 color_palette <- mako(length(last_year_data$Adult_Trait))
 
 ggplot(last_year_data, aes(x = Adult_Trait, y = Juvenile_Trait)) +
-  geom_point(size = 5, color = color_palette) +                            # Add points
+  geom_point(size = 5, color = color_palette) +                                  # Add points
   labs(x = "Adult Trait", y = "Juvenile Trait") +                                # Labels for the axes
   theme(text=element_text(size=16,  family="LM Roman 10"))
   
