@@ -18,7 +18,6 @@
 
 
 
-
 # Full function ----------------------------------------------------------------
 
 resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
@@ -50,17 +49,17 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       aduTrait <- adults[, 2]
       aduTraitMatrix <- matrix(data = rep(aduTrait, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(adults), byrow = T)
       
-      alphaA          <- exp(-((aduTraitMatrix-resPropAduMatrix)^2/(2*resGen[1,1])^2))                 # Calculation of individual alpha
-      adultSizeMatrix <- matrix(data = adults[,1], ncol = ncol(resProp), nrow = nrow(adults)) # Creation of a matrix with size of each type in the rows
-      alphaSizeA      <- alphaA*adultSizeMatrix                                                        # Creation of matrix that reflects both the trait but also number of individuals in type
-      alphaSumA       <- colSums(alphaSizeA)
+      alphaA           <- exp(-((aduTraitMatrix-resPropAduMatrix)^2/(2*resGen[1,1])^2))                 # Calculation of individual alpha
+      adultAbund       <- adults[,1]
+      adultAbundMatrix <- matrix(data = rep(adultAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(adults))  # Creation of a matrix with population size of each type in the rows
+      alphaAbundA       <- alphaA*adultAbundMatrix                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
+      alphaSumA        <- colSums(alphaAbundA)
       
-      alphaSumAduMatrix <- matrix(data = alphaSumA, ncol = ncol(resProp), nrow = nrow(adults), byrow = T)
-      resFreqAduMatrix  <- matrix(data = resProp[1,], ncol = ncol(resProp), nrow = nrow(adults), byrow = T)
+      RdivAlphaSumA     <- resFreq[1,]/alphaSumA
+      RdivAlphaSumATrans   <- matrix(data = RdivAlphaSumA)
       
-      fec <- resFreqAduMatrix*alphaA*(1/alphaSumAduMatrix)
-      combFec <- rowSums(fec)
-      adults[,4] <- fmax*(combFec/(kA+combFec)) 
+      Fec <- alphaA%*%RdivAlphaSumATrans
+      adults[,4] <- fmax*(Fec/(kA+Fec)) 
       
       # Spawning of offspring -------------------------------------------------
       
@@ -132,7 +131,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       alphaSumJ           <- colSums(alphaSizeJ)
         
       alphaSumJuvMatrix <- matrix(data = alphaSumJ, ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)
-      resFreqJuvMatrix  <- matrix(data = resProp[2,], ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)
+      resFreqJuvMatrix  <- matrix(data = resFreq[2,], ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)
       
       sur <- resFreqJuvMatrix*alphaJ*(1/alphaSumJuvMatrix)
       combSur <- rowSums(sur)
@@ -168,6 +167,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
 }
 
 
+
 # Initialization ----------------------------------------------------------------
                   
 resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1,   # res. freq. of adults (percentage)
@@ -176,8 +176,8 @@ resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1
 resource.property<- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
                       1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
 
-resource.abundance.adults     <- 100                    # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 100
+resource.abundance.adults     <- 1000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 1000
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
 
