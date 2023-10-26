@@ -37,7 +37,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
 
   
   for (t in 1:time.steps){
-    
+    print(paste0("loop", t, "works"))
     # Deterministic fecundity proxy alpha ------------------------------------
 
       adults     <- pop                                                            
@@ -52,15 +52,17 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       alphaA           <- exp(-((aduTraitMatrix-resPropAduMatrix)^2/(2*resGen[1,1])^2))                 # Calculation of individual alpha
       adultAbund       <- adults[,1]
       adultAbundMatrix <- matrix(data = rep(adultAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(adults))  # Creation of a matrix with population size of each type in the rows
-      alphaAbundA       <- alphaA*adultAbundMatrix                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
+      alphaAbundA      <- alphaA*adultAbundMatrix                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
       alphaSumA        <- colSums(alphaAbundA)
       
-      RdivAlphaSumA     <- resFreq[1,]/alphaSumA
-      RdivAlphaSumATrans   <- matrix(data = RdivAlphaSumA)
+      RdivAlphaSumA       <- resFreq[1,]/alphaSumA
+      RdivAlphaSumATrans  <- matrix(data = RdivAlphaSumA)
       
       Fec <- alphaA%*%RdivAlphaSumATrans
       adults[,4] <- fmax*(Fec/(kA+Fec)) 
-      
+      if (any(is.na(adults) == T)) {
+        print("NA!")
+      }
       # Spawning of offspring -------------------------------------------------
       
       juveniles <- adults                                                         # Create a matrix were we will add juveniles into
@@ -71,7 +73,9 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
         juveniles[i, 1] <- juv                                                    # States number of juveniles in 1 column
                                    
       }
-      
+      if (any(is.na(juveniles) == T)) {
+        print("NA1!")
+      }
       # Mutation of offspring -------------------------------------------------
       
       probs <- juveniles[,1]/sum(juveniles[, 1])  # Generates probability of morph being mutated based upon number of individuals.
@@ -112,36 +116,53 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
         
       }
       
-    
+      if (any(is.na(juveniles) == T)) {
+        print("NA mutation!")
+      }
       
       # Kill off offspring -----------------------------------------------------
       
       alphaSumJ <- NULL
       alphaJ    <- NULL
-      alphaSizaJ <- NULL
                                                                                   # Survival of juveniles also depends on resource availability
       resPropJuvMatrix <- matrix(data = resProp[2,], ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)
       juvTrait <- juveniles[,3]
       juvTraitMatrix <- matrix(data = rep(juvTrait, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)
-        
-      alphaJ     <- exp(-((juvTraitMatrix-resPropJuvMatrix)^2/ (2*resGen[2,1])^2))
-      juvenilesSizeMatrix <- matrix(data = juveniles[,1], ncol = ncol(resProp), nrow = nrow(juveniles)) # Creation of a matrix with size of each type in the rows
-      alphaSizeJ          <- alphaJ*juvenilesSizeMatrix                                                        # Creation of matrix that reflects both the trait but also number of individuals in type
-      alphaSumJ           <- colSums(alphaSizeJ)
-      alphaSumJ           <- colSums(alphaSizeJ)
-        
-      alphaSumJuvMatrix <- matrix(data = alphaSumJ, ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)
-      resFreqJuvMatrix  <- matrix(data = resFreq[2,], ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)
       
-      sur <- resFreqJuvMatrix*alphaJ*(1/alphaSumJuvMatrix)
-      combSur <- rowSums(sur)
-      juveniles[,4] <- (combSur/(kJ+combSur)) 
+      alphaJ            <- exp(-((juvTraitMatrix-resPropJuvMatrix)^2/(2*resGen[2,1])^2))
+      juvenAbund        <- juveniles[,1]
+      juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(juveniles))  # Creation of a matrix with population size of each type in the rows
+      alphaAbundJ       <- alphaJ*juvenAbundMatrix                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
+      alphaSumJ         <- colSums(alphaAbundJ)
+      
+      RdivAlphaSumJ     <- resFreq[2,]/alphaSumJ
+      RdivAlphaSumJTrans   <- matrix(data = RdivAlphaSumJ)
+      
+      if (any(is.na(RdivAlphaSumJTrans) == T)) {
+        print("NA 2!")
+      }
+ 
+      Sur <- alphaJ%*%RdivAlphaSumJTrans
+      juveniles[,4] <- (Sur/(kJ+Sur)) 
+      
+      if (any(is.na(juveniles) == T)) {
+        print("NA 2.5!")
+        print(juveniles)
+        print(RdivAlphaSumJTrans)
+        print(Sur)
+        print(Fec)
+        print(adults)
+        print(alphaJ)
+        print(alphaSumJ)
+        print(resFreq[2,])
+      }
       
       juveniles[,1] <- rbinom(n = nrow(juveniles) , size = juveniles[,1], prob = juveniles[,4])
     
-      
       pop <- juveniles[juveniles[, 1] != 0, , drop = FALSE]                        # all adults die after reproducing, so the new generation is only juveniles, and all rows with zero individuals are removed.
-    
+      if (any(is.na(pop) == T)) {
+        print("NA 3!")
+      }
     # extract stats and phenotype ---------------------------------------------
     
     if(nrow(pop) == 0){                                                          # Checks whether population has reached zero, then it breaks the for loop.                                   
