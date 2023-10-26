@@ -257,14 +257,14 @@ transparency <- pheno_data$Num_Individuals / max(pheno_data$Num_Individuals)
 evoAdu <- ggplot(pheno_data, aes(x=Year, y=Adult_Trait)) + 
                  geom_point(size = 3, alpha = transparency, color = rgb(0.5, 0.3, 0.7)) +
                  xlab("Year") + ylab("Adult Trait") +
-                 theme_minimal(base_family = "LM Roman 10", base_size = 16)
+                 theme_minimal(base_family = "LM Roman 10", base_size = 18)
                  
                  
 
 evoJuv <- ggplot(pheno_data, aes(x=Year, y=Juvenile_Trait)) + 
                   geom_point(size = 3, alpha = transparency, color = rgb(0.7, 0.3, 0.5)) +
                   xlab("Year") + ylab("Juvenile Trait") +
-                  theme_minimal(base_family = "LM Roman 10", base_size = 16) 
+                  theme_minimal(base_family = "LM Roman 10", base_size = 18) 
                   
 
 grid.arrange(evoAdu,evoJuv, nrow = 2, widths = c(1))
@@ -275,10 +275,10 @@ grid.arrange(evoAdu,evoJuv, nrow = 2, widths = c(1))
 last_year_data <- pheno_data[pheno_data$Year == max(pheno_data$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
 
-ggplot(last_year_data, aes(x = Adult_Trait, y = Juvenile_Trait)) +
+ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   geom_point(size = 5, color = color_palette) +                                  # Add points
-  labs(x = "Adult Trait", y = "Juvenile Trait") +                                # Labels for the axes
-  theme_minimal(base_family = "LM Roman 10", base_size = 16)
+  labs(x = "Juvenile Trait", y = "Adult Trait") +                                # Labels for the axes
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)
   
 
 # 3d plot try (not yet successfull) --------------------------------------------
