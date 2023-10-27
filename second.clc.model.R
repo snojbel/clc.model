@@ -32,7 +32,7 @@ library(gridExtra)    #For plotting side by side and more in ggplot
 
 # Full function ----------------------------------------------------------------
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 8, kA = 0.2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 8, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -71,9 +71,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
       
       Fec <- alphaA%*%RdivAlphaSumATrans
       adults[,4] <- fmax*(Fec/(kA+Fec)) 
-      if (any(is.na(adults) == T)) {
-        print("NA!")
-      }
+     
       # Spawning of offspring -------------------------------------------------
       
       juveniles <- adults                                                         # Create a matrix were we will add juveniles into
@@ -84,9 +82,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
         juveniles[i, 1] <- juv                                                    # States number of juveniles in 1 column
                                    
       }
-      if (any(is.na(juveniles) == T)) {
-        print("NA1!")
-      }
+      
       # Mutation of offspring -------------------------------------------------
       
       probs <- juveniles[,1]/sum(juveniles[, 1])  # Generates probability of morph being mutated based upon number of individuals.
@@ -127,8 +123,6 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
         
       }
       
-      if (any(is.na(juveniles) == T)) {
-        print("NA mutation!")
       }
       
       # Kill off offspring -----------------------------------------------------
@@ -149,9 +143,6 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
       RdivAlphaSumJ     <- resFreq[2,]/alphaSumJ
       RdivAlphaSumJTrans   <- matrix(data = RdivAlphaSumJ)
       
-      if (any(is.na(RdivAlphaSumJTrans) == T)) {
-        print("NA 2!")
-      }
  
       Sur <- alphaJ%*%RdivAlphaSumJTrans
       juveniles[,4] <- (Sur/(kJ+Sur)) 
@@ -190,15 +181,10 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
       juveniles[,1] <- rbinom(n = nrow(juveniles) , size = juveniles[,1], prob = juveniles[,4])
     
       pop <- juveniles[juveniles[, 1] != 0, , drop = FALSE]                        # all adults die after reproducing, so the new generation is only juveniles, and all rows with zero individuals are removed.
-      if (any(is.na(pop) == T)) {
-        print("NA 3!")
-      }
+     
     # extract stats and phenotype ---------------------------------------------
     
-    if(nrow(pop) == 0){                                                          # Checks whether population has reached zero, then it breaks the for loop.                                   
-      print("Population extinction")
-      break
-    }
+   
     
     stats <- rbind(stats, c(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]), 
                             mean(pop[,3]), var(pop[,3]))) 
@@ -227,8 +213,8 @@ resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1
 resource.property<- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
                       1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
 
-resource.abundance.adults     <- 10                              # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 10
+resource.abundance.adults     <- 1000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 1000
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
 
@@ -249,7 +235,7 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 30000)
 
 stats <- output$stats
 phenotypes <- output$phenotypes
@@ -298,14 +284,14 @@ transparency <- pheno_data$Num_Individuals / max(pheno_data$Num_Individuals)
 
 
 evoAdu <- ggplot(pheno_data, aes(x=Year, y=Adult_Trait)) + 
-                 geom_point(size = 3, alpha = transparency, color = rgb(0.5, 0.3, 0.7)) +
+                 geom_point(size = 2.5, alpha = transparency, color = rgb(0.13, 0.57, 0.55)) +
                  xlab("Year") + ylab("Adult Trait") +
                  theme_minimal(base_family = "LM Roman 10", base_size = 18)
                  
                  
 
 evoJuv <- ggplot(pheno_data, aes(x=Year, y=Juvenile_Trait)) + 
-                  geom_point(size = 3, alpha = transparency, color = rgb(0.7, 0.3, 0.5)) +
+                  geom_point(size = 2.5, alpha = transparency, color = rgb(0.27, 0.001, 0.33)) +
                   xlab("Year") + ylab("Juvenile Trait") +
                   theme_minimal(base_family = "LM Roman 10", base_size = 18) 
                   
@@ -319,8 +305,8 @@ last_year_data <- pheno_data[pheno_data$Year == max(pheno_data$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
 
 ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
-  geom_point(size = 5, color = color_palette) +                                  # Add points
-  labs(x = "Juvenile Trait", y = "Adult Trait") +                                # Labels for the axes
+  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
+  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                                # Labels for the axes
   theme_minimal(base_family = "LM Roman 10", base_size = 18)
   
 
