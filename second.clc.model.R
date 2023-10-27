@@ -16,11 +16,23 @@
                 # iniP(A/J) : initial phenotype of adult and juvenile(different)
                 # nmorphs   : Number of morphs in initial run
 
+# Libraries:
+library(extrafont)   #needed to add extra fonts
+#font_import()  #Only needed first time in R
+#loadfonts()
+#fonts() #to check names of fonts
+ 
+library(viridisLite)  # Color things
+library(viridis)
+library(ggplot2)      # Prettier plots
+library(gridExtra)    #For plotting side by side and more in ggplot
+
+
 
 
 # Full function ----------------------------------------------------------------
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 8, kA = 0.2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -37,7 +49,6 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
 
   
   for (t in 1:time.steps){
-    print(paste0("loop", t, "works"))
     # Deterministic fecundity proxy alpha ------------------------------------
 
       adults     <- pop                                                            
@@ -51,7 +62,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       
       alphaA           <- exp(-((aduTraitMatrix-resPropAduMatrix)^2/(2*resGen[1,1])^2))                 # Calculation of individual alpha
       adultAbund       <- adults[,1]
-      adultAbundMatrix <- matrix(data = rep(adultAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(adults))  # Creation of a matrix with population size of each type in the rows
+      adultAbundMatrix <- matrix(data = rep(adultAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(adults), byrow = T)  # Creation of a matrix with population size of each type in the rows
       alphaAbundA      <- alphaA*adultAbundMatrix                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
       alphaSumA        <- colSums(alphaAbundA)
       
@@ -129,9 +140,9 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       juvTrait <- juveniles[,3]
       juvTraitMatrix <- matrix(data = rep(juvTrait, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)
       
-      alphaJ            <- exp(-((juvTraitMatrix-resPropJuvMatrix)^2/(2*resGen[2,1])^2))
+      alphaJ            <- exp(-((juvTraitMatrix-resPropJuvMatrix)^2/(2*resGen[2,1]^2)))
       juvenAbund        <- juveniles[,1]
-      juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(juveniles))  # Creation of a matrix with population size of each type in the rows
+      juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)  # Creation of a matrix with population size of each type in the rows
       alphaAbundJ       <- alphaJ*juvenAbundMatrix                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
       alphaSumJ         <- colSums(alphaAbundJ)
       
@@ -145,16 +156,35 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       Sur <- alphaJ%*%RdivAlphaSumJTrans
       juveniles[,4] <- (Sur/(kJ+Sur)) 
       
-      if (any(is.na(juveniles) == T)) {
+      if (any(is.na(juveniles) == T)) {               # When to small a sigma is used alpha approaches zero, causing Rdivalphasum to approach infinity causing NAs
+        print(paste0("loop", t, "broke"))
         print("NA 2.5!")
+        print("Juveniles")
         print(juveniles)
+        print("R div alphasum")
         print(RdivAlphaSumJTrans)
+        print("Sur")
         print(Sur)
+        print("Fec")
         print(Fec)
+        print("adults")
         print(adults)
+        print("alphaJ")
         print(alphaJ)
+        print("alphasumJ")
         print(alphaSumJ)
-        print(resFreq[2,])
+        print("alpha A")
+        print(alphaA)
+        print("alphasumA")
+        print(alphaSumA)
+        print("Abundance x alphaJ")
+        print(alphaAbundJ)
+        print("juvenAbundMatrix")
+        print(juvenAbundMatrix)
+        print("Juv trait matrix")
+        print(juvTraitMatrix)
+        print("respropjuvtraitmatrix")
+        print(resPropJuvMatrix)
       }
       
       juveniles[,1] <- rbinom(n = nrow(juveniles) , size = juveniles[,1], prob = juveniles[,4])
@@ -197,8 +227,8 @@ resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1
 resource.property<- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
                       1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
 
-resource.abundance.adults     <- 1000                              # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 1000
+resource.abundance.adults     <- 10                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 10
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
 
@@ -227,11 +257,7 @@ phenotypes <- output$phenotypes
 
 
 # Plotting  -------------------------------------------------------------------
-library(extrafont)
 
-#font_import()  #Only needed first time in R
-#loadfonts()
-#fonts() #to check names of fonts
 
 # Population size and number of phenotypes:
 par(mfrow=c(2,1))
@@ -256,10 +282,6 @@ plot(x = phenotypes[, 1], y = phenotypes[,3], col = AColors, xlab = "Year", ylab
 points(x = phenotypes[, 1], y = phenotypes[,4], col = JColors, xlab = "Year", ylab = "Juvenile Trait", pch = 16)
 
 # Prettification of plots -----------------------------------------------------
-library(viridisLite)
-library(viridis)
-library(ggplot2)
-library(gridExtra)
 
 
 # Creating data frame for easy plotting

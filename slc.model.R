@@ -16,7 +16,7 @@ colnames(pop) <- c("Number of indivduals", "Trait", "Proxy")
 
 # Full function ----------------------------------------------------------------
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), 
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), 
                                 fmax = 10, kA = 2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=4, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
@@ -132,6 +132,8 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0
       det.sur <- sur/(kJ+sur)                                                   # this is to create a saturating function, survival can never be over 1 higher kJ means flatter curve
       juveniles[i,1] <- rbinom(n = 1 , size = juveniles[i,1], prob = det.sur)   # sees how many survive given their det. survival.
     }
+  
+    
     
     pop <- juveniles[juveniles[, 1] != 0, , drop = FALSE]                        # all adults die after reproducing, so the new generation is only juveniles, and all rows with zero individuals are removed.
     
@@ -153,6 +155,20 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0
   #return output  ------------------------------------------------------------
   colnames(stats) <- c("year", "population size", "Number of morphs", "mean trait", "var trait")
   rownames(phenotypes) <- NULL
+  print("Juveniles")
+  print(juveniles)
+  print("adults")
+  print(adults)
+  print("alphaJ")
+  print(alphaJ)
+  print("alphasumJ")
+  print(alphaSumJ)
+  print("alpha A")
+  print(alphaA)
+  print("alphasumA")
+  print(alphaSumA)
+  
+  
   return(list(stats=stats, phenotypes=phenotypes))                                 #returns both the stats and the phenotype
   
   
