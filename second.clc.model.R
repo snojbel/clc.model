@@ -20,15 +20,23 @@
 library(Rmpfr)
 library(extrafont)   #needed to add extra fonts
 #font_import()  #Only needed first time in R
-#loadfonts()
-#fonts() #to check names of fonts
+loadfonts()
+fonts() #to check names of fonts
  
 library(viridisLite)  # Color things
 library(viridis)
 library(ggplot2)      # Prettier plots
 library(gridExtra)    #For plotting side by side and more in ggplot
 
+mpfr
+one <- mpfr(800, 500)
+one <- exp(-750)
+mpfr(exp(-750), 1000)
 
+a <- mpfr(exp(-700), precBits=64)
+a
+a <- mpfr(exp((-(((1-10)^2)/(2*0.1)^2))/100), precBits=64)
+a^100
 
 
 # Full function ----------------------------------------------------------------
