@@ -20,8 +20,8 @@
 library(Rmpfr)
 library(extrafont)   #needed to add extra fonts
 #font_import()  #Only needed first time in R
-loadfonts()
-fonts() #to check names of fonts
+#loadfonts()
+#fonts() #to check names of fonts
  
 library(viridisLite)  # Color things
 library(viridis)
@@ -31,17 +31,19 @@ library(gridExtra)    #For plotting side by side and more in ggplot
 mpfr
 one <- mpfr(800, 500)
 one <- exp(-750)
-mpfr(exp(-750), 1000)
+exp(-750)+epsilon
 
 a <- mpfr(exp(-700), precBits=64)
 a
 a <- mpfr(exp((-(((1-10)^2)/(2*0.1)^2))/100), precBits=64)
 a^100
 
+epsilon <- .Machine$double.eps
+epsilon
 
 # Full function ----------------------------------------------------------------
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 8, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -69,10 +71,10 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       aduTrait <- adults[, 2]
       aduTraitMatrix <- matrix(data = rep(aduTrait, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(adults), byrow = T)
       
-      alphaA           <- exp(-(((aduTraitMatrix-resPropAduMatrix)^2)/(2*resGen[1,1])^2)/100)                 # Calculation of individual alpha
-      adultAbund       <- adults[,1]^(1/100)
+      alphaA           <- exp(-(((aduTraitMatrix-resPropAduMatrix)^2)/(2*resGen[1,1])^2))                 # Calculation of individual alpha
+      adultAbund       <- adults[,1]
       adultAbundMatrix <- matrix(data = rep(adultAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(adults), byrow = T)  # Creation of a matrix with population size of each type in the rows
-      alphaSumA        <- colSums((alphaA*adultAbundMatrix)^100)                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
+      alphaSumA        <- colSums((alphaA*adultAbundMatrix))                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
      
       
       RdivAlphaSumA       <- resFreq[1,]/alphaSumA
@@ -143,11 +145,11 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       juvTrait <- juveniles[,3]
       juvTraitMatrix <- matrix(data = rep(juvTrait, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)
       
-      alphaJ            <- exp(-(((juvTraitMatrix-resPropJuvMatrix)^2)/(2*resGen[2,1]^2))/100)
-      juvenAbund        <- juveniles[,1]^(1/100)
+      alphaJ            <- exp(-(((juvTraitMatrix-resPropJuvMatrix)^2)/(2*resGen[2,1]^2)))
+      juvenAbund        <- juveniles[,1]
       juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)  # Creation of a matrix with population size of each type in the rows
-      alphaAbundJ       <- (alphaJ*juvenAbundMatrix)^100                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
-      alphaSumJ         <- colSums(alphaAbundJ)
+      alphaSumJ         <- colSums(alphaJ*juvenAbundMatrix)                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
+     
       
       RdivAlphaSumJ     <- resFreq[2,]/alphaSumJ
       RdivAlphaSumJTrans   <- matrix(data = RdivAlphaSumJ)
@@ -177,8 +179,6 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
         print(alphaA)
         print("alphasumA")
         print(alphaSumA)
-        print("Abundance x alphaJ")
-        print(alphaAbundJ)
         print("juvenAbundMatrix")
         print(juvenAbundMatrix)
         print("Juv trait matrix")
@@ -244,7 +244,7 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 100, mutProb=0.0005, mutVar=0.05, time.steps = 1000)
+output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
 
 stats <- output$stats
 phenotypes <- output$phenotypes
