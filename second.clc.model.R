@@ -17,7 +17,6 @@
                 # nmorphs   : Number of morphs in initial run
 
 # Libraries:
-library(Rmpfr)
 library(extrafont)   #needed to add extra fonts
 #font_import()  #Only needed first time in R
 #loadfonts()
@@ -28,19 +27,6 @@ library(viridis)
 library(ggplot2)      # Prettier plots
 library(gridExtra)    #For plotting side by side and more in ggplot
 
-mpfr
-one <- mpfr(800, 500)
-one <- exp(-750)
-exp(-750)+epsilon
-
-a <- mpfr(exp(-700), precBits=64)
-a
-a <- mpfr(exp((-(((1-10)^2)/(2*0.1)^2))/100), precBits=64)
-a^100
-
-epsilon <- .Machine$double.eps^(10)
-epsilon
-1/epsilon
 
 # Full function ----------------------------------------------------------------
 
