@@ -162,7 +162,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
         print("Juveniles")
         print(juveniles)
         print("R div alphasum")
-        print(RdivAlphaSumJTrans)
+        print(RdivAlphaSumATrans)
         print("Sur")
         print(Sur)
         print("Fec")
