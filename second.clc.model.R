@@ -30,7 +30,7 @@ library(gridExtra)    #For plotting side by side and more in ggplot
 
 # Full function ----------------------------------------------------------------
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -146,34 +146,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       Sur <- alphaJ%*%RdivAlphaSumJTrans
       juveniles[,4] <- (Sur/(kJ+Sur)) 
       
-      if (any(is.na(juveniles) == T)) {               # When to small a sigma is used alpha approaches zero, causing Rdivalphasum to approach infinity causing NAs
-        print(paste0("loop", t, "broke"))
-        print("NA 2.5!")
-        print("Juveniles")
-        print(juveniles)
-        print("R div alphasum")
-        print(RdivAlphaSumATrans)
-        print("Sur")
-        print(Sur)
-        print("Fec")
-        print(Fec)
-        print("adults")
-        print(adults)
-        print("alphaJ")
-        print(alphaJ)
-        print("alphasumJ")
-        print(alphaSumJ)
-        print("alpha A")
-        print(alphaA)
-        print("alphasumA")
-        print(alphaSumA)
-        print("juvenAbundMatrix")
-        print(juvenAbundMatrix)
-        print("Juv trait matrix")
-        print(juvTraitMatrix)
-        print("respropjuvtraitmatrix")
-        print(resPropJuvMatrix)
-      }
+
       
       juveniles[,1] <- rbinom(n = nrow(juveniles) , size = juveniles[,1], prob = juveniles[,4])
     
@@ -210,8 +183,8 @@ resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1
 resource.property<- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
                       1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
 
-resource.abundance.adults     <- 1000                              # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 1000
+resource.abundance.adults     <- 15000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 15000
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
 
