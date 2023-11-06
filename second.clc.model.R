@@ -15,6 +15,7 @@
                 # time.steps: how long the function runs e.g. years
                 # iniP(A/J) : initial phenotype of adult and juvenile(different)
                 # nmorphs   : Number of morphs in initial run
+                # im        : Chance of an immigrant appearing
 
 # Libraries:
 library(extrafont)   #needed to add extra fonts
@@ -28,9 +29,11 @@ library(ggplot2)      # Prettier plots
 library(gridExtra)    #For plotting side by side and more in ggplot
 
 
+
+
 # Full function ----------------------------------------------------------------
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=6, iniPJ=6, nmorphs = 1){
+resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=5, iniPJ=5, nmorphs = 1, im = 0){
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -46,6 +49,9 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Adult trait", "Juvenile trait")                                        
   
   epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
+  possAtrait <- seq(from = min(resProp[1,]), to = max(resProp[1,]), by = mutVar)  # Used when generating immigrants
+  possJtrait <- seq(from = min(resProp[2,]), to = max(resProp[2,]), by = mutVar)
+      
   
   for (t in 1:time.steps){
     # Deterministic fecundity proxy alpha ------------------------------------
@@ -146,39 +152,30 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       Sur <- alphaJ%*%RdivAlphaSumJTrans
       juveniles[,4] <- (Sur/(kJ+Sur)) 
       
-      if (any(is.na(juveniles) == T)) {               # When to small a sigma is used alpha approaches zero, causing Rdivalphasum to approach infinity causing NAs
-        print(paste0("loop", t, "broke"))
-        print("NA 2.5!")
-        print("Juveniles")
-        print(juveniles)
-        print("R div alphasum")
-        print(RdivAlphaSumATrans)
-        print("Sur")
-        print(Sur)
-        print("Fec")
-        print(Fec)
-        print("adults")
-        print(adults)
-        print("alphaJ")
-        print(alphaJ)
-        print("alphasumJ")
-        print(alphaSumJ)
-        print("alpha A")
-        print(alphaA)
-        print("alphasumA")
-        print(alphaSumA)
-        print("juvenAbundMatrix")
-        print(juvenAbundMatrix)
-        print("Juv trait matrix")
-        print(juvTraitMatrix)
-        print("respropjuvtraitmatrix")
-        print(resPropJuvMatrix)
-      }
+  
       
       juveniles[,1] <- rbinom(n = nrow(juveniles) , size = juveniles[,1], prob = juveniles[,4])
     
       pop <- juveniles[juveniles[, 1] != 0, , drop = FALSE]                        # all adults die after reproducing, so the new generation is only juveniles, and all rows with zero individuals are removed.
      
+      # Adding immigrants ---------------------------------------------------------------------
+      
+      #if (runif(1) < im){
+        
+       # Atrait <- sample(x = possAtrait, size = 1)
+       # Jtrait <- sample(x = possJtrait, size = 1)
+        
+      #  if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks wheter a exact match of immigrant already exists
+       #   rbind(pop, c(1, Atrait, Jtrait, NA))
+       # } else{
+       #   same <- which(pop[,2] == Atrait & pop[,3] == Jtrait)
+       #   pop[same,1] <- pop[same,1]+1
+       # }
+        
+     # }
+      
+
+      
     # extract stats and phenotype ---------------------------------------------
     
    
@@ -210,8 +207,8 @@ resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1
 resource.property<- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
                       1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
 
-resource.abundance.adults     <- 1000                              # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 1000
+resource.abundance.adults     <- 15000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 15000
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
 
@@ -222,13 +219,11 @@ rownames(resFreqMatrix) <- c("Adult", "Juvenile")
 colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
 
 
-
 resPropMatrix <- matrix(resource.property, nrow=2, ncol=10, byrow = TRUE) 
+
 
 rownames(resPropMatrix)<-c("Adult", "Juvenile")
 colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
-
-
 
 
 
