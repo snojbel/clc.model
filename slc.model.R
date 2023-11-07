@@ -6,7 +6,7 @@
 # Full function ----------------------------------------------------------------
 
 resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), im = 0.001, 
-                                fmax = 10, kA = 2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=4, nmorphs = 1){
+                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=5, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -167,10 +167,10 @@ resource.property <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)             # res. propert
 abundance <- 15000
 resource.abundance <- abundance*resource.frequency
 
-output <- resourceCompetition(resProp=resource.property, resFreq=resource.abundance, popSize = 10, mutProb=0.001, mutVar=0.05, time.steps = 10000)
+outputSLC <- resourceCompetitionSLC(resProp=resource.prop, resFreq=resource.abundance, popSize = 10, mutProb=0.001, mutVar=0.05, time.steps = 10000)
 
-stats <- output$stats
-phenotypes <- output$phenotypes
+statsSLC <- outputSLC$stats
+phenotypesSLC <- outputSLC$phenotypes
 
 
 
@@ -179,13 +179,13 @@ phenotypes <- output$phenotypes
 par(mfrow=c(2,1))
 
 
-plot(x = stats[, 1], y = stats[, 2], xlab = "Year", ylab = "Total population size", type = "l")
+plot(x = statsSLC[, 1], y = statsSLC[, 2], xlab = "Year", ylab = "Total population size", type = "l")
 
-plot(x = stats[, 1], y = stats[, 3], xlab = "Year", ylab = "Number of Phenotypes", type = "l")
+plot(x = statsSLC[, 1], y = statsSLC[, 3], xlab = "Year", ylab = "Number of Phenotypes", type = "l")
 
 par(mfrow=c(1,1))
 
-pColors <- rgb(0.7, 0.1, 0.5, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
-plot(x = phenotypes[, 1], y = phenotypes[,3], col = pColors, ylab = "Trait", xlab = "Time", pch = 16)
+pColors <- rgb(0.7, 0.1, 0.5, alpha = (phenotypesSLC[,2]/(100+phenotypesSLC[,2])))
+plot(x = phenotypesSLC[, 1], y = phenotypesSLC[,3], col = pColors, ylab = "Trait", xlab = "Time", pch = 16)
 
 

@@ -28,19 +28,12 @@ library(viridis)
 library(ggplot2)      # Prettier plots
 library(gridExtra)    #For plotting side by side and more in ggplot
 
-pop <- matrix(data = NA, ncol = 4, nrow = 4)                             # Each column in this matrix is one phenotype combination.
 
-pop[,1] <- 4
-pop[,2] <- 4
-pop[,3] <- 3
-pop[,4] <- c(1, 2, 3, 4)
-
-pop[,1] <- rpois(n = nrow(pop), lambda = pop[,1]*pop[,4]) 
-offspring
 # Full function ----------------------------------------------------------------
 
 
-resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=5, iniPJ=5, nmorphs = 1, im = 0){
+resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 2, kA = 0.5, kJ = 0.5, 
+                                   mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=5, iniPJ=5, nmorphs = 1, im = 0){
 
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
@@ -233,10 +226,10 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-output <- resourceCompetition(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
 
-stats <- output$stats
-phenotypes <- output$phenotypes
+statsCLC <- outputCLC$stats
+phenotypesCLC <- outputCLC$phenotypes
 
 
 
@@ -247,48 +240,48 @@ phenotypes <- output$phenotypes
 par(mfrow=c(2,1))
 
 
-plot(x = stats[, 1], y = stats[, 2], xlab = "Year", ylab = "Total population size", type = "l")
+plot(x = statsCLC[, 1], y = statsCLC[, 2], xlab = "Year", ylab = "Total population size", type = "l")
 
-plot(x = stats[, 1], y = stats[, 3], xlab = "Year", ylab = "Number of Phenotypes", type = "l")
+plot(x = statsCLC[, 1], y = statsCLC[, 3], xlab = "Year", ylab = "Number of Phenotypes", type = "l")
 
 # Trait divergence in adults and juveniles (2 plots)
 par(mfrow=c(2,1))
 
-pColors <- rgb(0.5, 0.3, 0.7, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
-plot(x = phenotypes[, 1], y = phenotypes[,3], col = pColors, xlab = "Year", ylab = "Adult trait", pch = 16, family = "LM Roman 10", cex.lab = 1.5, cex.axis = 1.3, cex = 1.5)
-plot(x = phenotypes[, 1], y = phenotypes[,4], col = pColors, xlab = "Year", ylab = "Juvenile Trait", pch = 16, family = "LM Roman 10", cex.lab = 1.5, cex.axis = 1.3, cex = 1.5)
+pColors <- rgb(0.5, 0.3, 0.7, alpha = (phenotypesCLC[,2]/(100+phenotypesCLC[,2])))
+plot(x = phenotypesCLC[, 1], y = phenotypesCLC[,3], col = pColors, xlab = "Year", ylab = "Adult trait", pch = 16, family = "LM Roman 10", cex.lab = 1.5, cex.axis = 1.3, cex = 1.5)
+plot(x = phenotypesCLC[, 1], y = phenotypesCLC[,4], col = pColors, xlab = "Year", ylab = "Juvenile Trait", pch = 16, family = "LM Roman 10", cex.lab = 1.5, cex.axis = 1.3, cex = 1.5)
 
 # On same plot
 par(mfrow=c(1,1))
-AColors <- rgb(0.5, 0.3, 0.7, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
-JColors <- rgb(0.5, 0.7, 0.2, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
-plot(x = phenotypes[, 1], y = phenotypes[,3], col = AColors, xlab = "Year", ylab = "Adult trait", pch = 16, cex = 2)
-points(x = phenotypes[, 1], y = phenotypes[,4], col = JColors, xlab = "Year", ylab = "Juvenile Trait", pch = 16)
+AColors <- rgb(0.5, 0.3, 0.7, alpha = (phenotypesCLC[,2]/(100+phenotypesCLC[,2])))
+JColors <- rgb(0.5, 0.7, 0.2, alpha = (phenotypesCLC[,2]/(100+phenotypesCLC[,2])))
+plot(x = phenotypesCLC[, 1], y = phenotypesCLC[,3], col = AColors, xlab = "Year", ylab = "Adult trait", pch = 16, cex = 2)
+points(x = phenotypesCLC[, 1], y = phenotypesCLC[,4], col = JColors, xlab = "Year", ylab = "Juvenile Trait", pch = 16)
 
 # Prettification of plots -----------------------------------------------------
 
 
 # Creating data frame for easy plotting
-pheno_data <- data.frame(
-  Year = output$phenotypes[, 1],
-  Adult_Trait = output$phenotypes[, 3],
-  Juvenile_Trait = output$phenotypes[, 4],
-  Num_Individuals = output$phenotypes[, 2]
+phenodataCLC <- data.frame(
+  Year = outputCLC$phenotypes[, 1],
+  Adult_Trait = outputCLC$phenotypes[, 3],
+  Juvenile_Trait = outputCLC$phenotypes[, 4],
+  Num_Individuals = outputCLC$phenotypes[, 2]
 )
 
-transparency <- pheno_data$Num_Individuals / max(pheno_data$Num_Individuals)
+transparency <- phenodataCLC$Num_Individuals / max(phenodataCLC$Num_Individuals)
 
 # ------------- Trait divergence
 
 
-evoAdu <- ggplot(pheno_data, aes(x=Year, y=Adult_Trait)) + 
+evoAdu <- ggplot(phenodataCLC, aes(x=Year, y=Adult_Trait)) + 
                  geom_point(size = 2.5, alpha = transparency, color = rgb(0.13, 0.57, 0.55)) +
                  xlab("Year") + ylab("Adult Trait") +
                  theme_minimal(base_family = "LM Roman 10", base_size = 18)
                  
                  
 
-evoJuv <- ggplot(pheno_data, aes(x=Year, y=Juvenile_Trait)) + 
+evoJuv <- ggplot(phenodataCLC, aes(x=Year, y=Juvenile_Trait)) + 
                   geom_point(size = 2.5, alpha = transparency, color = rgb(0.27, 0.001, 0.33)) +
                   xlab("Year") + ylab("Juvenile Trait") +
                   theme_minimal(base_family = "LM Roman 10", base_size = 18) 
@@ -299,7 +292,7 @@ grid.arrange(evoAdu,evoJuv, nrow = 2, widths = c(1))
 
 # -----------------Scatter plot 
 
-last_year_data <- pheno_data[pheno_data$Year == max(pheno_data$Year), ]
+last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
 
 ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
