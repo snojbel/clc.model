@@ -1,22 +1,11 @@
 
 # Biggest difference in this version is that there is only one trait and adults and juvenile share a resource
 
-popSize <- 15                                                                   # As defined below of each morph!
-iniP   <- 4
-nmorphs <- 1
-
-pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
-
-pop[,1] <- popSize
-pop[,2] <- iniP
-
-colnames(pop) <- c("Number of indivduals", "Trait", "Proxy")
-
 
 
 # Full function ----------------------------------------------------------------
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), 
+resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), im = 0.001, 
                                 fmax = 10, kA = 2, kJ = 0.2, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=4, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
@@ -32,6 +21,8 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
   phenotypes <- matrix(data = c(0, popSize, iniP), nrow = 1, ncol = 3)
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Trait")                                        
   
+  epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
+  posstrait <- seq(from = min(resProp), to = max(resProp), by = mutVar)
   
   for (t in 1:time.steps){
     
@@ -41,39 +32,31 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
     alphaA    <- NULL                                                           # Will create a matrix with all alpha values
     alphaSumA <- NULL
     
-    for(r in 1:length(resProp)){                                                  # Loops through each resource to compute 
-      
-      rp <- resProp[r]                                                            # Resource property 
-      
-      alpha     <- exp(-(adults[, 2]-rp)^2/ (2*resGen[1,1])^2 )                 # Compute  alphas for all adults, if different generalities for stages want to be added modify resGen
-      alphaA    <- cbind(alphaA, alpha)                                         # Store alphas for all resources for all morphs
-      alphaSumA <- c(alphaSumA, sum(alpha*adults[,1]))                          # Store the sum of all alphas for each resource
-      
-    }
     
-    for(i in 1:nrow(adults)){
-      
-      fec <- 0
-      for(r in 1:length(resProp)){                                              # Goes through each resource and calculates source specific  
-                                                                                # fecundity and then adds them together to create the total fec..
-        R  <- resFreq[r]
-        fec <- fec + R * (alphaA[i,r]/alphaSumA[r])                             # Total fecundity is the sum of fecundities gained 
-                                                                                # from all the different resources. Which is derived
-      }                                                                         # both the ability to consume a resource, alphaA, and the 
-      adults[i,3] <- fmax * (fec/(kA+fec))                                      # the total ability of all individuals to consume 
-                                                                                # resource, alphaSumA. R = resource available
-    }
+    resPropAduMatrix <- matrix(data = resProp, ncol = length(resProp), nrow = nrow(adults), byrow = T)
+    aduTrait <- adults[, 2]
+    aduTraitMatrix <- matrix(data = rep(aduTrait, each = length(resProp)), ncol = length(resProp), nrow = nrow(adults), byrow = T)
+    
+    alphaA           <- exp(-(((aduTraitMatrix-resPropAduMatrix)^2)/(2*resGen[1,1])^2)) + epsilon                 # Calculation of individual alpha
+    adultAbund       <- adults[,1]
+    adultAbundMatrix <- matrix(data = rep(adultAbund, each = length(resProp)), ncol = length(resProp), nrow = nrow(adults), byrow = T)  # Creation of a matrix with population size of each type in the rows
+    alphaSumA        <- colSums((alphaA*adultAbundMatrix))                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
+    
+    
+    RdivAlphaSumA       <- resFreq/alphaSumA
+    RdivAlphaSumATrans  <- matrix(data = RdivAlphaSumA)
+    
+    Fec <- alphaA%*%RdivAlphaSumATrans
+    adults[,3] <- fmax*(Fec/(kA+Fec)) 
+    
+    
     
     # Spawning of offspring -------------------------------------------------
     
     juveniles <- adults                                                         # Create a matrix were we will add juveniles into
+                                                      
     
-    for(i in 1:nrow(juveniles)) {
-      
-      juv             <- rpois(n = 1, lambda = adults[i,1] * adults[i,3])       # This calculates the number of juveniles based on a possion distribution. 
-      juveniles[i, 1] <- juv                                                    # States number of juveniles in 1 column
-      
-    }
+    juveniles[,1] <- rpois(n = nrow(juveniles), lambda = juveniles[,1]*juveniles[,3]) 
     
     # Mutation of offspring -------------------------------------------------
     
@@ -106,36 +89,50 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
     
     # Kill off offspring -----------------------------------------------------
     
+  
     alphaSumJ <- NULL
     alphaJ    <- NULL
+   
+    resPropJuvMatrix <- matrix(data = resProp, ncol = length(resProp), nrow = nrow(juveniles), byrow = T)
+    juvTrait <- juveniles[,2]
+    juvTraitMatrix <- matrix(data = rep(juvTrait, each = length(resProp)), ncol = length(resProp), nrow = nrow(juveniles), byrow = T)
     
-    for(r in 1:length(resProp)){                                                  # Survival of juveniles also depends on resource availability.
-      
-      rp <- resProp[r] 
-      
-      alpha     <- exp(-(juveniles[,2]-rp)^2/ (2*resGen[2,1])^2 )
-      alphaJ    <- cbind(alphaJ, alpha)
-      alphaSumJ <- c(alphaSumJ, sum(alpha) )
-      
-    }
+    alphaJ            <- exp(-(((juvTraitMatrix-resPropJuvMatrix)^2)/(2*resGen[2,1]^2))) + epsilon
+    juvenAbund        <- juveniles[,1]
+    juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = length(resProp)), ncol = length(resProp), nrow = nrow(juveniles), byrow = T)  # Creation of a matrix with population size of each type in the rows
+    alphaSumJ         <- colSums(alphaJ*juvenAbundMatrix)                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
     
-    for(i in 1:nrow(juveniles)){
-      
-      sur <- 0
-      for(r in 1:length(resProp)){                                                # Goes through each resource and calculates source specific  
-                                                                                # survival and then adds them together to create the total sur
-        R  <- resFreq[r]
-        sur <- sur + R * (alphaJ[i,r]/alphaSumJ[r])                             
-        
-      }                                                                         
-      
-      det.sur <- sur/(kJ+sur)                                                   # this is to create a saturating function, survival can never be over 1 higher kJ means flatter curve
-      juveniles[i,1] <- rbinom(n = 1 , size = juveniles[i,1], prob = det.sur)   # sees how many survive given their det. survival.
-    }
-  
+    
+    RdivAlphaSumJ     <- resFreq/alphaSumJ
+    RdivAlphaSumJTrans   <- matrix(data = RdivAlphaSumJ)
+    
+    
+    Sur <- alphaJ%*%RdivAlphaSumJTrans
+    juveniles[,3] <- (Sur/(kJ+Sur)) 
+    
+    
+    
+    
+    juveniles[,1] <- rbinom(n = nrow(juveniles) , size = juveniles[,1], prob = juveniles[,3])
     
     
     pop <- juveniles[juveniles[, 1] != 0, , drop = FALSE]                        # all adults die after reproducing, so the new generation is only juveniles, and all rows with zero individuals are removed.
+    
+    # Adding immigrants ---------------------------------------------------------------------
+    
+    #if (runif(1) < im){
+    
+    # trait <- sample(x = posstrait, size = 1)
+    
+    #  if(sum(pop[,2] == trait) == 0) {                   # Checks wheter a exact match of immigrant already exists
+    #   rbind(pop, c(1, trait, NA))
+    # } else{
+    #   same <- which(pop[,2] == trait)
+    #   pop[same,1] <- pop[same,1]+1
+    # }
+    
+    # }
+    
     
     # extract stats and phenotype ---------------------------------------------
     
@@ -155,19 +152,7 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
   #return output  ------------------------------------------------------------
   colnames(stats) <- c("year", "population size", "Number of morphs", "mean trait", "var trait")
   rownames(phenotypes) <- NULL
-  print("Juveniles")
-  print(juveniles)
-  print("adults")
-  print(adults)
-  print("alphaJ")
-  print(alphaJ)
-  print("alphasumJ")
-  print(alphaSumJ)
-  print("alpha A")
-  print(alphaA)
-  print("alphasumA")
-  print(alphaSumA)
-  
+
   
   return(list(stats=stats, phenotypes=phenotypes))                                 #returns both the stats and the phenotype
   
@@ -177,12 +162,12 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,
 
 
 
-resource.frequency <- c(100, 20, 20, 10, 50)           # res. freq. 
-resource.property <- c(1, 3, 4, 5, 10)             # res. property 
+resource.frequency <- c(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1)           # res. freq. 
+resource.property <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)             # res. property 
+abundance <- 15000
+resource.abundance <- abundance*resource.frequency
 
-
-
-output <- resourceCompetition(resProp=resource.property, resFreq=resource.frequency, popSize = 10, mutProb=0.001, mutVar=0.05, time.steps = 500)
+output <- resourceCompetition(resProp=resource.property, resFreq=resource.abundance, popSize = 10, mutProb=0.001, mutVar=0.05, time.steps = 10000)
 
 stats <- output$stats
 phenotypes <- output$phenotypes
@@ -198,7 +183,7 @@ plot(x = stats[, 1], y = stats[, 2], xlab = "Year", ylab = "Total population siz
 
 plot(x = stats[, 1], y = stats[, 3], xlab = "Year", ylab = "Number of Phenotypes", type = "l")
 
-par(mfrow=c(2,1))
+par(mfrow=c(1,1))
 
 pColors <- rgb(0.7, 0.1, 0.5, alpha = (phenotypes[,2]/(100+phenotypes[,2])))
 plot(x = phenotypes[, 1], y = phenotypes[,3], col = pColors, ylab = "Trait", xlab = "Time", pch = 16)

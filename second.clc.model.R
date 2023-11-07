@@ -28,13 +28,19 @@ library(viridis)
 library(ggplot2)      # Prettier plots
 library(gridExtra)    #For plotting side by side and more in ggplot
 
+pop <- matrix(data = NA, ncol = 4, nrow = 4)                             # Each column in this matrix is one phenotype combination.
 
+pop[,1] <- 4
+pop[,2] <- 4
+pop[,3] <- 3
+pop[,4] <- c(1, 2, 3, 4)
 
-
+pop[,1] <- rpois(n = nrow(pop), lambda = pop[,1]*pop[,4]) 
+offspring
 # Full function ----------------------------------------------------------------
 
 
-resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=5, iniPJ=5, nmorphs = 1, im = 0){
+resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 8, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=5, iniPJ=5, nmorphs = 1, im = 0){
 
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
@@ -83,12 +89,9 @@ resourceCompetition <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0
       
       juveniles <- adults                                                         # Create a matrix were we will add juveniles into
       
-      for(i in 1:nrow(juveniles)) {
-        
-        juv             <- rpois(n = 1, lambda = adults[i,1] * adults[i,4])      # This calculates the number of juveniles based on a possion distribution. 
-        juveniles[i, 1] <- juv                                                    # States number of juveniles in 1 column
-                                   
-      }
+      
+      juveniles[,1] <- rpois(n = nrow(juveniles), lambda = juveniles[,1]*juveniles[,4]) 
+  
       
       # Mutation of offspring -------------------------------------------------
       
