@@ -43,6 +43,8 @@ outputSLC <- resourceCompetitionSLC(resProp=resource.prop, resFreq=resource.abun
 
 statsSLC <- outputSLC$stats
 phenotypesSLC <- outputSLC$phenotypes
+LastPhenoSLC <- outputSLC$LastPheno
+LastStatsSLC <- outputSLC$LastStats
 
 # CLC:
 
@@ -50,4 +52,6 @@ outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix
 
 statsCLC <- outputCLC$stats
 phenotypesCLC <- outputCLC$phenotypes
+LastPhenoCLC <- outputCLC$LastPheno
+LastStatsCLC <- outputCLC$LastStats
 

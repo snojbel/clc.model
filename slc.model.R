@@ -6,7 +6,8 @@
 # Full function ----------------------------------------------------------------
 
 resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), im = 0.001, 
-                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=5, nmorphs = 1){
+                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=5, 
+                                   threshold = 0.005, nmorphs = 1){
   
   pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -152,12 +153,24 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   #return output  ------------------------------------------------------------
   colnames(stats) <- c("year", "population size", "Number of morphs", "mean trait", "var trait")
   rownames(phenotypes) <- NULL
-
   
-  return(list(stats=stats, phenotypes=phenotypes))                                 #returns both the stats and the phenotype
+  # Removing any morphs of very low abundance
+    pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
+    
+    LastStats <- cbind(time.steps, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2])) 
+    LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2])
+    
+    colnames(LastStats) <- c("year", "population size", "Number of morphs", "mean trait", "var trait")
+    colnames(LastPheno) <- c("Year", "Number of indivduals", "Trait")  
+   
+  
+  return(list(stats=stats, phenotypes=phenotypes, LastPheno = LastPheno, LastStats = LastStats))                                 #returns both the stats and the phenotype
   
   
 }
+
+
+
 
 
 
@@ -167,12 +180,12 @@ resource.property <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)             # res. propert
 abundance <- 15000
 resource.abundance <- abundance*resource.frequency
 
-outputSLC <- resourceCompetitionSLC(resProp=resource.prop, resFreq=resource.abundance, popSize = 10, mutProb=0.001, mutVar=0.05, time.steps = 10000)
+outputSLC <- resourceCompetitionSLC(resProp=resource.property, resFreq=resource.abundance, popSize = 10, mutProb=0.001, mutVar=0.05, time.steps = 10000)
 
 statsSLC <- outputSLC$stats
 phenotypesSLC <- outputSLC$phenotypes
-
-
+LastPhenoSLC <- outputSLC$LastPheno
+LastStatsSLC <- outputSLC$LastStats
 
 # Plotting  -------------------------------------------------------------------
 

@@ -16,6 +16,7 @@
                 # iniP(A/J) : initial phenotype of adult and juvenile(different)
                 # nmorphs   : Number of morphs in initial run
                 # im        : Chance of an immigrant appearing
+                # threshold : Sets how many individuals is needed for it to be considered a different morph. Any morph with less than threshold*total pop size at the end of the run will be removed.
 
 # Libraries:
 library(extrafont)   #needed to add extra fonts
@@ -32,8 +33,9 @@ library(gridExtra)    #For plotting side by side and more in ggplot
 # Full function ----------------------------------------------------------------
 
 
-resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 2, kA = 0.5, kJ = 0.5, 
-                                   mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=5, iniPJ=5, nmorphs = 1, im = 0){
+resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 2, 
+                                   kA = 0.5, kJ = 0.5,mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=5, iniPJ=5, 
+                                   threshold = 0.005, nmorphs = 1, im = 0){
 
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
@@ -188,14 +190,32 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       
   }
   
+  # Removing any morphs of very low abundance
+  pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
+  
+  LastStats <- cbind(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]),  mean(pop[,3]), var(pop[,3]))
+  LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2], pop[,3])
+  
+  colnames(LastStats) <- c("Year", "Population size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
+  colnames(LastPheno) <- c("Year", "Number of indivduals", "Adult Trait", "Juvenile Trait")  
+  
   #return output  ------------------------------------------------------------
   colnames(stats) <- c("year", "population size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
   rownames(phenotypes) <- NULL
-  return(list(stats=stats, phenotypes=phenotypes))                                 #returns both the stats and the phenotype
+  
+  return(list(stats=stats, phenotypes=phenotypes, LastPheno = LastPheno, LastStats = LastStats))                                 #returns both the stats and the phenotype
   
   
 }
 
+# Appoximation of a normal distribution for resources -------------
+
+hist(resources)
+resources <- sort(rpois(100, 20))
+resource.table <- table(resources)
+resource.matrix <- matrix(c(as.integer(names(resource.table)), as.numeric(resource.table/sum(resource.table))), nrow = 2, byrow = T)
+
+row.names(resource.matrix) <- c("Resource Characteristic", "Resource Frequency")
 
 
 # Initialization ----------------------------------------------------------------
@@ -230,6 +250,8 @@ outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix
 
 statsCLC <- outputCLC$stats
 phenotypesCLC <- outputCLC$phenotypes
+LastPhenoCLC <- outputCLC$LastPheno
+LastStatsCLC <- outputCLC$LastStats
 
 
 
@@ -299,8 +321,22 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
   labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
   theme_minimal(base_family = "LM Roman 10", base_size = 18)
-  
 
+# Little extra check
+
+LastPhenodataCLC <- data.frame(
+  Num_Individuals = outputCLC$LastPheno[, 2],
+  Adult_Trait = outputCLC$LastPheno[, 3],
+  Juvenile_Trait = outputCLC$LastPheno[, 4]
+)
+
+
+color_palette <- mako(length(LastPhenodataCLC$Adult_Trait))
+
+ggplot(LastPhenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
+  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)
 
 
 
