@@ -53,8 +53,8 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Adult trait", "Juvenile trait")                                        
   
   epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
-  possAtrait <- seq(from = min(resProp[1,]), to = max(resProp[1,]), by = mutVar)  # Used when generating immigrants
-  possJtrait <- seq(from = min(resProp[2,]), to = max(resProp[2,]), by = mutVar)
+  possAtrait <- seq(from = min(resProp[1,])-1, to = max(resProp[1,])+1, by = mutVar)  # Used when generating immigrants
+  possJtrait <- seq(from = min(resProp[2,])-1, to = max(resProp[2,])+1, by = mutVar)
       
   
   for (t in 1:time.steps){

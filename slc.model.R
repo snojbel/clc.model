@@ -23,7 +23,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Trait")                                        
   
   epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
-  posstrait <- seq(from = min(resProp), to = max(resProp), by = mutVar)
+  posstrait <- seq(from = min(resProp)-1, to = max(resProp)+1, by = mutVar)
   
   for (t in 1:time.steps){
     
