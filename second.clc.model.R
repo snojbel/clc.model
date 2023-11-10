@@ -29,6 +29,7 @@ library(viridis)
 library(ggplot2)      # Prettier plots
 library(gridExtra)    #For plotting side by side and more in ggplot
 
+library(dplyr)
 
 # Full function ----------------------------------------------------------------
 
@@ -210,12 +211,21 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
 
 # Appoximation of a normal distribution for resources -------------
 
-hist(resources)
-resources <- sort(rpois(100, 20))
+# With discrete data
+resources <- sort(rpois(1000, 20))
 resource.table <- table(resources)
 resource.matrix <- matrix(c(as.integer(names(resource.table)), as.numeric(resource.table/sum(resource.table))), nrow = 2, byrow = T)
-
 row.names(resource.matrix) <- c("Resource Characteristic", "Resource Frequency")
+
+# With binned data:
+
+
+Nresources <- sort(rnorm(1000, mean = 20, sd = 3))
+bins <- cut(Nresources, breaks = 10)
+bin.table <- table(bins)
+barplot(bin.table)
+bin.matrix <- matrix(c(names(bin.table), as.numeric(bin.table/sum(bin.table))), nrow = 2, byrow = T)
+
 
 
 # Initialization ----------------------------------------------------------------
