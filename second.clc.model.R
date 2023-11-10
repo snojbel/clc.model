@@ -30,6 +30,16 @@ library(ggplot2)      # Prettier plots
 library(gridExtra)    #For plotting side by side and more in ggplot
 
 library(dplyr)
+library(NbClust)
+
+last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+last_year_data <- subset(last_year_data, select = -Year)
+last_year_data <- subset(last_year_data, select = -Num_Individuals)
+rownames(last_year_data) <- NULL
+
+NbClust(last_year_data, method = "complete")
+
+last_year_data
 
 # Full function ----------------------------------------------------------------
 
@@ -211,16 +221,21 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
 
 # Appoximation of a normal distribution for resources -------------
 
+
+
+
+
 # With discrete data
-resources <- sort(rpois(1000, 20))
+resources <- sort(rpois(10000, 20))
 resource.table <- table(resources)
 resource.matrix <- matrix(c(as.integer(names(resource.table)), as.numeric(resource.table/sum(resource.table))), nrow = 2, byrow = T)
 row.names(resource.matrix) <- c("Resource Characteristic", "Resource Frequency")
+hist(resources)
 
 # With binned data:
 
 
-Nresources <- sort(rnorm(1000, mean = 20, sd = 3))
+Nresources <- sort(rnorm(100000, mean = 20, sd = 3))
 bins <- cut(Nresources, breaks = 10)
 bin.table <- table(bins)
 barplot(bin.table)
@@ -256,7 +271,7 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
 
 statsCLC <- outputCLC$stats
 phenotypesCLC <- outputCLC$phenotypes
@@ -347,6 +362,9 @@ ggplot(LastPhenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
   labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
   theme_minimal(base_family = "LM Roman 10", base_size = 18)
+
+
+
 
 
 
