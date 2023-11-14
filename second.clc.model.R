@@ -31,15 +31,54 @@ library(gridExtra)    #For plotting side by side and more in ggplot
 
 library(dplyr)
 library(NbClust)
+library(cluster)
 
-last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
-last_year_data <- subset(last_year_data, select = -Year)
-last_year_data <- subset(last_year_data, select = -Num_Individuals)
+last_year_dataC <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+last_year_dataC <- subset(last_year_data, select = -Year)
+last_year_dataC <- subset(last_year_dataC, select = -Num_Individuals)
+rownames(last_year_dataC) <- NULL
 rownames(last_year_data) <- NULL
 
-NbClust(last_year_data, method = "complete")
+NB <- NbClust(last_year_dataC, method = "complete", max.nc = 18)
+silhouette(last_year_dataC)
 
-last_year_data
+last_year_dataC
+
+euclidean_distance <- function(x, y) {
+  sqrt(sum((x - y)^2))
+}
+
+distance_matrix_adult <- as.matrix(dist(last_year_dataC[, 1, drop = FALSE], method = "euclidean"))
+distance_matrix_juvenile <- as.matrix(dist(last_year_dataC[, 2, drop = FALSE], method = "euclidean"))
+
+# Set a threshold for similarity (adjust as needed)
+threshold <- 0.2
+
+# Find indices of individuals to keep
+
+
+same <- which(distance_matrix_adult < threshold & distance_matrix_juvenile < threshold, arr.ind = T)
+same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
+rownames(same) <- NULL
+
+final_data <- last_year_data
+
+for(i in nrow(same)){
+  same[i,1] <- speciesA
+  same[i,2] <- speciesB
+  if(last_year_data[speciesA, 4]>last_year_data[speciesB, 4]){
+    final_data[speciesA, 4] <- final_data[speciesA, 4] + final_data[speciesB, 4]
+    final_data[-speciesB,]
+  } else{
+    final_data[speciesB, 4] <- final_data[speciesA, 4] + final_data[speciesB, 4]
+    final_data[-speciesA,]
+  }
+}
+
+
+
+
+
 
 # Full function ----------------------------------------------------------------
 
