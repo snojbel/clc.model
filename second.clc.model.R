@@ -61,24 +61,52 @@ same <- which(distance_matrix_adult < threshold & distance_matrix_juvenile < thr
 same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
 rownames(same) <- NULL
 
-final_data <- last_year_data
 
-for(i in nrow(same)){
-  same[i,1] <- speciesA
-  same[i,2] <- speciesB
-  if(last_year_data[speciesA, 4]>last_year_data[speciesB, 4]){
-    final_data[speciesA, 4] <- final_data[speciesA, 4] + final_data[speciesB, 4]
-    final_data[-speciesB,]
-  } else{
-    final_data[speciesB, 4] <- final_data[speciesA, 4] + final_data[speciesB, 4]
-    final_data[-speciesA,]
+# Create indicies so I can Identify and remove duplicate rows
+original_matrix <- same
+row_ids <- apply(original_matrix, 1, function(row) paste(sort(row), collapse="-"))
+
+
+# Identify and remove duplicate rows based on the unique identifier
+unique_matrix <- original_matrix[!duplicated(row_ids), ]
+
+same_unique <- unique_matrix
+colnames(same_unique) <- NULL
+print(same_unique)
+# Your original matrix
+
+
+
+
+final_data
+species_to_combine <- NULL
+
+for(i in 1:nrow(final_data)){
+  if(sum(which(same_unique[,1]==i))>0){
+    species_to_combine <- rbind(species_to_combine, same_unique[which(same_unique[,1]==i),])
   }
+  if(sum(which(same_unique[,2]==i))>0){
+    species_to_combine <- rbind(species_to_combine, same_unique[which(same_unique[,2]==i),])
+  }  
+    
 }
 
+which(same_unique[,2]==1)[2]
+
+
+final_data <- last_year_data
+final_data <- cbind(final_data, c(rep(0, times = nrow(final_data))))
+colnames(final_data) <- c("Year Adult_Trait", "Juvenile_Trait", "Num_Individuals", "Species")
 
 
 
+for(i in 1:nrow(same_unique)){
+  A <- same_unique[i,1]
+  B <- same_unique[i,1]
+  final_data[A, 5]
+}
 
+  
 
 # Full function ----------------------------------------------------------------
 
@@ -310,7 +338,7 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 1000000)
 
 statsCLC <- outputCLC$stats
 phenotypesCLC <- outputCLC$phenotypes
