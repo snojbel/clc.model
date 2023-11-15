@@ -1,6 +1,8 @@
 # Plotting 
 
 # Libraries:
+
+library(gganimate)
 library(viridisLite)  # Color things
 library(viridis)
 library(ggplot2)      # Prettier plots
@@ -11,6 +13,7 @@ library(extrafont)   #needed to add extra fonts
 #fonts() #to check names of fonts
 
 # SLC:
+
 
 phenodataSLC <- data.frame(
   Year = outputSLC$phenotypes[, 1],
@@ -89,5 +92,26 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   theme_minimal(base_family = "LM Roman 10", base_size = 18)
 
 
+# ----------------- Animated plot
+
+last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+color_palette <- mako(length(last_year_data$Adult_Trait))
+
+ggplot(last_year_data, aes(x = , y = )) +
+  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
+  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)
+
+plot <- ggplot(phenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait, size = Num_Individuals)) +
+  geom_point() +
+  scale_x_log10() +
+  theme_bw() +
+  # gganimate specific bits:
+  labs(title = 'Year: {frame_time}', x = 'Juvenile Trait', y = 'Adult Trait') +
+  transition_time(Year) +
+  ease_aes('linear')
+
+plot
 
 
+anim_save("animated.plot.gif", plot)

@@ -254,7 +254,23 @@ length(N.resource.property)
 plot(N.resource.frequency)
 
 
+resource.abundance.adults     <- 15000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 15000
 
+resFreqMatrix <- matrix(N.resource.frequency, nrow=2, ncol=11, byrow = TRUE)
+
+resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
+resFreqMatrix[2, ] <- resFreqMatrix[2, ]*resource.abundance.juveniles
+
+rownames(resFreqMatrix) <- c("Adult", "Juvenile")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
+
+
+resPropMatrix <- matrix(N.resource.property, nrow=2, ncol=11, byrow = TRUE) 
+
+
+rownames(resPropMatrix)<-c("Adult", "Juvenile")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 # Initialization ----------------------------------------------------------------
                   
@@ -264,8 +280,8 @@ resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1
 resource.property<- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
                       1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
 
-resource.abundance.adults     <- 15000                              # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 15000
+resource.abundance.adults     <- 1000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 1000
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
 
@@ -448,7 +464,7 @@ for(i in seq_along(groups)){
 # Remove subspecies
 final_data <- final_data[-total.sub, ]
 
-Total_species <- nrow(final_data)
+Total_species <- as.numeric(nrow(final_data))
 
 # Plotting filtered data
 color_palette <- mako(length(final_data$Adult_Trait))
@@ -461,8 +477,8 @@ ggplot(final_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
 
 
 
-
-
+sum(final_data[,4])
+sum(last_year_data[,4])
 
 # Little extra check
 
