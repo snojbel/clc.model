@@ -33,23 +33,22 @@ library(dplyr)
 library(NbClust)
 library(cluster)
 
+# Making some cuts on the number of species:
+
+
 last_year_dataC <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
 last_year_dataC <- subset(last_year_data, select = -Year)
 last_year_dataC <- subset(last_year_dataC, select = -Num_Individuals)
 rownames(last_year_dataC) <- NULL
 rownames(last_year_data) <- NULL
 
-NB <- NbClust(last_year_dataC, method = "complete", max.nc = 18)
-silhouette(last_year_dataC)
-
-last_year_dataC
-
-euclidean_distance <- function(x, y) {
-  sqrt(sum((x - y)^2))
-}
 
 distance_matrix_adult <- as.matrix(dist(last_year_dataC[, 1, drop = FALSE], method = "euclidean"))
 distance_matrix_juvenile <- as.matrix(dist(last_year_dataC[, 2, drop = FALSE], method = "euclidean"))
+
+distance_matrix_adult[lower.tri(distance_matrix_adult)] <- NA
+distance_matrix_juvenile[lower.tri(distance_matrix_juvenile)] <- NA
+
 
 # Set a threshold for similarity (adjust as needed)
 threshold <- 0.2
@@ -62,51 +61,76 @@ same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
 rownames(same) <- NULL
 
 
-# Create indicies so I can Identify and remove duplicate rows
-original_matrix <- same
-row_ids <- apply(original_matrix, 1, function(row) paste(sort(row), collapse="-"))
+# Initialize an empty list to store groups
+groups <- list()
 
-
-# Identify and remove duplicate rows based on the unique identifier
-unique_matrix <- original_matrix[!duplicated(row_ids), ]
-
-same_unique <- unique_matrix
-colnames(same_unique) <- NULL
-print(same_unique)
-# Your original matrix
-
-
-
-
-final_data
-species_to_combine <- NULL
-
-for(i in 1:nrow(final_data)){
-  if(sum(which(same_unique[,1]==i))>0){
-    species_to_combine <- rbind(species_to_combine, same_unique[which(same_unique[,1]==i),])
+# Function to find group index for a species
+find_group <- function(species_id) {
+  for (i in seq_along(groups)) {
+    if (species_id %in% unlist(groups[[i]])) {
+      return(i)
+    }
   }
-  if(sum(which(same_unique[,2]==i))>0){
-    species_to_combine <- rbind(species_to_combine, same_unique[which(same_unique[,2]==i),])
-  }  
-    
+  return(0)
 }
 
-which(same_unique[,2]==1)[2]
-
-
-final_data <- last_year_data
-final_data <- cbind(final_data, c(rep(0, times = nrow(final_data))))
-colnames(final_data) <- c("Year Adult_Trait", "Juvenile_Trait", "Num_Individuals", "Species")
-
-
-
-for(i in 1:nrow(same_unique)){
-  A <- same_unique[i,1]
-  B <- same_unique[i,1]
-  final_data[A, 5]
-}
-
+# Iterate over rows in the matrix
+for (i in 1:nrow(same)) {
+  species1 <- same[i, 1]
+  species2 <- same[i, 2]
   
+  # Find groups for each species
+  group1 <- find_group(species1)
+  group2 <- find_group(species2)
+  
+  if (group1 == 0 & group2 == 0) {
+    # Create a new group
+    groups <- c(groups, list(c(species1, species2)))
+  } else if (group1 == 0) {
+    # Add species1 to the group containing species2
+    groups[[group2]] <- c(groups[[group2]], species1)
+  } else if (group2 == 0) {
+    # Add species2 to the group containing species1
+    groups[[group1]] <- c(groups[[group1]], species2)
+  } else if (group1 != group2) {
+    # Merge two groups
+    groups[[group1]] <- c(groups[[group1]], groups[[group2]])
+    groups <- groups[-group2]
+  }
+}
+
+# Filter out duplicate species in each group
+groups <- lapply(groups, function(group) unique(group))
+
+rownames(last_year_data) <- NULL
+final_data <- last_year_data         # Place to store filtered data
+total.sub <- c()                     # Place to store subspecies
+
+#Add population count of "subspecies" to main species
+
+for(i in seq_along(groups)){
+  combo <- NULL
+  combo <- groups[[i]]
+  main <- combo[which.max(final_data[combo,4])]
+  sub <- combo[-which.max(final_data[combo,4])]
+  final_data[main,4] <- final_data[main,4] + sum(final_data[sub,4])
+  total.sub <- rbind(c(total.sub, sub))
+  
+}
+# Remove subspecies
+final_data <- final_data[-total.sub, ]
+
+sum(final_data[,4])
+sum(last_year_data[,4])
+
+# Plotting filtered data
+color_palette <- mako(length(final_data$Adult_Trait))
+
+ggplot(final_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
+  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)
+
 
 # Full function ----------------------------------------------------------------
 
@@ -269,19 +293,19 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   }
   
   # Removing any morphs of very low abundance
-  pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
+  #pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
   
-  LastStats <- cbind(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]),  mean(pop[,3]), var(pop[,3]))
-  LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2], pop[,3])
+  #LastStats <- cbind(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]),  mean(pop[,3]), var(pop[,3]))
+  #LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2], pop[,3])
   
-  colnames(LastStats) <- c("Year", "Population size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
-  colnames(LastPheno) <- c("Year", "Number of indivduals", "Adult Trait", "Juvenile Trait")  
+  #colnames(LastStats) <- c("Year", "Population size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
+  #colnames(LastPheno) <- c("Year", "Number of indivduals", "Adult Trait", "Juvenile Trait")  
   
   #return output  ------------------------------------------------------------
   colnames(stats) <- c("year", "population size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
   rownames(phenotypes) <- NULL
   
-  return(list(stats=stats, phenotypes=phenotypes, LastPheno = LastPheno, LastStats = LastStats))                                 #returns both the stats and the phenotype
+  return(list(stats=stats, phenotypes=phenotypes))  # LastPheno = LastPheno, LastStats = LastStats Add if we want to remove low abundance morphs                               #returns both the stats and the phenotype
   
   
 }
@@ -338,12 +362,12 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 1000000)
+outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
 
 statsCLC <- outputCLC$stats
 phenotypesCLC <- outputCLC$phenotypes
-LastPhenoCLC <- outputCLC$LastPheno
-LastStatsCLC <- outputCLC$LastStats
+#LastPhenoCLC <- outputCLC$LastPheno
+#LastStatsCLC <- outputCLC$LastStats
 
 
 
@@ -413,6 +437,110 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
   labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
   theme_minimal(base_family = "LM Roman 10", base_size = 18)
+
+
+# -----------------------------Making some cuts on the number of species:
+
+
+last_year_dataC <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+last_year_dataC <- subset(last_year_data, select = -Year)
+last_year_dataC <- subset(last_year_dataC, select = -Num_Individuals)
+rownames(last_year_dataC) <- NULL
+rownames(last_year_data) <- NULL
+
+
+distance_matrix_adult <- as.matrix(dist(last_year_dataC[, 1, drop = FALSE], method = "euclidean"))
+distance_matrix_juvenile <- as.matrix(dist(last_year_dataC[, 2, drop = FALSE], method = "euclidean"))
+
+distance_matrix_adult[lower.tri(distance_matrix_adult)] <- NA
+distance_matrix_juvenile[lower.tri(distance_matrix_juvenile)] <- NA
+
+
+# Set a threshold for similarity (adjust as needed)
+threshold <- 0.2
+
+# Find indices of individuals to keep
+
+
+same <- which(distance_matrix_adult < threshold & distance_matrix_juvenile < threshold, arr.ind = T)
+same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
+rownames(same) <- NULL
+
+
+# Initialize an empty list to store groups
+groups <- list()
+
+# Function to find group index for a species
+find_group <- function(species_id) {
+  for (i in seq_along(groups)) {
+    if (species_id %in% unlist(groups[[i]])) {
+      return(i)
+    }
+  }
+  return(0)
+}
+
+# Iterate over rows in the matrix
+for (i in 1:nrow(same)) {
+  species1 <- same[i, 1]
+  species2 <- same[i, 2]
+  
+  # Find groups for each species
+  group1 <- find_group(species1)
+  group2 <- find_group(species2)
+  
+  if (group1 == 0 & group2 == 0) {
+    # Create a new group
+    groups <- c(groups, list(c(species1, species2)))
+  } else if (group1 == 0) {
+    # Add species1 to the group containing species2
+    groups[[group2]] <- c(groups[[group2]], species1)
+  } else if (group2 == 0) {
+    # Add species2 to the group containing species1
+    groups[[group1]] <- c(groups[[group1]], species2)
+  } else if (group1 != group2) {
+    # Merge two groups
+    groups[[group1]] <- c(groups[[group1]], groups[[group2]])
+    groups <- groups[-group2]
+  }
+}
+
+# Filter out duplicate species in each group
+groups <- lapply(groups, function(group) unique(group))
+
+rownames(last_year_data) <- NULL
+final_data <- last_year_data         # Place to store filtered data
+total.sub <- c()                     # Place to store subspecies
+
+#Add population count of "subspecies" to main species
+
+for(i in seq_along(groups)){
+  combo <- NULL
+  combo <- groups[[i]]
+  main <- combo[which.max(final_data[combo,4])]
+  sub <- combo[-which.max(final_data[combo,4])]
+  final_data[main,4] <- final_data[main,4] + sum(final_data[sub,4])
+  total.sub <- rbind(c(total.sub, sub))
+  
+}
+# Remove subspecies
+final_data <- final_data[-total.sub, ]
+
+Total_species <- nrow(final_data)
+
+# Plotting filtered data
+color_palette <- mako(length(final_data$Adult_Trait))
+
+ggplot(final_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
+  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)
+
+
+
+
+
+
 
 # Little extra check
 
