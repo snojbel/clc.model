@@ -5,6 +5,7 @@
 library(gganimate)
 library(gifski)
 library(png)
+library(tidyverse)
 library(viridisLite)  # Color things
 library(viridis)
 library(ggplot2)      # Prettier plots
@@ -112,22 +113,16 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
 
 last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
-
-ggplot(last_year_data, aes(x = , y = )) +
-  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
-  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-  theme_minimal(base_family = "LM Roman 10", base_size = 18)
+phenodataCLC[1,2]
 
 plot <- ggplot(phenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait, size = Num_Individuals)) +
-  geom_point() +
+  geom_point(colour = "#158FAD", show.legend = FALSE) +
   scale_x_log10() +
-  theme_bw() +
+  theme_minimal(base_family = "LM Roman 10", base_size = 18) +
   # gganimate specific bits:
-  labs(title = 'Year:{frame_time}', x = 'Juvenile Trait', y = 'Adult Trait') +
-  transition_time(Year) +
+  labs( x = 'Juvenile Trait', y = 'Adult Trait') +
+  transition_manual(Year) +
   ease_aes('linear')
-
-animate(plot)
 
 
 anim_save("C:\\Users\\izer4773\\AppData\\Local\\Temp\\RtmpElr2aL\\293c8497101/animated.plot.gif",animation = plot, renderer = gifski_renderer())
