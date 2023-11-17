@@ -3,6 +3,8 @@
 # Libraries:
 
 library(gganimate)
+library(gifski)
+library(png)
 library(viridisLite)  # Color things
 library(viridis)
 library(ggplot2)      # Prettier plots
@@ -11,6 +13,20 @@ library(extrafont)   #needed to add extra fonts
 #font_import()  #Only needed first time in R
 #loadfonts()
 #fonts() #to check names of fonts
+
+library(gapminder)
+data <- gapminder
+
+ggplot(gapminder, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  facet_wrap(~continent) +
+  # Here comes the gganimate specific bits
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
+  transition_time(year) +
+  ease_aes('linear')
 
 # SLC:
 
@@ -107,11 +123,11 @@ plot <- ggplot(phenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait, size = Num
   scale_x_log10() +
   theme_bw() +
   # gganimate specific bits:
-  labs(title = 'Year: {frame_time}', x = 'Juvenile Trait', y = 'Adult Trait') +
+  labs(title = 'Year:{frame_time}', x = 'Juvenile Trait', y = 'Adult Trait') +
   transition_time(Year) +
   ease_aes('linear')
 
-plot
+animate(plot)
 
 
-anim_save("animated.plot.gif", plot)
+anim_save("C:\\Users\\izer4773\\AppData\\Local\\Temp\\RtmpElr2aL\\293c8497101/animated.plot.gif",animation = plot, renderer = gifski_renderer())

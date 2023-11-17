@@ -35,7 +35,7 @@ library(gridExtra)    #For plotting side by side and more in ggplot
 # Full function ----------------------------------------------------------------
 
 
-resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), fmax = 2, 
+resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 2, 
                                    kA = 0.5, kJ = 0.5,mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=5, iniPJ=5, 
                                    threshold = 0.005, nmorphs = 1, im = 0){
 
@@ -280,8 +280,8 @@ resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1
 resource.property<- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
                       1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
 
-resource.abundance.adults     <- 1000                              # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 1000
+resource.abundance.adults     <- 15000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 15000
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
 
@@ -300,7 +300,7 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, iniPA = 3, iniPJ = 3, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 15000)
 
 statsCLC <- outputCLC$stats
 phenotypesCLC <- outputCLC$phenotypes
