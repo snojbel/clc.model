@@ -202,3 +202,112 @@ pColors <- rgb(0.7, 0.1, 0.5, alpha = (phenotypesSLC[,2]/(100+phenotypesSLC[,2])
 plot(x = phenotypesSLC[, 1], y = phenotypesSLC[,3], col = pColors, ylab = "Trait", xlab = "Time", pch = 16)
 
 
+# Making some species cuts
+
+# -----------------------------Making some cuts on the number of species:
+
+
+last_year_dataSLC <- phenodataSLC[phenodataSLC$Year == max(phenodataSLC$Year), ]
+last_year_dataS <- subset(last_year_dataS, select = -Year)
+last_year_dataS <- subset(last_year_dataS, select = -Num_Individuals)
+rownames(last_year_dataS) <- NULL
+rownames(last_year_data) <- NULL
+
+
+distance_matrix <- as.matrix(dist(last_year_dataS[, 1, drop = FALSE], method = "euclidean"))
+
+
+distance_matrix[lower.tri(distance_matrix)] <- NA
+
+
+
+# Set a threshold for similarity (adjust as needed)
+threshold <- 0.2
+
+# Find indices of individuals to keep
+
+
+same <- which(distance_matrix < threshold, arr.ind = T)
+same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
+rownames(same) <- NULL
+
+
+# Initialize an empty list to store groups
+groups <- list()
+
+# Function to find group index for a species
+find_group <- function(species_id) {
+  for (i in seq_along(groups)) {
+    if (species_id %in% unlist(groups[[i]])) {
+      return(i)
+    }
+  }
+  return(0)
+}
+
+# Iterate over rows in the matrix
+for (i in 1:nrow(same)) {
+  species1 <- same[i, 1]
+  species2 <- same[i, 2]
+  
+  # Find groups for each species
+  group1 <- find_group(species1)
+  group2 <- find_group(species2)
+  
+  if (group1 == 0 & group2 == 0) {
+    # Create a new group
+    groups <- c(groups, list(c(species1, species2)))
+  } else if (group1 == 0) {
+    # Add species1 to the group containing species2
+    groups[[group2]] <- c(groups[[group2]], species1)
+  } else if (group2 == 0) {
+    # Add species2 to the group containing species1
+    groups[[group1]] <- c(groups[[group1]], species2)
+  } else if (group1 != group2) {
+    # Merge two groups
+    groups[[group1]] <- c(groups[[group1]], groups[[group2]])
+    groups <- groups[-group2]
+  }
+}
+
+# Filter out duplicate species in each group
+groups <- lapply(groups, function(group) unique(group))
+
+rownames(last_year_dataSLC) <- NULL
+final_data <- last_year_dataSLC         # Place to store filtered data
+total.sub <- c()                     # Place to store subspecies
+
+#Add population count of "subspecies" to main species
+
+for(i in seq_along(groups)){
+  combo <- NULL
+  combo <- groups[[i]]
+  main <- combo[which.max(final_data[combo,3])]
+  sub <- combo[-which.max(final_data[combo,3])]
+  final_data[main,3] <- final_data[main,3] + sum(final_data[sub,3])
+  total.sub <- rbind(c(total.sub, sub))
+  
+}
+# Remove subspecies
+final_data <- final_data[-total.sub, ]
+
+Total_species_SLC <- as.numeric(nrow(final_data))
+
+
+
+
+# Plotting filtered data
+color_palette <- mako(length(final_data$Adult_Trait))
+
+ggplot(final_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
+  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)
+
+
+
+
+sum(final_data[,4])
+sum(last_year_data[,4])
+
+
