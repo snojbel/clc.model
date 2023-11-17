@@ -113,7 +113,7 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
 
 last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
-phenodataCLC[1,2]
+
 
 plot <- ggplot(phenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait, size = Num_Individuals)) +
   geom_point(colour = "#158FAD", show.legend = FALSE) +
