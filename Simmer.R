@@ -139,7 +139,7 @@ for(i in 1:length(sigma)){
 
 # CLC:
 
-# one run
+
 for(i in 1:length(sigma)){
   print(paste0("loop", i, "started"))
   for(k in 1:length(sigma)){
@@ -154,7 +154,40 @@ for(i in 1:length(sigma)){
   
 }
 
-# 10 runs:
+# 10 runs: ---------------------------------
+
+# SLC, same sigma for adults and juv
+
+Total_SLC_list <- list()
+
+
+for(r in 1:10) {
+  
+  print(paste0("loop ", r, " started"))
+  
+  Total_species_SLC_single <- c()
+
+  for(i in 1:length(sigma)){
+    
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+    
+    #Filter out similar "species"
+    
+    final_data_SLC <- slc.groups(output = outputSLC)
+    Total_species_SLC_single[i] <- nrow(final_data_SLC)
+  }
+  
+  Total_SLC_list[[r]] <- Total_species_SLC_single
+}
+
+# Caluclating mean of 10 runs
+
+Total_mean_SLC <- Reduce(`+`, Total_SLC_list) / length(Total_SLC_list)
+
+
+
+
+# CLC
 
 Total_CLC_list <- list()
 
@@ -184,8 +217,10 @@ for(r in 1:10){
 
 # Caluclating mean of 10 runs
 
-Total_mean_CLC <- Total_CLC_list[[1]]+Total_CLC_list[[2]]+Total_CLC_list[[3]]+Total_CLC_list[[4]]+Total_CLC_list[[5]]+Total_CLC_list[[6]]+Total_CLC_list[[7]]+Total_CLC_list[[8]]+Total_CLC_list[[9]]+Total_CLC_list[[10]]/length(Total_CLC_list)
-
-#maybe this does it :/
 Total_mean_CLC <- Reduce(`+`, Total_CLC_list) / length(Total_CLC_list)
 
+# Saving results
+
+saveRDS(Total_CLC_list, file = "CLC1Alist.RData")
+
+saveRDS(Total_SLC_list, file = "SLC1Alist.RData")

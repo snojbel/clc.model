@@ -1,0 +1,16 @@
+1A Sim conditions:
+Sigma: varied according to: 0.15, 0.3, 0.45, 0.6, 0.75
+
+Resources property: -2.5 to 2.5 with 16 number
+Resource abundance: Normally distributed with mean 0 and sd 1  x 20 000
+
+iniP = 0
+initial popSize = 10
+mutProb = 0.0005
+mutVar = 0.05
+time.steps = 10000
+fmax = 2
+kA = 0.5
+kJ = 0.5
+
+group threshold = 0.2

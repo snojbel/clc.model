@@ -99,19 +99,19 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
 
 
 # ------------------ Varied Sigma plot
-x <- rownames(Total_species_CLC)
+x <- rownames(Total_mean_CLC)
 
-SLC = data.frame(x = rep(x, length(Total_species_SLC_single)), y = Total_species_SLC_single)
+
+SLC <-  data.frame(x = rep(x, length(Total_mean_SLC)), y = Total_mean_SLC)
 shapes <- c(rep(x = 8, times =nrow(SLC)))
 SLC <- cbind(SLC, shapes)
 
-palette <- mako(length(last_year_data$Adult_Trait))
 
-ggmatplot(x, Total_species_CLC,
+ggmatplot(x, Total_mean_CLC,
           plot_type = "point",
-          xlab = "Juvenile Generalism",
+          xlab = "Adult Generalism",
           ylab = "Number of species",
-          legend_title = "Adult Generalism",
+          legend_title = "Juvenile Generalism",
           legend_label = sigma,
           size = 8) +
           theme_minimal(base_family = "LM Roman 10", base_size = 18)+
@@ -122,25 +122,24 @@ ggmatplot(x, Total_species_CLC,
 
 x <- rownames(Total_species_CLC)
 
-paletteCLC <- mako(length(nrow(Total_species_CLC)))
 
 CLCplot <- ggmatplot(x, Total_species_CLC,
           plot_type = "point",
-          xlab = "Juvenile Generalism",
+          xlab = "AdultGeneralism",
           ylab = "Number of species",
-          legend_title = "Adult Generalism",
+          legend_title = "Juvenile Generalism",
           legend_label = sigma,
           size = 8,)+
         theme_minimal(base_family = "LM Roman 10", base_size = 18)+
         ggtitle("Complex life cycle")+
-        theme(legend.position = "none")+
+        theme(legend.position = "none")
         
 
 SLCplot <- ggmatplot(x, Total_species_SLC,
                      plot_type = "point",
-                     xlab = "Juvenile Generalism",
+                     xlab = "Adult Generalism",
                      ylab = "Number of species",
-                     legend_title = "Adult Generalism",
+                     legend_title = "Juvenile Generalism",
                      legend_label = sigma,
                      size = 8) +
                 theme_minimal(base_family = "LM Roman 10", base_size = 18)+
