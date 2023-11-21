@@ -5,6 +5,7 @@
 library(gganimate)
 library(gifski)
 library(png)
+library(ggmatplot)
 library(tidyverse)
 library(viridisLite)  # Color things
 library(viridis)
@@ -43,10 +44,10 @@ evoSLC
 
 # -----------------Scatter plot 
 
-last_year_data_SLC <- phenodataSLC[phenodataSLC$Year == max(phenodataSLC$Year), ]
-color_palette_SLC <- mako(length(last_year_data_SLC$Trait))
+last_year_dataSLC <- phenodataSLC[phenodataSLC$Year == max(phenodataSLC$Year), ]
+color_palette_SLC <- mako(length(last_year_dataSLC$Trait))
 
-ggplot(last_year_data_SLC, aes(x = Trait, y = 1)) +
+ggplot(last_year_dataSLC, aes(x = Trait, y = 1)) +
   geom_point(aes(size=Num_Individuals), color = color_palette_SLC) +                                  # Add points
   labs(x = "Trait", y = " ", size = "Number of individuals") +                 # Labels for the axes
   theme_minimal(base_family = "LM Roman 10", base_size = 18) +
@@ -96,6 +97,56 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
   theme_minimal(base_family = "LM Roman 10", base_size = 18)
 
+
+# ------------------ Varied Sigma plot
+x <- rownames(Total_species_CLC)
+
+SLC = data.frame(x = rep(x, length(Total_species_SLC_single)), y = Total_species_SLC_single)
+shapes <- c(rep(x = 8, times =nrow(SLC)))
+SLC <- cbind(SLC, shapes)
+
+palette <- mako(length(last_year_data$Adult_Trait))
+
+ggmatplot(x, Total_species_CLC,
+          plot_type = "point",
+          xlab = "Juvenile Generalism",
+          ylab = "Number of species",
+          legend_title = "Adult Generalism",
+          legend_label = sigma,
+          size = 8) +
+          theme_minimal(base_family = "LM Roman 10", base_size = 18)+
+          geom_point(data = SLC, aes(x = x, y = y, group=x), size = 8, shape = shapes)
+
+
+# Varied sigma for both CLC and SLC
+
+x <- rownames(Total_species_CLC)
+
+paletteCLC <- mako(length(nrow(Total_species_CLC)))
+
+CLCplot <- ggmatplot(x, Total_species_CLC,
+          plot_type = "point",
+          xlab = "Juvenile Generalism",
+          ylab = "Number of species",
+          legend_title = "Adult Generalism",
+          legend_label = sigma,
+          size = 8,)+
+        theme_minimal(base_family = "LM Roman 10", base_size = 18)+
+        ggtitle("Complex life cycle")+
+        theme(legend.position = "none")+
+        
+
+SLCplot <- ggmatplot(x, Total_species_SLC,
+                     plot_type = "point",
+                     xlab = "Juvenile Generalism",
+                     ylab = "Number of species",
+                     legend_title = "Adult Generalism",
+                     legend_label = sigma,
+                     size = 8) +
+                theme_minimal(base_family = "LM Roman 10", base_size = 18)+
+                ggtitle("Simple life cycle")
+
+grid.arrange(CLCplot,SLCplot, ncol = 2, widths = c(1.3,2))
 
 # ----------------- Animated plot
 

@@ -208,10 +208,10 @@ plot(x = phenotypesSLC[, 1], y = phenotypesSLC[,3], col = pColors, ylab = "Trait
 
 
 last_year_dataSLC <- phenodataSLC[phenodataSLC$Year == max(phenodataSLC$Year), ]
-last_year_dataS <- subset(last_year_dataS, select = -Year)
+last_year_dataS <- subset(last_year_dataSLC, select = -Year)
 last_year_dataS <- subset(last_year_dataS, select = -Num_Individuals)
 rownames(last_year_dataS) <- NULL
-rownames(last_year_data) <- NULL
+rownames(last_year_dataSLC) <- NULL
 
 
 distance_matrix <- as.matrix(dist(last_year_dataS[, 1, drop = FALSE], method = "euclidean"))

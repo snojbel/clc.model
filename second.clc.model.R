@@ -380,8 +380,8 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
 # -----------------------------Making some cuts on the number of species:
 
 
-last_year_dataC <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
-last_year_dataC <- subset(last_year_data, select = -Year)
+last_year_dataCLC <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+last_year_dataC <- subset(last_year_dataCLC, select = -Year)
 last_year_dataC <- subset(last_year_dataC, select = -Num_Individuals)
 rownames(last_year_dataC) <- NULL
 rownames(last_year_data) <- NULL
@@ -447,7 +447,7 @@ for (i in 1:nrow(same)) {
 groups <- lapply(groups, function(group) unique(group))
 
 rownames(last_year_data) <- NULL
-final_data <- last_year_data         # Place to store filtered data
+final_data <- last_year_dataCLC         # Place to store filtered data
 total.sub <- c()                     # Place to store subspecies
 
 #Add population count of "subspecies" to main species
