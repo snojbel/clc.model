@@ -225,10 +225,10 @@ hist(resources)
 
 # With cumulative distribution :
 
-m <- 5 
-s <- 2
+m <- 0 
+s <- 1
 N.resource.frequency <- c()
-N.resource.property<- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10) 
+N.resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 16)) 
 
 mid.add <- c()
 midpoint <- c()
@@ -242,22 +242,20 @@ for(i in 1:(length(N.resource.property))){
   }else if(i == length(N.resource.property)){
     low.midpoint <- N.resource.property[(i-1)] + (N.resource.property[i]-N.resource.property[i-1])/2
     N.resource.frequency[i] <- pnorm(low.midpoint, mean = m, sd = s, lower.tail = FALSE)
-    }else{
-      N.resource.frequency[i] <- pnorm(high.midpoint, mean = m, sd = s) - pnorm(low.midpoint, mean = m, sd = s) 
-    }
+  }else{
+    N.resource.frequency[i] <- pnorm(high.midpoint, mean = m, sd = s) - pnorm(low.midpoint, mean = m, sd = s) 
+  }
 }
-
-length(N.resource.property)
 
 
 
 plot(N.resource.frequency)
 
 
-resource.abundance.adults     <- 15000                              # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 15000
+resource.abundance.adults     <- 20000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 20000
 
-resFreqMatrix <- matrix(N.resource.frequency, nrow=2, ncol=11, byrow = TRUE)
+resFreqMatrix <- matrix(N.resource.frequency, nrow=2, ncol=length(N.resource.frequency), byrow = TRUE)
 
 resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
 resFreqMatrix[2, ] <- resFreqMatrix[2, ]*resource.abundance.juveniles
@@ -266,7 +264,7 @@ rownames(resFreqMatrix) <- c("Adult", "Juvenile")
 colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
 
 
-resPropMatrix <- matrix(N.resource.property, nrow=2, ncol=11, byrow = TRUE) 
+resPropMatrix <- matrix(N.resource.property, nrow=2, ncol = length(N.resource.frequency), byrow = TRUE) 
 
 
 rownames(resPropMatrix)<-c("Adult", "Juvenile")
@@ -300,7 +298,7 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, iniPA = 3, iniPJ = 3, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 15000)
+outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, iniPA = 0, iniPJ = 0, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
 
 statsCLC <- outputCLC$stats
 phenotypesCLC <- outputCLC$phenotypes

@@ -14,3 +14,19 @@ kA = 0.5
 kJ = 0.5
 
 group threshold = 0.2
+
+
+1B Sim conditions: 
+
+sigma:0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80
+Resource prop: -1, and 1
+Resource abundance: (1BA) 0.5, 0.5 20 000   (1BB)  0.2, 0.8, 20 000
+
+iniP = 0
+initial popSize = 10
+mutProb = 0.0005
+mutVar = 0.05
+time.steps = 10000
+fmax = 2
+kA = 0.5
+kJ = 0.5

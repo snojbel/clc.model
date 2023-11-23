@@ -224,3 +224,79 @@ Total_mean_CLC <- Reduce(`+`, Total_CLC_list) / length(Total_CLC_list)
 saveRDS(Total_CLC_list, file = "CLC1Alist.RData")
 
 saveRDS(Total_SLC_list, file = "SLC1Alist.RData")
+
+# 10 Runs of to see endpoint
+
+last_year_list <- list()
+
+for(i in 1:10){
+  
+  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+  
+  
+  phenodataCLC <- NULL
+  
+  phenodataCLC <- data.frame(
+  Year = outputCLC$phenotypes[, 1],
+  Adult_Trait = outputCLC$phenotypes[, 3],
+  Juvenile_Trait = outputCLC$phenotypes[, 4],
+  Num_Individuals = outputCLC$phenotypes[, 2])
+  
+  last_year_list[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+}
+
+
+
+# 2 resource run symmetric -----------------------
+
+
+
+resource.prop <- c(-1,1)
+resource.frequency <- c(0.2, 0.8)
+
+resource.abundance.adults <- 20000
+resource.abundance.juveniles <- 20000
+
+resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=length(resource.frequency), byrow = TRUE)
+
+resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
+resFreqMatrix[2, ] <- resFreqMatrix[2, ]*resource.abundance.juveniles
+
+rownames(resFreqMatrix) <- c("Adult", "Juvenile")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
+
+
+resPropMatrix <- matrix(resource.prop, nrow=2, ncol=length(resource.prop), byrow = TRUE) 
+
+
+rownames(resPropMatrix)<-c("Adult", "Juvenile")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
+
+sigma <- seq(from = 0.1, to = 0.8, by = 0.05)
+
+last_year_list_2_res <- list()
+  
+  
+for(i in 1:length(sigma)){
+    
+      
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+      
+      phenodataCLC <- NULL
+      
+      phenodataCLC <- data.frame(
+        Year = outputCLC$phenotypes[, 1],
+        Adult_Trait = outputCLC$phenotypes[, 3],
+        Juvenile_Trait = outputCLC$phenotypes[, 4],
+        Num_Individuals = outputCLC$phenotypes[, 2])
+      
+      last_year_list_2_res[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+    
+    
+}
+
+sigma
+
+
+
+

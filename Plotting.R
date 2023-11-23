@@ -98,6 +98,7 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   theme_minimal(base_family = "LM Roman 10", base_size = 18)
 
 
+
 # ------------------ Varied Sigma plot
 x <- rownames(Total_mean_CLC)
 
@@ -147,20 +148,59 @@ SLCplot <- ggmatplot(x, Total_species_SLC,
 
 grid.arrange(CLCplot,SLCplot, ncol = 2, widths = c(1.3,2))
 
-# ----------------- Animated plot
+# ----------------- Animated plot (a little broken still :( )
 
 last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
+#colour = "#158FAD", show.legend = FALSE
+
+phenodataCLC[,1] <- as.factor(phenodataCLC[,1])
 
 
 plot <- ggplot(phenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait, size = Num_Individuals)) +
-  geom_point(colour = "#158FAD", show.legend = FALSE) +
-  scale_x_log10() +
+  geom_point() +
   theme_minimal(base_family = "LM Roman 10", base_size = 18) +
   # gganimate specific bits:
   labs( x = 'Juvenile Trait', y = 'Adult Trait') +
-  transition_manual(Year) +
+  transition_states(Year) +
   ease_aes('linear')
 
 
-anim_save("C:\\Users\\izer4773\\AppData\\Local\\Temp\\RtmpElr2aL\\293c8497101/animated.plot.gif",animation = plot, renderer = gifski_renderer())
+anim_save("D:\\Izabel Master thesis\\Code\\clc.model\\plots", animation = plot, renderer = gifski_renderer())
+
+
+# Many scatter plots
+
+plot_list_10 <- list()
+
+for (i in 1:length(last_year_list)){
+  
+  color_palette <- mako(length(last_year_list[[i]]$Adult_Trait))
+  
+  plot_list_10[[i]] <- ggplot(last_year_list[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot_list_10, ncol = 5, nrow = 3)
+
+
+
+# Also many plots 2 res case ---------------
+
+plot_list_2rs <- list()
+
+for (i in 1:length(last_year_list_2_res)){
+  
+  color_palette <- mako(length(last_year_list_2_res[[i]]$Adult_Trait))
+  
+  plot_list_2rs[[i]] <- ggplot(last_year_list_2_res[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot_list_2rs, ncol = 5, nrow = 3)
+
+
