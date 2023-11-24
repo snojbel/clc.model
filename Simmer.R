@@ -21,10 +21,12 @@ resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1
 resource.property  <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
                         1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
 
+resource.frequency <- rep(0.1, times = 16)
+
 resource.abundance.adults     <- 20000                              # res. abundance of adults and juveniles
 resource.abundance.juveniles  <- 20000
 
-resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
+resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=length(resource.frequency), byrow = TRUE)
 resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
 resFreqMatrix[2, ] <- resFreqMatrix[2, ]*resource.abundance.juveniles
 

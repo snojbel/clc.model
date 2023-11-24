@@ -195,3 +195,13 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
 }
 
 
+final_data_CLC <- clc.groups()
+
+color_palette <- mako(length(final_data_CLC$Adult_Trait))
+
+ggplot(final_data_CLC, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
+  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)
+
+nrow(final_data_CLC)
