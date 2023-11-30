@@ -10,7 +10,9 @@ library(tidyverse)
 library(viridisLite)  # Color things
 library(viridis)
 library(ggplot2)      # Prettier plots
-library(gridExtra)   
+library(gridExtra)  
+library(cowplot)
+library(gg)
 library(extrafont)   #needed to add extra fonts
 #font_import()  #Only needed first time in R
 #loadfonts()
@@ -92,10 +94,15 @@ grid.arrange(evoAdu,evoJuv, nrow = 2, widths = c(1))
 last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
 
+
 ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
-  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-  theme_minimal(base_family = "LM Roman 10", base_size = 18)
+  labs(title = substitute(sigma == value, list(value = sigmas[1])), x = "Juvenile Trait", y = "Adult Trait", family = "LM Roman 10", size = "Number of individuals") +                 # Labels for the axes
+  theme_classic(base_size = 18)+ 
+   theme(axis.text = element_text(family = "LM Roman 10"),
+         axis.title = element_text(family = "LM Roman 10", size = 20),
+         axis.title.y = element_blank(),
+         plot.title = element_text(hjust = 0.5, family = "LM Roman 10"))
 
 
 

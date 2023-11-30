@@ -5,21 +5,18 @@
 
 # Initialization ----------------
 
-# Resources
+# Evenly distributed Resources
 
 # SLC:
-resource.freq <- c(0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1)           # res. freq. 
-resource.prop <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)             # res. property 
+resource.freq <- rep(0.1, times = 16)                                      # res. freq. 
+resource.prop <- c(seq(from = -2.5, to = 2.5, length.out = 16))            # res. property 
 abundance <- 20000
 resource.abundance <- abundance*resource.freq
 
 
 # CLC:
 
-resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1,   # res. freq. of adults (percentage)
-                        0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1)   # res. freq. pf juveniles
-resource.property  <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
-                        1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
+resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 16)) 
 
 resource.frequency <- rep(0.1, times = 16)
 
@@ -30,7 +27,7 @@ resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=length(resource.frequen
 resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
 resFreqMatrix[2, ] <- resFreqMatrix[2, ]*resource.abundance.juveniles
 
-resPropMatrix <- matrix(resource.property, nrow=2, ncol=10, byrow = TRUE) 
+resPropMatrix <- matrix(resource.property, nrow=2, ncol=length(resource.property), byrow = TRUE) 
 
 rownames(resFreqMatrix) <- c("Adult", "Juvenile")
 colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
@@ -92,7 +89,72 @@ rownames(resPropMatrix)<-c("Adult", "Juvenile")
 colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
-# Model runs with varied sigma:
+# Skewed resource distribution ---------------------------------------
+
+# SLC:
+x <- 1/136
+resource.freq <- c()
+
+for (i in 1:16){ 
+  resource.freq[i] <- i*x 
+  }                                     # res. freq. 
+
+resource.prop <- c(seq(from = -2.5, to = 2.5, length.out = 16))            # res. property 
+abundance <- 20000
+resource.abundance <- abundance*resource.freq
+
+
+# CLC:
+
+resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 16)) 
+
+
+resource.frequency <- c()
+for (i in 1:16){ 
+  resource.frequency[i] <- i*x 
+}    
+
+
+resource.abundance.adults     <- 20000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 20000
+
+resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=length(resource.frequency), byrow = TRUE)
+resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
+resFreqMatrix[2, ] <- resFreqMatrix[2, ]*resource.abundance.juveniles
+
+resPropMatrix <- matrix(resource.property, nrow=2, ncol=length(resource.property), byrow = TRUE) 
+
+rownames(resFreqMatrix) <- c("Adult", "Juvenile")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
+
+rownames(resPropMatrix)<-c("Adult", "Juvenile")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
+
+
+# Two resources -------------------------------------------------------
+
+resource.prop <- c(-1,1)
+resource.frequency <- c(0.2, 0.8)
+
+resource.abundance.adults <- 20000
+resource.abundance.juveniles <- 20000
+
+resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=length(resource.frequency), byrow = TRUE)
+
+resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
+resFreqMatrix[2, ] <- resFreqMatrix[2, ]*resource.abundance.juveniles
+
+rownames(resFreqMatrix) <- c("Adult", "Juvenile")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
+
+
+resPropMatrix <- matrix(resource.prop, nrow=2, ncol=length(resource.prop), byrow = TRUE) 
+
+
+rownames(resPropMatrix)<-c("Adult", "Juvenile")
+colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
+
+# Model runs with varied sigma --------------------------------------------
 
 sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75)
 
@@ -161,25 +223,28 @@ for(i in 1:length(sigma)){
 # SLC, same sigma for adults and juv
 
 Total_SLC_list <- list()
-
+Total_abund_SLC_list <- list()
 
 for(r in 1:10) {
   
   print(paste0("loop ", r, " started"))
   
   Total_species_SLC_single <- c()
+  Abundance_species_SLC_single <- c()
 
   for(i in 1:length(sigma)){
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
     
     #Filter out similar "species"
     
     final_data_SLC <- slc.groups(output = outputSLC)
     Total_species_SLC_single[i] <- nrow(final_data_SLC)
+    Abundance_species_SLC_single[i] <- sum(final_data_SLC[,])
   }
   
   Total_SLC_list[[r]] <- Total_species_SLC_single
+  Total_abund_SLC_list[[r]] <- Abundance_species_SLC_single
 }
 
 # Caluclating mean of 10 runs
@@ -192,7 +257,7 @@ Total_mean_SLC <- Reduce(`+`, Total_SLC_list) / length(Total_SLC_list)
 # CLC
 
 Total_CLC_list <- list()
-
+Total_abund_CLC_list <- list()
 
 for(r in 1:10){
   print(paste0("loop ", r, " started"))
@@ -200,21 +265,28 @@ for(r in 1:10){
   Total_species_CLC <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
   rownames(Total_species_CLC) <- c(0.15, 0.3, 0.45, 0.6, 0.75) #ADULTS
   colnames(Total_species_CLC) <- c(0.15, 0.3, 0.45, 0.6, 0.75) #JUVENILES
+  Abundance_species_CLC <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(Total_species_CLC) <- c(0.15, 0.3, 0.45, 0.6, 0.75) #ADULTS
+  colnames(Total_species_CLC) <- c(0.15, 0.3, 0.45, 0.6, 0.75) #JUVENILES
   
   for(i in 1:length(sigma)){
     
     for(k in 1:length(sigma)){
       
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
       
       #Filter out similar "species"
       
       final_data_CLC <- clc.groups(output = outputCLC)
       Total_species_CLC[i, k] <- nrow(final_data_CLC)
+      
+      Abundance_species_CLC[i, k] <- sum(final_data_CLC[, 4])
+      
     }
     
   }
   Total_CLC_list[[r]] <- Total_species_CLC
+  Total_abund_CLC_list <- Abundance_species_CLC
 }
 
 # Caluclating mean of 10 runs
@@ -253,27 +325,6 @@ for(i in 1:10){
 
 
 
-resource.prop <- c(-1,1)
-resource.frequency <- c(0.2, 0.8)
-
-resource.abundance.adults <- 20000
-resource.abundance.juveniles <- 20000
-
-resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=length(resource.frequency), byrow = TRUE)
-
-resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
-resFreqMatrix[2, ] <- resFreqMatrix[2, ]*resource.abundance.juveniles
-
-rownames(resFreqMatrix) <- c("Adult", "Juvenile")
-colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resFreqMatrix))
-
-
-resPropMatrix <- matrix(resource.prop, nrow=2, ncol=length(resource.prop), byrow = TRUE) 
-
-
-rownames(resPropMatrix)<-c("Adult", "Juvenile")
-colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
-
 sigma <- seq(from = 0.1, to = 0.8, by = 0.05)
 
 last_year_list_2_res <- list()
@@ -297,8 +348,150 @@ for(i in 1:length(sigma)){
     
 }
 
-sigma
 
+
+# Different sigma runs endpoint ------------------------
+
+sigmas <- c(0.15, 0.3, 0.45, 0.6, 0.75)
+
+last_year_list_CLC <- list()
+last_year_list_SLC <- list()
+plot_list_CLC <- list()
+plot_list_SLC <- list()
+
+for(i in 1:length(sigmas)){
+  print(paste0("loop ", i, " started"))
+  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigmas[i], sigmas[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+  
+  
+  phenodataCLC <- NULL
+  
+  phenodataCLC <- data.frame(
+    Year = outputCLC$phenotypes[, 1],
+    Adult_Trait = outputCLC$phenotypes[, 3],
+    Juvenile_Trait = outputCLC$phenotypes[, 4],
+    Num_Individuals = outputCLC$phenotypes[, 2])
+  
+  last_year_list_CLC[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  
+  outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigmas[i],sigmas[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+  
+  phenodataSLC <- data.frame(
+    Year = outputSLC$phenotypes[, 1],
+    Trait = outputSLC$phenotypes[, 3],
+    Num_Individuals = outputSLC$phenotypes[, 2]
+  )
+  
+  last_year_list_SLC[[i]]<- phenodataSLC[phenodataSLC$Year == max(phenodataSLC$Year), ]
+  
+  if(i == 1){
+    plot_list_CLC[[i]] <- ggplot(last_year_list_CLC[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+        geom_point(colour= "#158FAD", aes(size=Num_Individuals), show.legend = FALSE) +                                  # Add points
+        labs(title = substitute(sigma == value, list(value = sigmas[i])), y = "Adult Trait") +                 # Labels for the axes
+        scale_x_continuous(limits = c(-3,3)) +
+        scale_y_continuous(limits = c(-3,3)) +
+        theme_classic(base_family = "LM Roman 10", base_size = 15)+
+        theme(axis.text = element_text(family = "LM Roman 10"),
+              axis.title = element_text(family = "LM Roman 10", size = 20),
+              axis.title.x = element_blank(),
+              plot.title = element_text(hjust = 0.5))
+    
+    plot_list_SLC[[i]] <- ggplot(last_year_list_SLC[[i]], aes(x = Trait, y = 0))+
+      geom_point(colour = "#158FAD", aes(size=Num_Individuals), show.legend = FALSE)  +
+      geom_segment(data = data.frame(x = c(-2, 0, 2), y = rep(0, 3)),
+                   aes(x = x, xend = x, y = -0.1, yend = 0.1), color = "black", size = 0.5) +
+      geom_text(data = data.frame(x = c(-2, 0, 2), label = c("-2", "0", "2")),
+                aes(x = x, y = -0.2, label = label), vjust = 0.5, hjust = 0.5, size = 7, color = "black", family = "LM Roman 10") +
+      annotate("segment",x=-3,xend=3, y=0, yend=0, linewidth=1) +
+      annotate("segment",x=-3,xend=-3, y=-0.1,yend=0.1, linewidth=1) +
+      annotate("segment",x=3,xend=3, y=-0.1,yend=0.1, linewidth=1) +
+      scale_x_continuous(limits = c(-3,3)) +
+      scale_y_continuous(limits = c(-1,1)) +
+      scale_color_manual(values = unname(colours)) + 
+      theme(panel.background = element_blank(),
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank())
+    
+  }
+  else if(i == 3){
+    plot_list_CLC[[i]] <- ggplot(last_year_list_CLC[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+        geom_point(colour= "#158FAD", aes(size=Num_Individuals), show.legend = FALSE) +                                  # Add points
+        labs(title = substitute(sigma == value, list(value = sigmas[i])), x = "Juvenile Trait") +                 # Labels for the axes
+        scale_x_continuous(limits = c(-3,3)) +
+        scale_y_continuous(limits = c(-3,3))  +
+        theme_classic(base_family = "LM Roman 10", base_size = 15)+
+        theme(axis.title.y = element_blank(),
+              axis.text = element_text(family = "LM Roman 10"),
+              axis.title = element_text(family = "LM Roman 10", size = 20),
+              plot.title = element_text(hjust = 0.5))
+    
+    
+    
+    plot_list_SLC[[i]] <- ggplot(last_year_list_SLC[[i]], aes(x = Trait, y = 0))+
+      geom_point(colour = "#158FAD", aes(size=Num_Individuals), show.legend = FALSE)  +
+      geom_segment(data = data.frame(x = c(-2, 0, 2), y = rep(0, 3)),
+                   aes(x = x, xend = x, y = -0.1, yend = 0.1), color = "black", size = 0.5) +
+      geom_text(data = data.frame(x = c(-2, 0, 2), label = c("-2", "0", "2")),
+                aes(x = x, y = -0.2, label = label), vjust = 0.5, hjust = 0.5, size = 7, color = "black", family = "LM Roman 10") +
+      labs(x = "Species Trait") +
+      annotate("segment",x=-3,xend=3, y=0, yend=0, linewidth=1) +
+      annotate("segment",x=-3,xend=-3, y=-0.1,yend=0.1, linewidth=1) +
+      annotate("segment",x=3,xend=3, y=-0.1,yend=0.1, linewidth=1) +
+      scale_x_continuous(limits = c(-3,3)) +
+      scale_y_continuous(limits = c(-1,1)) +
+      scale_color_manual(values = unname(colours)) +
+      theme_tufte(base_family = "LM Roman 10", base_size = 10) +
+      theme(axis.title = element_text(family = "LM Roman 10", size = 20),
+            panel.background = element_blank(),
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title.y = element_blank())
+    
+  }
+  else{
+    plot_list_CLC[[i]] <- ggplot(last_year_list_CLC[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+          geom_point(colour= "#158FAD", aes(size=Num_Individuals), show.legend = FALSE) +                                  # Add points
+          labs(title = substitute(sigma == value, list(value = sigmas[i]))) +                 # Labels for the axes
+          scale_x_continuous(limits = c(-3,3)) +
+          scale_y_continuous(limits = c(-3,3))  +
+          theme_classic(base_family = "LM Roman 10", base_size = 15)+
+          theme(axis.text = element_text(family = "LM Roman 10"),
+                axis.title = element_text(family = "LM Roman 10", size = 20),
+                axis.title.x = element_blank(),
+                axis.title.y = element_blank(),
+                plot.title = element_text(hjust = 0.5))
+    
+    plot_list_SLC[[i]] <- ggplot(last_year_list_SLC[[i]], aes(x = Trait, y = 0))+
+      geom_point(colour = "#158FAD", aes(size=Num_Individuals), show.legend = FALSE)  +
+      geom_segment(data = data.frame(x = c(-2, 0, 2), y = rep(0, 3)),
+                   aes(x = x, xend = x, y = -0.1, yend = 0.1), color = "black", size = 0.5) +
+      geom_text(data = data.frame(x = c(-2, 0, 2), label = c("-2", "0", "2")),
+                aes(x = x, y = -0.2, label = label), vjust = 0.5, hjust = 0.5, size = 7, color = "black", family = "LM Roman 10") +
+      annotate("segment",x=-3,xend=3, y=0, yend=0, linewidth=1) +
+      annotate("segment",x=-3,xend=-3, y=-0.1,yend=0.1, linewidth=1) +
+      annotate("segment",x=3,xend=3, y=-0.1,yend=0.1, linewidth=1) +
+      scale_x_continuous(limits = c(-3,3)) +
+      scale_y_continuous(limits = c(-1,1)) +
+      scale_color_manual(values = unname(colours)) + 
+      theme(panel.background = element_blank(),
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank())
+    
+  }
+  
+  
+}
+
+
+  
+
+
+
+grid.arrange(plot_list_CLC[[1]],plot_list_CLC[[2]],plot_list_CLC[[3]],plot_list_CLC[[4]],plot_list_CLC[[5]],
+             plot_list_SLC[[1]],plot_list_SLC[[2]],plot_list_SLC[[3]],plot_list_SLC[[4]],plot_list_SLC[[5]],
+             nrow = 2, ncol = 5, heights = c(3, 1))
 
 
 

@@ -298,7 +298,7 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, iniPA = 0, iniPJ = 0, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
+outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, iniPA = 0, iniPJ = 0, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
 
 statsCLC <- outputCLC$stats
 phenotypesCLC <- outputCLC$phenotypes
