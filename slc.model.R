@@ -180,7 +180,8 @@ resource.property <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)             # res. propert
 abundance <- 15000
 resource.abundance <- abundance*resource.frequency
 
-outputSLC <- resourceCompetitionSLC(resProp=resource.property, resFreq=resource.abundance, popSize = 10, mutProb=0.001, mutVar=0.05, time.steps = 10000)
+outputSLC <- resourceCompetitionSLC(resProp=resource.property, resFreq=resource.abundance, popSize = 10, mutProb=0.001, resGen=matrix(c(0.3,0.3)), mutVar=0.05, time.steps = 10000)
+
 
 statsSLC <- outputSLC$stats
 phenotypesSLC <- outputSLC$phenotypes

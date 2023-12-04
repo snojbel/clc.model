@@ -114,6 +114,7 @@ SLC <-  data.frame(x = rep(x, length(Total_mean_SLC)), y = Total_mean_SLC)
 shapes <- c(rep(x = 8, times =nrow(SLC)))
 SLC <- cbind(SLC, shapes)
 
+# Number of species
 
 ggmatplot(x, Total_mean_CLC,
           plot_type = "point",
@@ -124,6 +125,23 @@ ggmatplot(x, Total_mean_CLC,
           size = 8) +
           theme_minimal(base_family = "LM Roman 10", base_size = 18)+
           geom_point(data = SLC, aes(x = x, y = y, group=x), size = 8, shape = shapes)
+
+# Abundance
+
+SLC.abund <-  data.frame(x = rep(x, length(Total_mean_SLC)), y = Total_mean_abund_SLC)
+shapes <- c(rep(x = 8, times =nrow(SLC.abund)))
+SLC.abund <- cbind(SLC.abund, shapes)
+
+ggmatplot(x, Total_mean_abund,
+          plot_type = "point",
+          xlab = "Adult Generalism",
+          ylab = "Abundance of total population",
+          legend_title = "Juvenile Generalism",
+          legend_label = sigma,
+          size = 8) +
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)+
+  geom_point(data = SLC.abund, aes(x = x, y = y, group=x), size = 8, shape = shapes)
+
 
 
 # Varied sigma for both CLC and SLC
@@ -155,7 +173,7 @@ SLCplot <- ggmatplot(x, Total_species_SLC,
 
 grid.arrange(CLCplot,SLCplot, ncol = 2, widths = c(1.3,2))
 
-# ----------------- Animated plot (a little broken still :( )
+# Animated plot (a little broken still :( ) -------------------------------
 
 last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
@@ -169,14 +187,14 @@ plot <- ggplot(phenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait, size = Num
   theme_minimal(base_family = "LM Roman 10", base_size = 18) +
   # gganimate specific bits:
   labs( x = 'Juvenile Trait', y = 'Adult Trait') +
-  transition_states(Year) +
+  transition_time(Year) +
   ease_aes('linear')
 
 
 anim_save("D:\\Izabel Master thesis\\Code\\clc.model\\plots", animation = plot, renderer = gifski_renderer())
 
 
-# Many scatter plots
+# Many scatter plots -----------------------------------------------
 
 plot_list_10 <- list()
 

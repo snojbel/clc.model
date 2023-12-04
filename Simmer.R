@@ -240,7 +240,7 @@ for(r in 1:10) {
     
     final_data_SLC <- slc.groups(output = outputSLC)
     Total_species_SLC_single[i] <- nrow(final_data_SLC)
-    Abundance_species_SLC_single[i] <- sum(final_data_SLC[,])
+    Abundance_species_SLC_single[i] <- sum(final_data_SLC[,3])
   }
   
   Total_SLC_list[[r]] <- Total_species_SLC_single
@@ -250,7 +250,7 @@ for(r in 1:10) {
 # Caluclating mean of 10 runs
 
 Total_mean_SLC <- Reduce(`+`, Total_SLC_list) / length(Total_SLC_list)
-
+Total_mean_abund_SLC <- Reduce(`+`, Total_abund_SLC_list) / length(Total_abund_SLC_list) 
 
 
 
@@ -292,6 +292,7 @@ for(r in 1:10){
 # Caluclating mean of 10 runs
 
 Total_mean_CLC <- Reduce(`+`, Total_CLC_list) / length(Total_CLC_list)
+Total_mean_abund_CLC <- Reduce(`+`, Total_abund_CLC_list) / length(Total_abund_CLC_list) 
 
 # Saving results
 
