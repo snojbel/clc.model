@@ -142,6 +142,11 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       break
     }
     
+    if(sum(which(is.na(pop[,1])) != 0)){                                                          # Checks whether population has reached zero, then it breaks the for loop.                                   
+      print("Population extinction")
+      break
+    }
+    
     stats <- rbind(stats, c(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]))) 
     
     pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2])

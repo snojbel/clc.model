@@ -132,7 +132,9 @@ SLC.abund <-  data.frame(x = rep(x, length(Total_mean_SLC)), y = Total_mean_abun
 shapes <- c(rep(x = 8, times =nrow(SLC.abund)))
 SLC.abund <- cbind(SLC.abund, shapes)
 
-ggmatplot(x, Total_mean_abund,
+test <- as.matrix(Total_abund_CLC_list)
+
+ggmatplot(x, test,
           plot_type = "point",
           xlab = "Adult Generalism",
           ylab = "Abundance of total population",
@@ -183,7 +185,7 @@ phenodataCLC[,1] <- as.factor(phenodataCLC[,1])
 
 
 plot <- ggplot(phenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait, size = Num_Individuals)) +
-  geom_point() +
+  geom_point(colour = "#158FAD", show.legend = FALSE) +
   theme_minimal(base_family = "LM Roman 10", base_size = 18) +
   # gganimate specific bits:
   labs( x = 'Juvenile Trait', y = 'Adult Trait') +
@@ -198,7 +200,7 @@ anim_save("D:\\Izabel Master thesis\\Code\\clc.model\\plots", animation = plot, 
 
 plot_list_10 <- list()
 
-for (i in 1:length(last_year_list)){
+for (i in 1:9){
   
   color_palette <- mako(length(last_year_list[[i]]$Adult_Trait))
   
@@ -208,7 +210,7 @@ for (i in 1:length(last_year_list)){
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
 }
 
-grid.arrange(grobs = plot_list_10, ncol = 5, nrow = 3)
+grid.arrange(grobs = plot_list_10, ncol = 3, nrow = 3)
 
 
 

@@ -10,7 +10,7 @@
 # SLC:
 resource.freq <- rep(0.1, times = 16)                                      # res. freq. 
 resource.prop <- c(seq(from = -2.5, to = 2.5, length.out = 16))            # res. property 
-abundance <- 20000
+abundance <- 1000
 resource.abundance <- abundance*resource.freq
 
 
@@ -20,8 +20,8 @@ resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 16))
 
 resource.frequency <- rep(0.1, times = 16)
 
-resource.abundance.adults     <- 20000                              # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 20000
+resource.abundance.adults     <- 1000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 1000
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=length(resource.frequency), byrow = TRUE)
 resFreqMatrix[1, ] <- resFreqMatrix[1, ]*resource.abundance.adults
@@ -286,7 +286,7 @@ for(r in 1:10){
     
   }
   Total_CLC_list[[r]] <- Total_species_CLC
-  Total_abund_CLC_list <- Abundance_species_CLC
+  Total_abund_CLC_list[[r]] <- Abundance_species_CLC
 }
 
 # Caluclating mean of 10 runs
@@ -306,8 +306,9 @@ last_year_list <- list()
 
 for(i in 1:10){
   
-  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 500000)
   
+  print(paste0("loop ", i, " started"))
   
   phenodataCLC <- NULL
   
@@ -417,7 +418,7 @@ for(i in 1:length(sigmas)){
   }
   else if(i == 3){
     plot_list_CLC[[i]] <- ggplot(last_year_list_CLC[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
-        geom_point(colour= "#158FAD", aes(size=Num_Individuals), show.legend = FALSE) +                                  # Add points
+        geom_point(colour= "#158FAD", show.legend = FALSE) +   #aes(size=Num_Individuals),                               # Add points
         labs(title = substitute(sigma == value, list(value = sigmas[i])), x = "Juvenile Trait") +                 # Labels for the axes
         scale_x_continuous(limits = c(-3,3)) +
         scale_y_continuous(limits = c(-3,3))  +
@@ -430,7 +431,7 @@ for(i in 1:length(sigmas)){
     
     
     plot_list_SLC[[i]] <- ggplot(last_year_list_SLC[[i]], aes(x = Trait, y = 0))+
-      geom_point(colour = "#158FAD", aes(size=Num_Individuals), show.legend = FALSE)  +
+      geom_point(colour = "#158FAD",  show.legend = FALSE)  +        #aes(size=Num_Individuals),
       geom_segment(data = data.frame(x = c(-2, 0, 2), y = rep(0, 3)),
                    aes(x = x, xend = x, y = -0.1, yend = 0.1), color = "black", size = 0.5) +
       geom_text(data = data.frame(x = c(-2, 0, 2), label = c("-2", "0", "2")),
@@ -452,7 +453,7 @@ for(i in 1:length(sigmas)){
   }
   else{
     plot_list_CLC[[i]] <- ggplot(last_year_list_CLC[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
-          geom_point(colour= "#158FAD", aes(size=Num_Individuals), show.legend = FALSE) +                                  # Add points
+          geom_point(colour= "#158FAD", show.legend = FALSE) +   #aes(size=Num_Individuals),                               # Add points
           labs(title = substitute(sigma == value, list(value = sigmas[i]))) +                 # Labels for the axes
           scale_x_continuous(limits = c(-3,3)) +
           scale_y_continuous(limits = c(-3,3))  +
@@ -464,7 +465,7 @@ for(i in 1:length(sigmas)){
                 plot.title = element_text(hjust = 0.5))
     
     plot_list_SLC[[i]] <- ggplot(last_year_list_SLC[[i]], aes(x = Trait, y = 0))+
-      geom_point(colour = "#158FAD", aes(size=Num_Individuals), show.legend = FALSE)  +
+      geom_point(colour = "#158FAD", show.legend = FALSE)  + #aes(size=Num_Individuals),
       geom_segment(data = data.frame(x = c(-2, 0, 2), y = rep(0, 3)),
                    aes(x = x, xend = x, y = -0.1, yend = 0.1), color = "black", size = 0.5) +
       geom_text(data = data.frame(x = c(-2, 0, 2), label = c("-2", "0", "2")),

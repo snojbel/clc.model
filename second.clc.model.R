@@ -15,7 +15,7 @@
                 # time.steps: how long the function runs e.g. years
                 # iniP(A/J) : initial phenotype of adult and juvenile(different)
                 # nmorphs   : Number of morphs in initial run
-                # im        : Chance of an immigrant appearing
+                # im        : Chance of an immigrant appearing (percentage 0-1)
                 # threshold : Sets how many individuals is needed for it to be considered a different morph. Any morph with less than threshold*total pop size at the end of the run will be removed.
 
 # Libraries:
@@ -85,7 +85,6 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       # Spawning of offspring -------------------------------------------------
       
       juveniles <- adults                                                         # Create a matrix were we will add juveniles into
-      
       
       juveniles[,1] <- rpois(n = nrow(juveniles), lambda = juveniles[,1]*juveniles[,4]) 
   
@@ -163,24 +162,33 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
      
       # Adding immigrants ---------------------------------------------------------------------
       
-      #if (runif(1) < im){
+      if (runif(1) < im){
         
-       # Atrait <- sample(x = possAtrait, size = 1)
-       # Jtrait <- sample(x = possJtrait, size = 1)
+        Atrait <- sample(x = possAtrait, size = 1)
+        Jtrait <- sample(x = possJtrait, size = 1)
         
-      #  if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks wheter a exact match of immigrant already exists
-       #   rbind(pop, c(1, Atrait, Jtrait, NA))
-       # } else{
-       #   same <- which(pop[,2] == Atrait & pop[,3] == Jtrait)
-       #   pop[same,1] <- pop[same,1]+1
-       # }
+        if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks wheter a exact match of immigrant already exists
+          rbind(pop, c(1, Atrait, Jtrait, NA))
+           } else{
+          same <- which(pop[,2] == Atrait & pop[,3] == Jtrait)
+          pop[same,1] <- pop[same,1]+1
+          }
         
-     # }
+      }
       
 
       
     # extract stats and phenotype ---------------------------------------------
     
+      if(nrow(pop) == 0){                                                          # Checks whether population has reached zero, then it breaks the for loop.                                   
+        print("Population extinction")
+        break
+      }
+      
+      if(sum(which(is.na(pop[,1])) != 0)){                                                          # Checks whether population has reached zero, then it breaks the for loop.                                   
+        print("Population extinction")
+        break
+      }
    
     
     stats <- rbind(stats, c(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]), 
@@ -278,8 +286,8 @@ resource.frequency <- c(0.1,  0.1,  0.1,  0.1,  0.1, 0.1,  0.1,  0.1,  0.1,  0.1
 resource.property<- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10,                  # res. property of adults
                       1, 2, 3, 4, 5, 6, 7, 8, 9, 10)                   # res. property of juveniles
 
-resource.abundance.adults     <- 15000                              # res. abundance of adults and juveniles
-resource.abundance.juveniles  <- 15000
+resource.abundance.adults     <- 20000                              # res. abundance of adults and juveniles
+resource.abundance.juveniles  <- 20000
 
 resFreqMatrix <- matrix(resource.frequency, nrow=2, ncol=10, byrow = TRUE)
 
@@ -298,7 +306,7 @@ colnames(resFreqMatrix)  <- paste0("Resource ", 1:ncol(resPropMatrix))
 
 
 
-outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, iniPA = 0, iniPJ = 0, resFreq=resFreqMatrix, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, iniPA = 6, iniPJ = 6, resFreq=resFreqMatrix, fmax = 3, popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 30000, im = 0.2)
 
 statsCLC <- outputCLC$stats
 phenotypesCLC <- outputCLC$phenotypes
