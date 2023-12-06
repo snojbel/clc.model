@@ -307,7 +307,7 @@ iniPs <- seq(from = -2, to = 2, by = 0.5)
 
 for(i in 1:length(iniPs)){
   print(paste0("loop ", i, " started"))
-  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = iniPs[i], iniPJ = iniPs[i], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
+  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = iniPs[i], iniPJ = iniPs[i], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 200000)
   
   
   
