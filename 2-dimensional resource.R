@@ -8,6 +8,9 @@ library(extrafont)
 library(viridisLite)  # Color things
 library(viridis)
 
+# resGen refers to the two different traits again, but now they affect both lifestages
+# cov is the covariance between the two traits feeding efficiency
+
 # Resources ------------------
 
 resource_prop_1 <- c(-2,1,0,1,2) # column
@@ -52,7 +55,7 @@ resFreq <- N.resource.frequency*resource.abundance
 
 resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), im = 0.001, 
                                    fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.0005, mutVar=0.05, time.steps=200, iniP1=0, 
-                                   iniP2 = 0, threshold = 0.005, nmorphs = 1){
+                                   iniP2 = 0, threshold = 0.005, nmorphs = 1, cov = 0){
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -92,7 +95,7 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
     # The code above makes it so that when I calculate alpha I get a matrix where each row corresponds to a different morph¨
     # and each column a different resource
     
-    alphaA           <- exp(-((((aduTrait1Matrix-resPropAdu1Matrix)^2)+((aduTrait2Matrix-resPropAdu2Matrix)^2))/((2*resGen[1,1])^2))) + epsilon                 # Calculation of individual alpha
+    alphaA           <- (1/(sqrt(((2*pi)^2)*((resGen[1,1]^2)*(resGen[2,1]^2)-2*cov))))*exp(-((((resGen[1,1]^2)*(aduTrait1Matrix-resPropAdu1Matrix)^2)+((resGen[2,1]^2)*(aduTrait2Matrix-resPropAdu2Matrix)^2)+(2*cov*(aduTrait1Matrix-resPropAdu1Matrix)*(aduTrait2Matrix-resPropAdu2Matrix))/(2*(resGen[1,1]^2)*(resGen[2,1]^2)-2*cov)))) + epsilon                 # Calculation of individual alpha
     adultAbund       <- adults[,1]
     adultAbundMatrix <- matrix(data = rep(adultAbund, each = length(resProp1)), ncol = length(resProp1), nrow = nrow(adults), byrow = T)  # Creation of a matrix with population size of each type in the rows
     alphaSumA        <- colSums((alphaA*adultAbundMatrix))                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
