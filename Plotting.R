@@ -175,7 +175,7 @@ SLCplot <- ggmatplot(x, Total_species_SLC,
 
 grid.arrange(CLCplot,SLCplot, ncol = 2, widths = c(1.3,2))
 
-# Animated plot (a little broken still :( ) -------------------------------
+# Animated plot  -------------------------------
 
 last_year_data <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
 color_palette <- mako(length(last_year_data$Adult_Trait))
@@ -225,6 +225,8 @@ for (i in 1:length(last_year_list_2_res)){
   plot_list_2rs[[i]] <- ggplot(last_year_list_2_res[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
     geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
     labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3,3)) +
+    scale_y_continuous(limits = c(-3,3)) +
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
 }
 
