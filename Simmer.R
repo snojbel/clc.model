@@ -535,3 +535,49 @@ grid.arrange(plot_list_CLC[[1]],plot_list_CLC[[2]],plot_list_CLC[[3]],plot_list_
 
 
 
+
+# Different mutationial probabilities (1C) ----------------------------------------
+
+mutations <- c(0.0001, 0.0005, 0.0010, 0.0015, 0.0020, 0.0025, 0.0030, 0.0035, 0.0040)
+
+last_year_list_mut <- list()
+
+for (i in 1:length(mutations)) {
+  print(paste0("loop ", i, " started"))
+  
+  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, 
+                                    resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=mutations[i], mutVar=0.05, time.steps = 100000)
+  
+  
+  phenodataCLC <- NULL
+  
+  phenodataCLC <- data.frame(
+    Year = outputCLC$phenotypes[, 1],
+    Adult_Trait = outputCLC$phenotypes[, 3],
+    Juvenile_Trait = outputCLC$phenotypes[, 4],
+    Num_Individuals = outputCLC$phenotypes[, 2])
+  
+  last_year_list_mut[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  
+  
+}
+
+
+plot_list_mut <- list()
+
+for (i in 1:length(last_year_list_mut)){
+  
+  color_palette <- mako(length(last_year_list_mut[[i]]$Adult_Trait))
+  
+  plot_list_mut[[i]] <- ggplot(last_year_list_mut[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    labs(title = substitute(mu == value, list(value = mutations[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3)) +
+    scale_y_continuous(limits = c(-3 ,3)) +
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot_list_2rs_as, ncol = 5, nrow = 3,
+             top = text_grob("Effect of mutation chance", size = 10, family = "LM Roman 10"))
+
+
