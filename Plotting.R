@@ -12,7 +12,6 @@ library(viridis)
 library(ggplot2)      # Prettier plots
 library(gridExtra)  
 library(cowplot)
-library(gg)
 library(extrafont)   #needed to add extra fonts
 #font_import()  #Only needed first time in R
 #loadfonts()
@@ -210,13 +209,19 @@ for (i in 1:9){
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
 }
 
-grid.arrange(grobs = plot_list_10, ncol = 3, nrow = 3)
+grid.arrange(grobs = plot_list_10, ncol = 3, nrow = 3, top =textGrob("Different Starting traits", gp = gpar(fontsize = 10, fontfamily = "LM Roman 10")))
 
 
 
 # Also many plots 2 res case ---------------
 
+library(ggpubr)
+sigmas <- seq(from = 0.1, to = 0.8, by = 0.05)
+
+#1BA
 plot_list_2rs <- list()
+
+last_year_list_2_res <- `2res-sim_results`[["last_year_list_2_res"]]
 
 for (i in 1:length(last_year_list_2_res)){
   
@@ -224,12 +229,31 @@ for (i in 1:length(last_year_list_2_res)){
   
   plot_list_2rs[[i]] <- ggplot(last_year_list_2_res[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
     geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
-    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3,3)) +
-    scale_y_continuous(limits = c(-3,3)) +
+    labs(title = substitute(sigma == value, list(value = sigmas[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-1.5,1.5)) +
+    scale_y_continuous(limits = c(-1.5,1.5)) +
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
 }
 
-grid.arrange(grobs = plot_list_2rs, ncol = 5, nrow = 3)
+grid.arrange(grobs = plot_list_2rs, ncol = 5, nrow = 3,
+             top = text_grob("Symmetric resources", size = 10, family = "LM Roman 10"))
 
+#1B2
 
+plot_list_2rs_as <- list()
+last_year_list_2_res_as <- `2res-sim_results`[["last_year_list_2_res_as"]]
+
+for (i in 1:length(last_year_list_2_res_as)){
+  
+  color_palette <- mako(length(last_year_list_2_res_as[[i]]$Adult_Trait))
+  
+  plot_list_2rs_as[[i]] <- ggplot(last_year_list_2_res_as[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    labs(title = substitute(sigma == value, list(value = sigmas[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-1.5,1.5)) +
+    scale_y_continuous(limits = c(-1.5,1.5)) +
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot_list_2rs_as, ncol = 5, nrow = 3,
+             top = text_grob("Asymmetric resources", size = 10, family = "LM Roman 10"))

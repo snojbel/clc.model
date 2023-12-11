@@ -34,6 +34,10 @@ Resource abundance (skewed):
 2205.882
 2352.941
 
+1A3 deviations:
+iniP: iniPs <- seq(from = -2, to = 2, by = 0.5)
+time steps 200 000
+
 
 
 1B Sim conditions: 

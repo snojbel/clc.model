@@ -95,7 +95,7 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
     # The code above makes it so that when I calculate alpha I get a matrix where each row corresponds to a different morph¨
     # and each column a different resource
     
-    alphaA           <- (1/(sqrt(((2*pi)^2)*((resGen[1,1]^2)*(resGen[2,1]^2)-2*cov))))*exp(-((((resGen[1,1]^2)*(aduTrait1Matrix-resPropAdu1Matrix)^2)+((resGen[2,1]^2)*(aduTrait2Matrix-resPropAdu2Matrix)^2)+(2*cov*(aduTrait1Matrix-resPropAdu1Matrix)*(aduTrait2Matrix-resPropAdu2Matrix))/(2*(resGen[1,1]^2)*(resGen[2,1]^2)-2*cov)))) + epsilon                 # Calculation of individual alpha
+    alphaA           <- (1/(sqrt(((2*pi)^2)*((resGen[1,1]^2)*(resGen[2,1]^2)-cov^2))))*exp(-((((resGen[2,1]^2)*(aduTrait1Matrix-resPropAdu1Matrix)^2)+((resGen[1,1]^2)*(aduTrait2Matrix-resPropAdu2Matrix)^2)-(2*cov*(aduTrait1Matrix-resPropAdu1Matrix)*(aduTrait2Matrix-resPropAdu2Matrix))/(2*(resGen[1,1]^2)*(resGen[2,1]^2)-cov^2)))) + epsilon                 # Calculation of individual alpha
     adultAbund       <- adults[,1]
     adultAbundMatrix <- matrix(data = rep(adultAbund, each = length(resProp1)), ncol = length(resProp1), nrow = nrow(adults), byrow = T)  # Creation of a matrix with population size of each type in the rows
     alphaSumA        <- colSums((alphaA*adultAbundMatrix))                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
@@ -175,7 +175,7 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
     juvTrait1Matrix <- matrix(data = rep(juvTrait1, each = length(resProp1)), ncol = length(resProp1), nrow = nrow(juveniles), byrow = T)
     juvTrait2Matrix <- matrix(data = rep(juvTrait2, each = length(resProp2)), ncol = length(resProp2), nrow = nrow(juveniles), byrow = T)
     
-    alphaJ            <- exp(-((((juvTrait1Matrix-resPropJuv1Matrix)^2)+((juvTrait2Matrix-resPropJuv2Matrix)^2))/(2*resGen[2,1]^2))) + epsilon
+    alphaJ            <- (1/(sqrt(((2*pi)^2)*((resGen[1,1]^2)*(resGen[2,1]^2)-cov^2))))*exp(-((((resGen[2,1]^2)*(juvTrait1Matrix-resPropJuv1Matrix)^2)+((resGen[1,1]^2)*(juvTrait2Matrix-resPropJuv2Matrix)^2)-(2*cov*(juvTrait1Matrix-resPropJuv1Matrix)*(juvTrait2Matrix-resPropJuv2Matrix))/(2*(resGen[1,1]^2)*(resGen[2,1]^2)-cov^2)))) + epsilon
     juvenAbund        <- juveniles[,1]
     juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = length(resProp1)), ncol = length(resProp1), nrow = nrow(juveniles), byrow = T)  # Creation of a matrix with population size of each type in the rows
     alphaSumJ         <- colSums(alphaJ*juvenAbundMatrix)                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
