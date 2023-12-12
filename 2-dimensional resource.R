@@ -7,14 +7,22 @@ library(gridExtra)
 library(extrafont)
 library(viridisLite)  # Color things
 library(viridis)
+library(VGAM)
 
 # resGen refers to the two different traits again, but now they affect both lifestages
 # cov is the covariance between the two traits feeding efficiency
 
 # Resources ------------------
 
-resource_prop_1 <- c(-2,1,0,1,2) # column
-resource_prop_2 <- c(-2,1,0,1,2) # row
+
+quantiles <- seq(from = -2.5, to = 2.5, length.out = 6)
+
+
+resource_prop_1 <- c()
+for(i in 1:(length(quantiles)-1)){
+  resource_prop_1[i] <- (quantiles[i]+quantiles[i+1])/2
+}
+resource_prop_2 <- resource_prop_1                         # Symmetrical resource properties
 
 resProp1 <- rep(resource_prop_1, each = length(resource_prop_2))  # This is done to make the math in the function nice
 
@@ -31,22 +39,25 @@ s <- 1
 N.resource.frequency <- c()
 N.resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 25)) 
 
-mid.add <- c()
-midpoint <- c()
 
-for(i in 1:(length(N.resource.property))){
-  mid.add <- (N.resource.property[i+1]-N.resource.property[i])/2
-  high.midpoint <- N.resource.property[(i)]+mid.add
-  low.midpoint <- N.resource.property[(i)]-mid.add
-  if(i == 1){
-    N.resource.frequency[i] <- pnorm(high.midpoint, mean = m, sd = s) 
-  }else if(i == length(N.resource.property)){
-    low.midpoint <- N.resource.property[(i-1)] + (N.resource.property[i]-N.resource.property[i-1])/2
-    N.resource.frequency[i] <- pnorm(low.midpoint, mean = m, sd = s, lower.tail = FALSE)
-  }else{
-    N.resource.frequency[i] <- pnorm(high.midpoint, mean = m, sd = s) - pnorm(low.midpoint, mean = m, sd = s) 
+
+N.resource.frequency <- c()
+r <- 1
+
+for(i in 1:length(resource_prop_1)){
+  for(k in 1:length(resource_prop_2)){
+    upper <- pbinorm(quantiles[k+1], quantiles[i+1], mean1 = m, mean2 = m, var1 = s, var2 = s, cov12 = 0)
+    rightlower <- pbinorm(quantiles[k+1], quantiles[i], mean1 = m, mean2 = m, var1 = s, var2 = s, cov12 = 0)
+    leftlower <- pbinorm(quantiles[k], quantiles[i+1], mean1 = m, mean2 = m, var1 = s, var2 = s, cov12 = 0)
+    lowerlower <- pbinorm(quantiles[k], quantiles[i], mean1 = m, mean2 = m, var1 = s, var2 = s, cov12 = 0)
+   
+    N.resource.frequency[r] <- upper - (rightlower+leftlower) + lowerlower
+    r <- r+1
   }
+  
 }
+
+
 
 resource.abundance <- 20000
 resFreq <- N.resource.frequency*resource.abundance   
@@ -241,9 +252,10 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
 
 
 
-output2dr <- resourceCompetition2dr(popSize = 10, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreq, time.steps = 10000)
+output2dr <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreq, 
+                                    time.steps = 50000, resGen=matrix(c(0.10,0.10)))
 
-
+stats <- output2dr$stats
 
 
 # Creating data frame for easy plotting
@@ -282,6 +294,26 @@ color_palette <- mako(length(last_year_data$Trait1))
 
 ggplot(last_year_data, aes(x = Trait2, y = Trait1)) +
   geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
-  labs(x = "Trait 1", y = "Trait 2", size = "Number of individuals") +                 # Labels for the axes
+  labs(x = "Trait 1", y = "Trait 2", size = "Number of individuals") +  
+  scale_x_continuous(limits = c(-1.5,1.5)) +
+  scale_y_continuous(limits = c(-1.5,1.5)) + 
   theme_minimal(base_family = "LM Roman 10", base_size = 18)
+
+
+
+
+
+# Test of resources normality working.
+
+library(plot3D)
+
+test <- matrix(resFreq, nrow = 5, ncol = 5, byrow = T)
+
+hist3D(z = test, border = "black")
+
+
+
+
+
+
 
