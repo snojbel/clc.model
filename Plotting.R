@@ -11,8 +11,10 @@ library(viridisLite)  # Color things
 library(viridis)
 library(ggplot2)      # Prettier plots
 library(gridExtra)  
+library(ggpubr)
 library(cowplot)
-library(extrafont)   #needed to add extra fonts
+library(extrafont) 
+#needed to add extra fonts
 #font_import()  #Only needed first time in R
 #loadfonts()
 #fonts() #to check names of fonts
@@ -213,9 +215,8 @@ grid.arrange(grobs = plot_list_10, ncol = 3, nrow = 3, top =textGrob("Different 
 
 
 
-# Also many plots 2 res case ---------------
+# 2 Res Simulation ------------------------------------------------------------
 
-library(ggpubr)
 sigmas <- seq(from = 0.1, to = 0.8, by = 0.05)
 
 #1BA

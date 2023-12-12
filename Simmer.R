@@ -8,7 +8,7 @@
 # Evenly distributed Resources
 
 # SLC:
-resource.freq <- rep(0.1, times = 16)                                      # res. freq. 
+resource.freq <- rep(1/16, times = 16)                                      # res. freq. 
 resource.prop <- c(seq(from = -2.5, to = 2.5, length.out = 16))            # res. property 
 abundance <- 1000
 resource.abundance <- abundance*resource.freq
@@ -18,7 +18,7 @@ resource.abundance <- abundance*resource.freq
 
 resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 16)) 
 
-resource.frequency <- rep(0.1, times = 16)
+resource.frequency <- rep(1/16, times = 16)
 
 resource.abundance.adults     <- 1000                              # res. abundance of adults and juveniles
 resource.abundance.juveniles  <- 1000
@@ -233,6 +233,7 @@ for(i in 1:length(sigma)){
 Total_SLC_list <- list()
 Total_abund_SLC_list <- list()
 
+
 for(r in 1:10) {
   
   print(paste0("loop ", r, " started"))
@@ -308,7 +309,7 @@ saveRDS(Total_CLC_list, file = "CLC1Alist.RData")
 
 saveRDS(Total_SLC_list, file = "SLC1Alist.RData")
 
-# 10 Runs of to see endpoint
+# 10 Runs of to see endpoint --------------------------------------------------
 
 last_year_list <- list()
 iniPs <- seq(from = -2, to = 2, by = 0.5)
