@@ -1,4 +1,4 @@
-# Background jobs 2dr
+# Background jobs 2 resources
 
 
 resource.prop <- c(-1,1)

@@ -571,13 +571,17 @@ for (i in 1:length(last_year_list_mut)){
   
   plot_list_mut[[i]] <- ggplot(last_year_list_mut[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
     geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
-    labs(title = substitute(mu == value, list(value = mutations[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    labs(title = substitute(mu == value, list(value = mutations[i])), ) +  #x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals"               # Labels for the axes
     scale_x_continuous(limits = c(-3, 3)) +
     scale_y_continuous(limits = c(-3 ,3)) +
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+    theme_minimal(base_family = "LM Roman 10", base_size = 10) + 
+    theme(axis.title = element_blank(),
+            plot.title = element_text(hjust = 0.5))
 }
 
-grid.arrange(grobs = plot_list_2rs_as, ncol = 5, nrow = 3,
-             top = text_grob("Effect of mutation chance", size = 10, family = "LM Roman 10"))
+grid.arrange(grobs = plot_list_mut, ncol = 3, nrow = 3,
+             top = text_grob("Effect of mutation chance", size = 13, family = "LM Roman 10"),
+             left = text_grob("Adult Trait", size = 15, family = "LM Roman 10", rot = 90),
+             bottom = text_grob("Juvenile Trait", size = 15, family = "LM Roman 10"))
 
 
