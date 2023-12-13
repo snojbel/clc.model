@@ -2,6 +2,46 @@
 
 library(parallel)
 
+
+
+# Run through of http://www.trutschnig.net/r_parallel.html 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Number of workers
 no.cores <- detectCores() - 1
 

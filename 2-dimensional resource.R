@@ -60,11 +60,14 @@ for(i in 1:length(resource_prop_1)){
 
 
 resource.abundance <- 20000
-resFreq <- N.resource.frequency*resource.abundance   
+resFreq <- N.resource.frequency*resource.abundance 
+
+E.resource.frequency <- c(rep(1/25, times = 25)) 
+resFreq <- E.resource.frequency*resource.abundance
 
 # Function ------------------
 
-resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), im = 0.001, 
+resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), im = 0.01, 
                                    fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.0005, mutVar=0.05, time.steps=200, iniP1=0, 
                                    iniP2 = 0, threshold = 0.005, nmorphs = 1, cov = 0){
   
@@ -73,7 +76,7 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
   pop[,1] <- popSize
   pop[,2] <- iniP1
   pop[,3] <- iniP2
-  pop[,4] <- iniP2
+  pop[,4] <- 0
   
   
   colnames(pop) <- c("Number of indivduals", "Trait 1", "Trait 2", "Proxy")
@@ -84,7 +87,8 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Trait 1", "Trait 2")                                        
   
   epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
-  #posstrait <- seq(from = min(resProp)-1, to = max(resProp)+1, by = mutVar)
+  posstrait1 <- seq(from = min(resProp1)-1, to = max(resProp1)+1, by = mutVar)
+  posstrait2 <- seq(from = min(resProp2)-1, to = max(resProp2)+1, by = mutVar)
   
   for (t in 1:time.steps){
     
@@ -148,7 +152,7 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
         mutChange <- rnorm(n=1, mean=0, sd=mutVar)
         juveniles[mutation.pos[i], 1] <- juveniles[mutation.pos[i], 1] - 1         # Removes the mutated individual from the morph
         
-        if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                            # Randomly choose whether trait 1 or two was mutated.
+        if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                            # Randomly choose whether trait 1 or 2 was mutated.
           
           
           new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] + mutChange, #Changes trait 1 to a new trait and adds it to the juveniles
@@ -207,20 +211,21 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
     
     pop <- juveniles[juveniles[, 1] != 0, , drop = FALSE]                        # all adults die after reproducing, so the new generation is only juveniles, and all rows with zero individuals are removed.
     
-    # Adding immigrants ---------------------------------------------------------------------
+    #Adding immigrants ---------------------------------------------------------------------
     
-    #if (runif(1) < im){
-    
-    # trait <- sample(x = posstrait, size = 1)
-    
-    #  if(sum(pop[,2] == trait) == 0) {                   # Checks wheter a exact match of immigrant already exists
-    #   rbind(pop, c(1, trait, NA))
-    # } else{
-    #   same <- which(pop[,2] == trait)
-    #   pop[same,1] <- pop[same,1]+1
-    # }
-    
-    # }
+    if (runif(1) < im){
+      
+      trait1 <- sample(x = posstrait1, size = 1)
+      trait2 <- sample(x = posstrait2, size = 1)
+      
+      if(sum(pop[,2] == trait1 & pop[,3] == trait2) == 0) {                   # Checks wheter a exact match of immigrant already exists
+        rbind(pop, c(1, trait1, trait2, 0))
+      } else{
+        same <- which(pop[,2] == trait1 & pop[,3] == trait2)
+        pop[same,1] <- pop[same,1] + 1
+      }
+      
+    }
     
     
     # extract stats and phenotype ---------------------------------------------
@@ -250,11 +255,17 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
   
 }
 
+# Make it a job to free up R console
 
+job::job(output2dr = {
+  output2dr <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreq, 
+                                      time.steps = 100000, resGen=matrix(c(0.15,0.15)))
 
-output2dr <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreq, 
-                                    time.steps = 50000, resGen=matrix(c(0.10,0.10)))
+# Control what is returned to the main session
+  job::export(output2dr)
+}, import = c(resProp1, resProp2, resFreq, resourceCompetition2dr)) 
 
+output2dr <- output2dr$output2dr
 stats <- output2dr$stats
 
 

@@ -1,9 +1,34 @@
 
 # Script for running simulations
 
+library(job)
 
 
-# Initialization ----------------
+# To run in background use: job::job({}) <- with global environment
+#job::empty() without
+
+#Example:
+# Name the code block to return as environment
+#job::job(name = {
+  # Job-specific settings
+#  options(mc.cores = 3)
+  
+  # Compute stuff
+#  fit = brm(model1, data)
+#  fit = add_criterion(fit, "loo")
+#  the_test = hypothesis(fit, "hp > 0")
+  
+  # Print stuff inside the job
+#  print(summary(fit))
+  
+  # Control what is returned to the main session
+#  job::export(c(fit, the_test))
+#}, import = c(data, model1)) 
+#Will return job as an environment called "name"
+
+
+ 
+ # Initialization ----------------
 
 # Evenly distributed Resources
 

@@ -765,7 +765,7 @@ for(r in 1:10) {
     #Filter out similar "species"
     
     final.data.SLC.normal <- slc.groups(output = outputSLC)
-    Tota.species.SLC.single.normal[i] <- nrow(final.data.SLC.normal)
+    Total.species.SLC.single.normal[i] <- nrow(final.data.SLC.normal)
     Abundance.species.SLC.single.normal[i] <- sum(final.data.SLC.normal[,3])
   }
   
@@ -898,7 +898,7 @@ for(r in 1:10) {
     #Filter out similar "species"
     
     final.data.SLC.skewed <- slc.groups(output = outputSLC)
-    Tota.species.SLC.single.skewed[i] <- nrow(final.data.SLC.skewed)
+    Total.species.SLC.single.skewed[i] <- nrow(final.data.SLC.skewed)
     Abundance.species.SLC.single.skewed[i] <- sum(final.data.SLC.skewed[,3])
   }
   
