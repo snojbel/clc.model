@@ -8,6 +8,7 @@ library(extrafont)
 library(viridisLite)  # Color things
 library(viridis)
 library(VGAM)
+library(plot3D)
 
 # resGen refers to the two different traits again, but now they affect both lifestages
 # cov is the covariance between the two traits feeding efficiency
@@ -15,7 +16,7 @@ library(VGAM)
 # Resources ------------------
 
 
-quantiles <- seq(from = -2.5, to = 2.5, length.out = 6)
+quantiles <- seq(from = -5, to = 5, length.out = 26)
 
 
 resource_prop_1 <- c()
@@ -35,9 +36,9 @@ resProp2 <- rep(resource_prop_2, times = length(resource_prop_1))
 # Normal resources:
 
 m <- 0 
-s <- 1
+s <- 3
 N.resource.frequency <- c()
-N.resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 25)) 
+N.resource.property<- c(seq(from = -2.5, to = 2.5, length.out = (length(quantiles)-1)^2)) 
 
 
 
@@ -60,10 +61,21 @@ for(i in 1:length(resource_prop_1)){
 
 
 resource.abundance <- 20000
+sum(N.resource.frequency)
 resFreq <- N.resource.frequency*resource.abundance 
 
-E.resource.frequency <- c(rep(1/25, times = 25)) 
-resFreq <- E.resource.frequency*resource.abundance
+
+
+# Test of resources normality working.
+
+test <- matrix(resFreq, nrow = (length(quantiles)-1), ncol = (length(quantiles)-1), byrow = T)
+hist3D(z = test, border = "black")
+
+# Even resources
+
+R <- (length(quantiles)-1)^2
+E.resource.frequency <- c(rep(1/R, times = R)) 
+resFreqE <- E.resource.frequency*resource.abundance
 
 # Function ------------------
 
@@ -218,7 +230,7 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
       trait1 <- sample(x = posstrait1, size = 1)
       trait2 <- sample(x = posstrait2, size = 1)
       
-      if(sum(pop[,2] == trait1 & pop[,3] == trait2) == 0) {                   # Checks wheter a exact match of immigrant already exists
+      if(sum(pop[,2] == trait1 & pop[,3] == trait2) == 0) {                   # Checks whether a exact match of immigrant already exists
         rbind(pop, c(1, trait1, trait2, 0))
       } else{
         same <- which(pop[,2] == trait1 & pop[,3] == trait2)
@@ -259,15 +271,26 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
 
 job::job(output2dr = {
   output2dr <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreq, 
-                                      time.steps = 100000, resGen=matrix(c(0.15,0.15)))
+                                      time.steps = 100000, resGen=matrix(c(0.10,0.10)))
 
 # Control what is returned to the main session
   job::export(output2dr)
-}, import = c(resProp1, resProp2, resFreq, resourceCompetition2dr)) 
+}, import = c(resProp1, resProp2, resFreq, resourceCompetition2dr)) #Set was is imported into the job
 
 output2dr <- output2dr$output2dr
 stats <- output2dr$stats
 
+# Even job
+job::job(output2drEven = {
+  output2dr <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreqE, 
+                                      time.steps = 100000, resGen=matrix(c(0.10,0.10)))
+  
+  # Control what is returned to the main session
+  job::export(output2drEven)
+}, import = c(resProp1, resProp2, resFreqE, resourceCompetition2dr))
+
+output2drEven <- output2drEven$output2dr
+stats <- output2dr$stats
 
 # Creating data frame for easy plotting
 phenodata2dr <- data.frame(
@@ -312,15 +335,6 @@ ggplot(last_year_data, aes(x = Trait2, y = Trait1)) +
 
 
 
-
-
-# Test of resources normality working.
-
-library(plot3D)
-
-test <- matrix(resFreq, nrow = 5, ncol = 5, byrow = T)
-
-hist3D(z = test, border = "black")
 
 
 

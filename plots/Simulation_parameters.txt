@@ -96,6 +96,29 @@ fmax = 2
 kA = 0.5
 kJ = 0.5
 
+1F Sim Conditions:
+
+2-dim resource
+resource properties: -2, -1, 0, 1, 2  (i.e. 25 resources)
+
+# Normal resources
+sd = 1
+m = 0
+quantiles -2.5 to 2.5. 
+20000 abundance
+
+# Even resources
+1/25 freq per resource
+
+resGen = 0.15
+iniP = 0
+initial popSize = 10
+mutProb = 0.0005
+mutVar = 0.05
+time.steps = 20000
+fmax = 2
+kA = 0.5
+kJ = 0.5
 
 
 

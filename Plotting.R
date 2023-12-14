@@ -108,6 +108,12 @@ ggplot(last_year_data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
 
 
 # ------------------ Varied Sigma plot
+
+Total_mean_CLC <- Com.vs.Sim.nr.species.sim_results$Total.mean.CLC.skewed
+Total_mean_SLC <- Com.vs.Sim.nr.species.sim_results$Total.mean.SLC.skewed
+
+
+
 x <- rownames(Total_mean_CLC)
 
 
@@ -122,9 +128,11 @@ ggmatplot(x, Total_mean_CLC,
           xlab = "Adult Generalism",
           ylab = "Number of species",
           legend_title = "Juvenile Generalism",
-          legend_label = sigma,
-          size = 8) +
-          theme_minimal(base_family = "LM Roman 10", base_size = 18)+
+          legend_label = x, size = 8) +
+          scale_y_continuous(limits = c(0, 15)) +
+          ggtitle("Skewed distribution") +
+          theme_minimal(base_family = "LM Roman 10", base_size = 15)+
+          theme(plot.title = element_text(size = 18)) +                                                  #,panel.grid.major = element_line(colour = "grey", linewidth = 0.3, inherit.blank = FALSE) to add some gridlines
           geom_point(data = SLC, aes(x = x, y = y, group=x), size = 8, shape = shapes)
 
 # Abundance
