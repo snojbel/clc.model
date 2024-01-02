@@ -163,11 +163,11 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       # Adding immigrants ---------------------------------------------------------------------
       
       if (runif(1) < im){
-        
+        print("immigration!")
         Atrait <- sample(x = possAtrait, size = 1)
         Jtrait <- sample(x = possJtrait, size = 1)
         
-        if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks wheter a exact match of immigrant already exists
+        if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks whether a exact match of immigrant already exists
           rbind(pop, c(1, Atrait, Jtrait, NA))
            } else{
           same <- which(pop[,2] == Atrait & pop[,3] == Jtrait)

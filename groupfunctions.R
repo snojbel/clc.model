@@ -4,6 +4,7 @@
 # SLC -------------------------
 
 slc.groups <- function(output = outputSLC, threshold = 0.2){
+  outputSLC <- output
   
   phenodataSLC <- data.frame(
   Year = outputSLC$phenotypes[, 1],
@@ -101,6 +102,7 @@ slc.groups <- function(output = outputSLC, threshold = 0.2){
 
 clc.groups <- function(output = outputCLC, threshold = 0.2){
   
+  outputCLC <- output
   phenodataCLC <- data.frame(
     Year = outputCLC$phenotypes[, 1],
     Adult_Trait = outputCLC$phenotypes[, 3],

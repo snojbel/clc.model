@@ -5,7 +5,7 @@
 
 # Full function ----------------------------------------------------------------
 
-resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), im = 0.001, 
+resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), im = 0, 
                                    fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=5, 
                                    threshold = 0.005, nmorphs = 1){
   
@@ -122,7 +122,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     # Adding immigrants ---------------------------------------------------------------------
     
     if (runif(1) < im){
-    
+    print("immigration!")
      trait <- sample(x = posstrait, size = 1)
     
       if(sum(pop[,2] == trait) == 0) {                   # Checks whether a exact match of immigrant already exists
