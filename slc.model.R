@@ -121,18 +121,18 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
-    #if (runif(1) < im){
+    if (runif(1) < im){
     
-    # trait <- sample(x = posstrait, size = 1)
+     trait <- sample(x = posstrait, size = 1)
     
-    #  if(sum(pop[,2] == trait) == 0) {                   # Checks wheter a exact match of immigrant already exists
-    #   rbind(pop, c(1, trait, NA))
-    # } else{
-    #   same <- which(pop[,2] == trait)
-    #   pop[same,1] <- pop[same,1]+1
-    # }
+      if(sum(pop[,2] == trait) == 0) {                   # Checks whether a exact match of immigrant already exists
+       rbind(pop, c(1, trait, NA))
+     } else{
+       same <- which(pop[,2] == trait)
+       pop[same,1] <- pop[same,1]+1
+     }
     
-    # }
+     }
     
     
     # extract stats and phenotype ---------------------------------------------

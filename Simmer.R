@@ -28,7 +28,7 @@ library(job)
 
 
  
- # Initialization ----------------
+# Initializations ----------------
 
 # Evenly distributed Resources
 

@@ -218,18 +218,18 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   
 }
 
+
+
 # Appoximation of a normal distribution for resources -------------
 
 
 
-
-
-# With discrete data
-resources <- sort(rpois(10000, 20))
-resource.table <- table(resources)
-resource.matrix <- matrix(c(as.integer(names(resource.table)), as.numeric(resource.table/sum(resource.table))), nrow = 2, byrow = T)
-row.names(resource.matrix) <- c("Resource Characteristic", "Resource Frequency")
-hist(resources)
+# With discrete data (bad)
+#resources <- sort(rpois(10000, 20))
+#resource.table <- table(resources)
+#resource.matrix <- matrix(c(as.integer(names(resource.table)), as.numeric(resource.table/sum(resource.table))), nrow = 2, byrow = T)
+#row.names(resource.matrix) <- c("Resource Characteristic", "Resource Frequency")
+#hist(resources)
 
 # With cumulative distribution :
 

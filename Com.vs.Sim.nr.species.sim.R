@@ -606,7 +606,7 @@ colnames(Total.species.CLC.even) <- c(0.15, 0.3, 0.45, 0.6, 0.75) #JUVENILES
 Total.SLC.list.even <- list()
 Total.abund.SLC.list.even <- list()
 
-for(r in 1:20) {
+for(r in 1:10) {
   
   print(paste0("loop ", r, " started"))
   
@@ -615,7 +615,7 @@ for(r in 1:20) {
   
   for(i in 1:length(sigma)){
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
     
     #Filter out similar "species"
     
@@ -640,7 +640,7 @@ Total.mean.abund.SLC.even <- Reduce(`+`, Total.abund.SLC.list.even) / length(Tot
 Total.CLC.list.even <- list()
 Total.abund.CLC.list.even <- list()
 
-for(r in 1:20){
+for(r in 1:10){
   print(paste0("loop ", r, " started"))
   
   Total.species.CLC.even <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
@@ -654,7 +654,7 @@ for(r in 1:20){
     
     for(k in 1:length(sigma)){
       
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
       
       #Filter out similar "species"
       
@@ -749,7 +749,7 @@ colnames(Total.species.CLC.normal) <- c(0.15, 0.3, 0.45, 0.6, 0.75) #JUVENILES
 Total.SLC.list.normal <- list()
 Total.abund.SLC.list.normal <- list()
 
-for(r in 1:20) {
+for(r in 1:10) {
   
   print(paste0("loop ", r, " started"))
   
@@ -758,7 +758,7 @@ for(r in 1:20) {
   
   for(i in 1:length(sigma)){
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
     
     #Filter out similar "species"
     
@@ -783,7 +783,7 @@ Total.mean.abund.SLC.normal <- Reduce(`+`, Total.abund.SLC.list.normal) / length
 Total.CLC.list.normal <- list()
 Total.abund.CLC.list.normal <- list()
 
-for(r in 1:20){
+for(r in 1:10){
   print(paste0("loop ", r, " started"))
   
   Total.species.CLC.normal <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
@@ -797,7 +797,7 @@ for(r in 1:20){
     
     for(k in 1:length(sigma)){
       
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
       
       #Filter out similar "species"
       
@@ -882,7 +882,7 @@ colnames(Total.species.CLC.skewed) <- c(0.15, 0.3, 0.45, 0.6, 0.75) #JUVENILES
 Total.SLC.list.skewed <- list()
 Total.abund.SLC.list.skewed <- list()
 
-for(r in 1:20) {
+for(r in 1:10) {
   
   print(paste0("loop ", r, " started"))
   
@@ -891,7 +891,7 @@ for(r in 1:20) {
   
   for(i in 1:length(sigma)){
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
     
     #Filter out similar "species"
     
@@ -916,7 +916,7 @@ Total.mean.abund.SLC.skewed <- Reduce(`+`, Total.abund.SLC.list.skewed) / length
 Total.CLC.list.skewed <- list()
 Total.abund.CLC.list.skewed <- list()
 
-for(r in 1:20){
+for(r in 1:10){
   print(paste0("loop ", r, " started"))
   
   Total.species.CLC.skewed <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
@@ -930,7 +930,7 @@ for(r in 1:20){
     
     for(k in 1:length(sigma)){
       
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix, resFreq=resFreqMatrix, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
       
       #Filter out similar "species"
       
