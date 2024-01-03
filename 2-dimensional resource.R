@@ -80,14 +80,14 @@ resFreqE <- E.resource.frequency*resource.abundance
 # Function ------------------
 
 resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), im = 0.01, 
-                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.0005, mutVar=0.05, time.steps=200, iniP1=0, 
-                                   iniP2 = 0, threshold = 0.005, nmorphs = 1, cov = 0){
+                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.05, mutVar=0.5, time.steps=200, iniP1=0, 
+                                   iniP2 = 0, threshold = 0.005, nmorphs = 9, cov = 0){
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
   pop[,1] <- popSize
-  pop[,2] <- iniP1
-  pop[,3] <- iniP2
+  pop[,2] <- c(-2, -2, -2, 0, 0, 0, 2, 2, 2)
+  pop[,3] <- c(-2, 0, 2, -2, 0, 2, -2, 0, 2)
   pop[,4] <- 0
   
   
@@ -270,8 +270,8 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
 # Make it a job to free up R console
 
 job::job(output2dr = {
-  output2dr <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreq, 
-                                      time.steps = 100000, resGen=matrix(c(0.10,0.10)))
+  output2dr <- resourceCompetition2dr(popSize = 10, iniP1=-3, iniP2 = -3, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreq, 
+                                      time.steps = 10000, resGen=matrix(c(0.10,0.10)), mutProb=0.05)
 
 # Control what is returned to the main session
   job::export(output2dr)
@@ -282,15 +282,19 @@ stats <- output2dr$stats
 
 # Even job
 job::job(output2drEven = {
-  output2dr <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreqE, 
-                                      time.steps = 100000, resGen=matrix(c(0.10,0.10)))
+  output2drEven <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreqE, 
+                                      time.steps = 10000, resGen=matrix(c(0.10,0.10)))
   
   # Control what is returned to the main session
   job::export(output2drEven)
 }, import = c(resProp1, resProp2, resFreqE, resourceCompetition2dr))
 
-output2drEven <- output2drEven$output2dr
-stats <- output2dr$stats
+output2drEven <- output2drEven$output2drEven
+statsEven <- output2drEven$stats
+
+
+
+# Normal Plotting ---------------
 
 # Creating data frame for easy plotting
 phenodata2dr <- data.frame(
@@ -329,16 +333,49 @@ color_palette <- mako(length(last_year_data$Trait1))
 ggplot(last_year_data, aes(x = Trait2, y = Trait1)) +
   geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
   labs(x = "Trait 1", y = "Trait 2", size = "Number of individuals") +  
-  scale_x_continuous(limits = c(-1.5,1.5)) +
-  scale_y_continuous(limits = c(-1.5,1.5)) + 
+  scale_x_continuous(limits = c(-3.5,3.5)) +
+  scale_y_continuous(limits = c(-3.5,3.5)) + 
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)
+
+#  Even  Plotting -------
+
+phenodata2drEven <- data.frame(
+  Year = output2drEven$phenotypes[, 1],
+  Trait1 = output2drEven$phenotypes[, 3],
+  Trait2 = output2drEven$phenotypes[, 4],
+  Num_Individuals = output2drEven$phenotypes[, 2]
+)
+
+
+transparencyEven <- phenodata2drEven$Num_Individuals / max(phenodata2drEven$Num_Individuals)
+
+
+evoAdu <- ggplot(phenodata2drEven, aes(x=Year, y=Trait1)) + 
+  geom_point(size = 2.5, alpha = transparencyEven, color = rgb(0.13, 0.57, 0.55)) +
+  xlab("Year") + ylab("Adult Trait") +
   theme_minimal(base_family = "LM Roman 10", base_size = 18)
 
 
 
+evoJuv <- ggplot(phenodata2drEven, aes(x=Year, y=Trait2)) + 
+  geom_point(size = 2.5, alpha = transparencyEven, color = rgb(0.27, 0.001, 0.33)) +
+  xlab("Year") + ylab("Juvenile Trait") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 18) 
+
+
+grid.arrange(evoAdu,evoJuv, nrow = 2, widths = c(1))
 
 
 
+# -----------------Scatter plot 
 
+last_year_data_even <- phenodata2drEven[phenodata2drEven$Year == max(phenodata2drEven$Year), ]
+color_palette <- mako(length(last_year_data_even$Trait1))
 
-
+ggplot(last_year_data_even, aes(x = Trait2, y = Trait1)) +
+  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
+  labs(x = "Trait 1", y = "Trait 2", size = "Number of individuals") +  
+  scale_x_continuous(limits = c(-1.5,1.5)) +
+  scale_y_continuous(limits = c(-1.5,1.5)) + 
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)
 

@@ -128,6 +128,7 @@ resource.prop <- c(seq(from = -2.5, to = 2.5, length.out = 16))            # res
 abundance <- 20000
 resource.abundance <- abundance*resource.freq
 
+plot(resource.abundance)
 
 # CLC:
 

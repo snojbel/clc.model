@@ -96,6 +96,8 @@ fmax = 2
 kA = 0.5
 kJ = 0.5
 
+1D2 deviations: sigma = 0.15, resource abundance = 50 000, time steps = 100 000
+
 1F Sim Conditions:
 
 2-dim resource

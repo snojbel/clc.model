@@ -114,6 +114,7 @@ for (i in 1:Num.Res){
 resource.prop.skew.slc <- c(seq(from = -2.5, to = 2.5, length.out = Num.Res))            # res. property 
 resource.freq.skew.slc <- res.Abund*resource.freq.skew.slc
 
+sum(resource.freq.skew.slc)
 
 # CLC:
 
@@ -223,9 +224,14 @@ job::job(output.Skew.CLC = {
 
 # Number of species at end of run
 
+
 species <- matrix(data = NA, nrow = 2, ncol = 3)
 rownames(species) <- c("SLC", "CLC")
 colnames(species) <- c("Even", "Normal", "Skewed")
+
+unfiltered.species <- matrix(data = NA, nrow = 2, ncol = 3)
+rownames(unfiltered.species) <- c("SLC", "CLC")
+colnames(unfiltered.species) <- c("Even", "Normal", "Skewed")
 
 # Even
 
@@ -238,6 +244,14 @@ pheno.even.slc <- output.Even.SLC.result$phenotypes
 filt.pheno.even.slc <- slc.groups(output = output.Even.SLC.result)  #Remove too similar "species"
 species[1,1] <- as.numeric(nrow(filt.pheno.even.slc))
 
+phenodata.SLC.even <- data.frame(
+  Year = output.Even.SLC.result$phenotypes[, 1],
+  Trait = output.Even.SLC.result$phenotypes[, 3],
+  Num_Individuals = output.Even.SLC.result$phenotypes[, 2]
+)
+last.year.data.SLC.even <- phenodata.SLC.even[phenodata.SLC.even$Year == max(phenodata.SLC.even$Year), ]
+unfiltered.species[1,1] <- as.numeric(nrow(last.year.data.SLC.even))
+
 # CLC
 
 output.Even.CLC.result <- output.Even.CLC$output.Even.CLC
@@ -245,9 +259,19 @@ output.Even.CLC.result <- output.Even.CLC$output.Even.CLC
 stats.even.clc <- output.Even.CLC.result$stats
 pheno.even.clc <- output.Even.CLC.result$phenotypes
 
+
 filt.pheno.even.clc <- clc.groups(output = output.Even.CLC.result)  #Remove too similar "species"
 species[2,1] <- as.numeric(nrow(filt.pheno.even.clc))
 
+phenodata.CLC.even <- data.frame(
+  Year = output.Even.CLC.result$phenotypes[, 1],
+  Adult_Trait = output.Even.CLC.result$phenotypes[, 3],
+  Juvenile_Trait = output.Even.CLC.result$phenotypes[, 4],
+  Num_Individuals = output.Even.CLC.result$phenotypes[, 2]
+)
+
+last.year.data.CLC.even <- phenodata.CLC.even[phenodata.CLC.even$Year == max(phenodata.CLC.even$Year), ]
+unfiltered.species[2,1] <- as.numeric(nrow(last.year.data.CLC.even))
 
 # Normal
 
@@ -260,15 +284,35 @@ pheno.norm.slc <- output.Norm.SLC.result$phenotypes
 filt.pheno.norm.slc <- slc.groups(output = output.Norm.SLC.result)  #Remove too similar "species"
 species[1,2] <- as.numeric(nrow(filt.pheno.norm.slc))
 
+phenodata.SLC.norm <- data.frame(
+  Year = output.Norm.SLC.result$phenotypes[, 1],
+  Trait = output.Norm.SLC.result$phenotypes[, 3],
+  Num_Individuals = output.Norm.SLC.result$phenotypes[, 2]
+)
+last.year.data.SLC.norm <- phenodata.SLC.norm[phenodata.SLC.norm$Year == max(phenodata.SLC.norm$Year), ]
+unfiltered.species[1,2] <- as.numeric(nrow(last.year.data.SLC.norm))
+
+
 # CLC
 
-output.Norm.CLC.results <- output.Norm.CLC$output.Norm.CLC
+output.Norm.CLC.result <- output.Norm.CLC$output.Norm.CLC
 
 stats.norm.clc <- output.Norm.CLC.result$stats
 pheno.norm.clc <- output.Norm.CLC.result$phenotypes
 
 filt.pheno.norm.clc <- clc.groups(output = output.Norm.CLC.result)  #Remove too similar "species"
 species[2,2] <- as.numeric(nrow(filt.pheno.norm.clc))
+
+phenodata.CLC.norm <- data.frame(
+  Year = output.Norm.CLC.result$phenotypes[, 1],
+  Adult_Trait = output.Norm.CLC.result$phenotypes[, 3],
+  Juvenile_Trait = output.Norm.CLC.result$phenotypes[, 4],
+  Num_Individuals = output.Norm.CLC.result$phenotypes[, 2]
+)
+
+last.year.data.CLC.norm <- phenodata.CLC.norm[phenodata.CLC.norm$Year == max(phenodata.CLC.norm$Year), ]
+unfiltered.species[2,2] <- as.numeric(nrow(last.year.data.CLC.norm))
+
 
 # Skewed
 
@@ -282,6 +326,15 @@ pheno.skew.slc <- output.Skew.SLC.result$phenotypes
 filt.pheno.skew.slc <- slc.groups(output = output.Skew.SLC.result)  #Remove too similar "species"
 species[1,3]<- as.numeric(nrow(filt.pheno.skew.slc))
 
+
+phenodata.SLC.skew <- data.frame(
+  Year = output.Skew.SLC.result$phenotypes[, 1],
+  Trait = output.Skew.SLC.result$phenotypes[, 3],
+  Num_Individuals = output.Skew.SLC.result$phenotypes[, 2]
+)
+last.year.data.SLC.skew <- phenodata.SLC.skew[phenodata.SLC.skew$Year == max(phenodata.SLC.skew$Year), ]
+unfiltered.species[1,3] <- as.numeric(nrow(last.year.data.SLC.skew))
+
 # CLC
 
 output.Skew.CLC.result <- output.Skew.CLC$output.Skew.CLC
@@ -292,31 +345,20 @@ pheno.skew.clc <- output.Skew.CLC.result$phenotypes
 filt.pheno.skew.clc <- clc.groups(output = output.Skew.CLC.result)  #Remove too similar "species"
 species[2,3] <- as.numeric(nrow(filt.pheno.skew.clc))
 
-# Plotting
+phenodata.CLC.skew <- data.frame(
+  Year = output.Skew.CLC.result$phenotypes[, 1],
+  Adult_Trait = output.Skew.CLC.result$phenotypes[, 3],
+  Juvenile_Trait = output.Skew.CLC.result$phenotypes[, 4],
+  Num_Individuals = output.Skew.CLC.result$phenotypes[, 2]
+)
 
+last.year.data.CLC.skew <- phenodata.CLC.skew[phenodata.CLC.skew$Year == max(phenodata.CLC.skew$Year), ]
+unfiltered.species[2,3] <- as.numeric(nrow(last.year.data.CLC.skew))
 
-CLC <- species[2,]
-SLC <- species[1,]
+# Plotting --------------------------------------
+
 
 x <- colnames(species)
-
-
-SLC <-  data.frame(x = rep(x, length(SLC)), y = SLC)
-shapes <- c(rep(x = 8, times = nrow(SLC)))
-SLC <- cbind(SLC, shapes)
-
-
-
-ggmatplot(x, CLC,
-        plot_type = "point",
-        xlab = "Distribution Type",
-        ylab = "Number of species", size = 8) +
-  scale_y_continuous(limits = c(0, 25)) +
-  #ggtitle("Number of Species") +
-  theme_minimal(base_family = "LM Roman 10", base_size = 15)+
-  theme(plot.title = element_text(size = 18)) +                                                  #,panel.grid.major = element_line(colour = "grey", linewidth = 0.3, inherit.blank = FALSE) to add some gridlines
-  geom_point(data = SLC, aes(x = x, y = y, group=x), size = 8, shape = shapes)
-
 
 species.Frame <- data.frame(data.frame(
   SLC = species[1, ],
@@ -326,16 +368,185 @@ species.Frame <- data.frame(data.frame(
 
 
 ggplot(data = species.Frame) +
-  geom_point(aes(x = dist, y = SLC, shape = "SLC", color = "SLC"), color = "lightblue", fill = "lightblue", size = 8) +
-  geom_point(aes(x = dist, y = CLC, shape = "CLC", color = "SLC"), color = "pink", fill = "pink", size = 8) + # Add points
+  geom_point(aes(x = dist, y = SLC, shape = "SLC"),color = "lightblue", size = 8) +
+  geom_point(aes(x = dist, y = CLC, shape = "CLC"), color = "pink", size = 8) + # Add points
   scale_y_continuous(limits = c(0, 25)) +
   labs(x = "Distribution Type", y = "Number of Species", family = "LM Roman 10") +  
   scale_shape_manual(values = c("SLC" = 15, "CLC" = 17), 
-                     labels = c("SLC", "CLC")) +  
+                     labels = c("Simple", "Complex")) +  
   theme_classic(base_size = 18)+ 
   theme(axis.text = element_text(family = "LM Roman 10"),
         axis.title = element_text(family = "LM Roman 10", size = 20),
         plot.title = element_text(hjust = 0.5, family = "LM Roman 10"),
-        legend.text = element_text(family = "LM Roman 10")) +
-  guides(shape = guide_legend(override.aes = list(color = c("lightblue", "pink")), title = NULL))
+        legend.text = element_text(family = "LM Roman 10"),
+        legend.title = element_blank()) +
+  guides(shape = guide_legend(override.aes = list(color = c("lightblue", "pink"), shape = c(15, 17), size = 7), title = NULL))
+
+# Unfiltered
+
+x <- colnames(species)
+
+unf.species.Frame <- data.frame(data.frame(
+  SLC = unfiltered.species[1, ],
+  CLC = unfiltered.species[2, ],
+  dist = c(x)
+))
+
+
+ggplot(data = unf.species.Frame) +
+  geom_point(aes(x = dist, y = SLC, shape = "SLC"),color = "lightblue", size = 8) +
+  geom_point(aes(x = dist, y = CLC, shape = "CLC"), color = "pink", size = 8) + # Add points
+  scale_y_continuous(limits = c(0, 35)) +
+  labs(x = "Distribution Type", y = "Number of Species", family = "LM Roman 10") +  
+  scale_shape_manual(values = c("SLC" = 15, "CLC" = 17), 
+                     labels = c("Simple", "Complex")) +  
+  theme_classic(base_size = 18)+ 
+  theme(axis.text = element_text(family = "LM Roman 10"),
+        axis.title = element_text(family = "LM Roman 10", size = 20),
+        plot.title = element_text(hjust = 0.5, family = "LM Roman 10"),
+        legend.text = element_text(family = "LM Roman 10"),
+        legend.title = element_blank()) +
+  guides(shape = guide_legend(override.aes = list(color = c("lightblue", "pink"), shape = c(15, 17), size = 7), title = NULL))
+
+
+
+# Running simulations 9 run to see endpoint -----------------------------
+
+# Normal
+
+job::job(endpoint.normal = {
+  
+  last.year.list.norm <- list()
+  
+  for(i in 1:9){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.norm[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(last.year.list.norm)
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC))
+
+
+# Even
+
+job::job(endpoint.even = {
+  
+  last.year.list.even <- list()
+  
+  for(i in 1:9){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.even[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(last.year.list.even)
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC))
+
+# Skewed
+
+job::job(endpoint.skew = {
+  
+  last.year.list.skew <- list()
+  
+  for(i in 1:9){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.skew[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(last.year.list.skew)
+}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC))
+
+
+
+# Plotting 9 runts to see endpoint --------------------------
+
+# Even
+
+plot.list.even <- list()
+
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.even[[i]]$Adult_Trait))
+  
+  plot.list.even[[i]] <- ggplot(last.year.list.even[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =textGrob("Even Distribution 50 000 years", gp = gpar(fontsize = 10, fontfamily = "LM Roman 10")))
+
+# Normal
+
+plot.list.norm <- list()
+
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.norm[[i]]$Adult_Trait))
+  
+  plot.list.norm[[i]] <- ggplot(last.year.list.norm[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =textGrob("Normal Distribution 50 000 years", gp = gpar(fontsize = 10, fontfamily = "LM Roman 10")))
+
+# Skewed
+
+plot.list.skew <- list()
+
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.skew[[i]]$Adult_Trait))
+  
+  plot.list.skew[[i]] <- ggplot(last.year.list.skew[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =textGrob("Skewed Distribution 50 000 years", gp = gpar(fontsize = 10, fontfamily = "LM Roman 10")))
+
+
+
+
+
+# ----------------------
+
 
