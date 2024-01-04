@@ -1,6 +1,9 @@
 # Updated simmer with jobs
 
 library(job)
+library(gganimate)
+library(gifski)
+library(png)
 library(ggmatplot)
 library(tidyverse)
 library(viridisLite)  # Color things
@@ -410,6 +413,7 @@ ggplot(data = unf.species.Frame) +
 
 
 
+
 # Running simulations 9 run to see endpoint -----------------------------
 
 # Normal
@@ -491,6 +495,15 @@ job::job(endpoint.skew = {
   job::export(last.year.list.skew)
 }, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC))
 
+# Results
+
+# Results
+
+last.year.list.even <- endpoint.even$last.year.list.even
+last.year.list.norm <- endpoint.normal$last.year.list.norm
+last.year.list.skew <- endpoint.skew$last.year.list.skew
+
+
 
 
 # Plotting 9 runts to see endpoint --------------------------
@@ -504,12 +517,12 @@ for (i in 1:9){
   color.palette <- mako(length(last.year.list.even[[i]]$Adult_Trait))
   
   plot.list.even[[i]] <- ggplot(last.year.list.even[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
     labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
 }
 
-grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =textGrob("Even Distribution 50 000 years", gp = gpar(fontsize = 10, fontfamily = "LM Roman 10")))
+grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =text_grob("Even Distribution 50 000 years", size = 10, family = "LM Roman 10"))
 
 # Normal
 
@@ -520,12 +533,12 @@ for (i in 1:9){
   color.palette <- mako(length(last.year.list.norm[[i]]$Adult_Trait))
   
   plot.list.norm[[i]] <- ggplot(last.year.list.norm[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
     labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
 }
 
-grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =textGrob("Normal Distribution 50 000 years", gp = gpar(fontsize = 10, fontfamily = "LM Roman 10")))
+grid.arrange(grobs = plot.list.norm, ncol = 3, nrow = 3, top =text_grob("Normal Distribution 50 000 years", size = 10, family = "LM Roman 10"))
 
 # Skewed
 
@@ -536,14 +549,368 @@ for (i in 1:9){
   color.palette <- mako(length(last.year.list.skew[[i]]$Adult_Trait))
   
   plot.list.skew[[i]] <- ggplot(last.year.list.skew[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color_palette, show.legend = FALSE) +                                  # Add points
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
     labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
 }
 
-grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =textGrob("Skewed Distribution 50 000 years", gp = gpar(fontsize = 10, fontfamily = "LM Roman 10")))
+grid.arrange(grobs = plot.list.skew, ncol = 3, nrow = 3, top =text_grob("Skewed Distribution 50 000 years", size = 10, family = "LM Roman 10"))
 
 
+
+# ----------------------
+
+# Running simulations to see endpoint and number of species with varied sigma -----------------------------
+
+# Normal
+
+job::job(endpoint.normal.sigma = {
+  
+  last.year.list.norm <- list()
+  filtered.list.norm <- list()
+  sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 90)
+  
+  for(i in 1:length(sigma)){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.norm[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+    filtered.list.norm[[i]] <- clc.groups(output = outputCLC)
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(list(last.year.list.norm, filtered.list.norm))
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, clc.groups))
+
+
+# Even
+
+job::job(endpoint.even.sigma = {
+  
+  last.year.list.even <- list()
+  filtered.list.even <- list()
+  sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 90)
+  
+  for(i in 1:length(sigma)){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.even[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+    filtered.list.even[[i]] <- clc.groups(output = outputCLC)
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(list(last.year.list.even, filtered.list.even))
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, clc.groups))
+
+# Skewed
+
+job::job(endpoint.skew.sigma = {
+  
+  last.year.list.skew <- list()
+  filtered.list.skew <- list()
+  sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 90)
+  
+  for(i in 1:length(sigma)){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.skew[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+    filtered.list.skew[[i]] <- clc.groups(output = outputCLC)
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(list(last.year.list.skew, filtered.list.skew))
+}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, clc.groups))
+
+
+
+# Results
+
+last.year.list.even <- endpoint.even$last.year.list.even
+last.year.list.norm <- endpoint.normal$last.year.list.norm
+last.year.list.skew <- endpoint.skew$last.year.list.skew
+
+filtered.list.even <- endpoint.even.sigma$filtered.list.even
+filtered.list.norm <- endpoint.norm.sigma$filtered.list.norm
+filtered.list.skew <- endpoint.even.sigma$filtered.list.skew
+
+sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 90)
+
+num.of.spe.even <- c()
+num.of.spe.norm <- c()
+num.of.spe.skew <- c()
+
+for (i in 1:length(sigma)){
+  num.of.spe.even[i] <- row(filtered.list.even[[i]])
+  num.of.spe.norm[i] <- row(filtered.list.norm[[i]])
+  num.of.spe.skew[i] <- row(filtered.list.skew[[i]])
+}
+
+
+
+# Plotting 9 runts to see endpoint --------------------------
+
+# Even
+
+plot.list.even <- list()
+
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.even[[i]]$Adult_Trait))
+  
+  plot.list.even[[i]] <- ggplot(last.year.list.even[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+ 
+
+grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =text_grob("Even Distribution 50 000 years", size = 10, family = "LM Roman 10"))
+
+combo.plot.list <- list()
+
+for(i in 1:(length(plot.list.even)*2 + 1)){
+  if(i == (length(plot.list.even) + 1)){
+    combo.plot.list[[i]] <- midtitle
+  }
+  else if(i < (length(plot.list.even) + 1)){
+    combo.plot.list[[i]] <- plot.list.even[[i]]
+  }
+  else{
+    combo.plot.list[[i]] <- plot.list.norm[[i-(length(plot.list.even) + 1)]]
+  }
+}
+
+library(patchwork)
+
+midtitle <- textGrob("Mid title", gp = gpar(fontsize = 10, fontfamily = "LM Roman 10"),
+                     hjust = 0) 
+
+layout <- "
+ABC
+DEF
+GHI
+#J#
+KLM
+NOP
+QRS
+"
+
+wrap_plots(combo.plot.list, design = layout)
+
+
+
+
+
+
+# Normal
+
+plot.list.norm <- list()
+
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.norm[[i]]$Adult_Trait))
+  
+  plot.list.norm[[i]] <- ggplot(last.year.list.norm[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.norm, ncol = 3, nrow = 3, top =text_grob("Normal Distribution 50 000 years", size = 10, family = "LM Roman 10"))
+
+# Skewed
+
+plot.list.skew <- list()
+
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.skew[[i]]$Adult_Trait))
+  
+  plot.list.skew[[i]] <- ggplot(last.year.list.skew[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.skew, ncol = 3, nrow = 3, top =text_grob("Skewed Distribution 50 000 years", size = 10, family = "LM Roman 10"))
+
+
+
+# ----------------------
+
+
+
+# Running simulations 9 run to see endpoint -----------------------------
+
+# Normal
+
+job::job(endpoint.normal = {
+  
+  last.year.list.norm <- list()
+  
+  for(i in 1:9){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.norm[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(last.year.list.norm)
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC))
+
+
+# Even
+
+job::job(endpoint.even = {
+  
+  last.year.list.even <- list()
+  
+  for(i in 1:9){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.even[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(last.year.list.even)
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC))
+
+# Skewed
+
+job::job(endpoint.skew = {
+  
+  last.year.list.skew <- list()
+  
+  for(i in 1:9){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.skew[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(last.year.list.skew)
+}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC))
+
+# Results
+
+# Results
+
+last.year.list.even <- endpoint.even$last.year.list.even
+last.year.list.norm <- endpoint.normal$last.year.list.norm
+last.year.list.skew <- endpoint.skew$last.year.list.skew
+
+
+
+
+# Plotting 9 runts to see endpoint --------------------------
+
+# Even
+
+plot.list.even <- list()
+
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.even[[i]]$Adult_Trait))
+  
+  plot.list.even[[i]] <- ggplot(last.year.list.even[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =text_grob("Even Distribution 50 000 years", size = 10, family = "LM Roman 10"))
+
+# Normal
+
+plot.list.norm <- list()
+
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.norm[[i]]$Adult_Trait))
+  
+  plot.list.norm[[i]] <- ggplot(last.year.list.norm[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.norm, ncol = 3, nrow = 3, top =text_grob("Normal Distribution 50 000 years", size = 10, family = "LM Roman 10"))
+
+# Skewed
+
+plot.list.skew <- list()
+
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.skew[[i]]$Adult_Trait))
+  
+  plot.list.skew[[i]] <- ggplot(last.year.list.skew[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
+    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.skew, ncol = 3, nrow = 3, top =text_grob("Skewed Distribution 50 000 years", size = 10, family = "LM Roman 10"))
 
 
 

@@ -98,6 +98,32 @@ kJ = 0.5
 
 1D2 deviations: sigma = 0.15, resource abundance = 50 000, time steps = 100 000
 
+
+1E :
+
+Resources property: -2.5 to 2.5 with 25 number
+
+# Normal
+Resource abundance: Normally distributed with mean 0 and sd 1  x 50 000
+
+#Even
+Evenly distributed (1/25) with 50 000 abundance
+
+#Skewed
+1/325 = x first resource x, second x + 2x etc
+(325 is (25 *(25+1) )/ 2
+
+iniP = 0
+initial popSize = 10
+mutProb = 0.0005
+mutVar = 0.05
+time.steps = 50 000
+fmax = 2
+kA = 0.5
+kJ = 0.5
+
+1E2 mod: mutProb = 0.0001, abundance and timessteps: 20 000
+
 1F Sim Conditions:
 
 2-dim resource
@@ -121,6 +147,11 @@ time.steps = 20000
 fmax = 2
 kA = 0.5
 kJ = 0.5
+
+
+
+
+
 
 
 

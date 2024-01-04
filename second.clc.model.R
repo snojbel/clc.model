@@ -36,7 +36,7 @@ library(gridExtra)    #For plotting side by side and more in ggplot
 
 
 resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 2, 
-                                   kA = 0.5, kJ = 0.5,mutProb=0.001, mutVar=0.1, time.steps=200, iniPA=5, iniPJ=5, 
+                                   kA = 0.5, kJ = 0.5,mutProb=0.0001, mutVar=0.05, time.steps=200, iniPA=5, iniPJ=5, 
                                    threshold = 0.005, nmorphs = 1, im = 0){
 
   
