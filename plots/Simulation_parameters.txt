@@ -124,6 +124,7 @@ kJ = 0.5
 
 1E2 mod: mutProb = 0.0001, abundance and timessteps: 20 000
 
+
 1F Sim Conditions:
 
 2-dim resource
