@@ -1,5 +1,6 @@
 # Updated simmer with jobs
 
+
 library(job)
 library(gganimate)
 library(gifski)
@@ -15,10 +16,11 @@ library(cowplot)
 library(extrafont) 
 library(patchwork)
 library(dplyr)
+library(grid)
 
 # Resource initializations -------------------
 
-Num.Res <- 10
+Num.Res <- 22
 res.Abund <-  50000
 
 # Evenly distributed Resources
@@ -426,7 +428,7 @@ job::job(endpoint.normal = {
   
   for(i in 1:9){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
     
     phenodataCLC <- NULL
     
@@ -502,7 +504,7 @@ job::job(endpoint.skew = {
 # Results
 
 last.year.list.even <- endpoint.even$last.year.list.even
-last.year.list.norm <- endpoint.normal$last.year.list.norm
+last.year.list.norm <- endpoint.normal.18$last.year.list.norm
 last.year.list.skew <- endpoint.skew$last.year.list.skew
 
 
@@ -530,7 +532,8 @@ grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =text_grob("Even Di
 
 plot.list.norm <- list()
 
-for (i in 1:9){
+
+for (i in 1:3){
   
   color.palette <- mako(length(last.year.list.norm[[i]]$Adult_Trait))
   
@@ -540,7 +543,7 @@ for (i in 1:9){
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
 }
 
-grid.arrange(grobs = plot.list.norm, ncol = 3, nrow = 3, top =text_grob("Normal Distribution 50 000 years", size = 10, family = "LM Roman 10"))
+grid.arrange(grobs = plot.list.norm, ncol = 3, top =text_grob("Normal Distribution 50 000 years", size = 10, family = "LM Roman 10"))
 
 # Skewed
 
@@ -1209,95 +1212,229 @@ plots + plot_annotation(
 
 
 
-# Running simulations 9 run to see endpoint -----------------------------
+# Running simulations to compare adult population vs Juvenile population -----------------------------
 
 # Normal
 
-job::job(endpoint.normal = {
+job::job(population.normal = {
   
-  last.year.list.norm <- list()
+  #SLC
+  sigma <- c(seq(from = 0.05, to = 0.95, by = 0.1))
   
-  for(i in 1:9){
+  adult.last.year.norm.SLC <- matrix(data = NA, nrow = 1, ncol = length(sigma))
+  colnames(adult.last.year.norm.SLC) <- sigma #JUVENILES
+  
+  juvenile.last.year.norm.SLC <- matrix(data = NA, nrow = 1, ncol = length(sigma))
+  colnames(juvenile.last.year.norm.SLC) <- sigma #JUVENILES
+  
+  
+  for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
-    phenodataCLC <- NULL
+      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, resFreq=resource.freq.norm.slc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      statsSLC <- NULL
+      
+      statsSLC <- data.frame(
+        Year = outputSLC$stats[, 1],
+        Adult_Pop = outputSLC$phenotypes[, 2],
+        Juvenile_Pop = outputSLC$phenotypes[, 3])
+      
+      
+      
+      
+      adult.last.year.norm.SLC[1, i] <- statsSLC[statsSLC$Year == max(statsSLC$Year), 2 ]
+      juvenile.last.year.norm.SLC[1, i] <- statsSLC[statsSLC$Year == max(statsSLC$Year), 3]
+  
     
-    phenodataCLC <- data.frame(
-      Year = outputCLC$phenotypes[, 1],
-      Adult_Trait = outputCLC$phenotypes[, 3],
-      Juvenile_Trait = outputCLC$phenotypes[, 4],
-      Num_Individuals = outputCLC$phenotypes[, 2])
-    
-    last.year.list.norm[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  }
+  # CLC
+  
+  adult.last.year.norm.CLC <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(adult.last.year.norm.CLC) <- sigma #ADULTS
+  colnames(adult.last.year.norm.CLC) <- sigma #JUVENILES
+  
+  juvenile.last.year.norm.CLC <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(juvenile.last.year.norm.CLC) <- sigma #ADULTS
+  colnames(juvenile.last.year.norm.CLC) <- sigma #JUVENILES
+  
+  
+  for(i in 1:length(sigma)){
+    print(paste0("loop ", i, " started"))
+    for(c in 1:length(sigma)) {
+        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+        
+        statsCLC <- NULL
+        
+        statsCLC <- data.frame(
+          Year = outputCLC$stats[, 1],
+          Adult_Pop = outputCLC$phenotypes[, 2],
+          Juvenile_Pop = outputCLC$phenotypes[, 3])
+        
+        
+        
+        
+        adult.last.year.norm.CLC[i, c] <- statsCLC[statsCLC$Year == max(statsCLC$Year), 2 ]
+        juvenile.last.year.norm.CLC[i, c] <- statsCLC[statsCLC$Year == max(statsCLC$Year), 3]
+    }
+   
   }
   
   
   # Control what is returned to the main session
-  job::export(last.year.list.norm)
-}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC))
+  job::export(list(adult.last.year.norm.CLC, juvenile.last.year.norm.CLC, adult.last.year.norm.SLC, juvenile.last.year.norm.SLC))
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.even.slc, resource.freq.even.slc, resourceCompetitionSLC))
 
 
 # Even
 
-job::job(endpoint.even = {
+job::job(population.even = {
   
-  last.year.list.even <- list()
+  #SLC
+  sigma <- c(seq(from = 0.05, to = 0.95, by = 0.1))
   
-  for(i in 1:9){
+  adult.last.year.even.SLC <- matrix(data = NA, nrow = 1, ncol = length(sigma))
+  colnames(adult.last.year.even.SLC) <- sigma #JUVENILES
+  
+  juvenile.last.year.even.SLC <- matrix(data = NA, nrow = 1, ncol = length(sigma))
+  colnames(juvenile.last.year.even.SLC) <- sigma #JUVENILES
+  
+  
+  for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
-    phenodataCLC <- NULL
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, resFreq=resource.freq.even.slc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    statsSLC <- NULL
     
-    phenodataCLC <- data.frame(
-      Year = outputCLC$phenotypes[, 1],
-      Adult_Trait = outputCLC$phenotypes[, 3],
-      Juvenile_Trait = outputCLC$phenotypes[, 4],
-      Num_Individuals = outputCLC$phenotypes[, 2])
+    statsSLC <- data.frame(
+      Year = outputSLC$stats[, 1],
+      Adult_Pop = outputSLC$phenotypes[, 2],
+      Juvenile_Pop = outputSLC$phenotypes[, 3])
     
-    last.year.list.even[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+    
+    
+    
+    adult.last.year.even.SLC[1, i] <- statsSLC[statsSLC$Year == max(statsSLC$Year), 2 ]
+    juvenile.last.year.even.SLC[1, i] <- statsSLC[statsSLC$Year == max(statsSLC$Year), 3]
+    
+    
+  }
+  # CLC
+  
+  adult.last.year.even.CLC <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(adult.last.year.even.CLC) <- sigma #ADULTS
+  colnames(adult.last.year.even.CLC) <- sigma #JUVENILES
+  
+  juvenile.last.year.even.CLC <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(juvenile.last.year.even.CLC) <- sigma #ADULTS
+  colnames(juvenile.last.year.even.CLC) <- sigma #JUVENILES
+  
+  
+  for(i in 1:length(sigma)){
+    print(paste0("loop ", i, " started"))
+    for(c in 1:length(sigma)) {
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      
+      statsCLC <- NULL
+      
+      statsCLC <- data.frame(
+        Year = outputCLC$stats[, 1],
+        Adult_Pop = outputCLC$phenotypes[, 2],
+        Juvenile_Pop = outputCLC$phenotypes[, 3])
+      
+      
+      
+      
+      adult.last.year.even.CLC[i, c] <- statsCLC[statsCLC$Year == max(statsCLC$Year), 2 ]
+      juvenile.last.year.even.CLC[i, c] <- statsCLC[statsCLC$Year == max(statsCLC$Year), 3]
+    }
+    
   }
   
   
   # Control what is returned to the main session
-  job::export(last.year.list.even)
-}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC))
+  job::export(list(adult.last.year.even.CLC, juvenile.last.year.even.CLC, adult.last.year.even.SLC, juvenile.last.year.even.SLC))
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, resource.prop.even.slc, resource.freq.even.slc, resourceCompetitionSLC))
+
 
 # Skewed
 
-job::job(endpoint.skew = {
+job::job(population.skew = {
   
-  last.year.list.skew <- list()
+  #SLC
+  sigma <- c(seq(from = 0.05, to = 0.95, by = 0.1))
   
-  for(i in 1:9){
+  adult.last.year.skew.SLC <- matrix(data = NA, nrow = 1, ncol = length(sigma))
+  colnames(adult.last.year.skew.SLC) <- sigma #JUVENILES
+  
+  juvenile.last.year.skew.SLC <- matrix(data = NA, nrow = 1, ncol = length(sigma))
+  colnames(juvenile.last.year.skew.SLC) <- sigma #JUVENILES
+  
+  
+  for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
-    phenodataCLC <- NULL
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.skew.slc, resFreq=resource.freq.skew.slc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    statsSLC <- NULL
     
-    phenodataCLC <- data.frame(
-      Year = outputCLC$phenotypes[, 1],
-      Adult_Trait = outputCLC$phenotypes[, 3],
-      Juvenile_Trait = outputCLC$phenotypes[, 4],
-      Num_Individuals = outputCLC$phenotypes[, 2])
+    statsSLC <- data.frame(
+      Year = outputSLC$stats[, 1],
+      Adult_Pop = outputSLC$phenotypes[, 2],
+      Juvenile_Pop = outputSLC$phenotypes[, 3])
     
-    last.year.list.skew[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+    
+    
+    
+    adult.last.year.skew.SLC[1, i] <- statsSLC[statsSLC$Year == max(statsSLC$Year), 2 ]
+    juvenile.last.year.skew.SLC[1, i] <- statsSLC[statsSLC$Year == max(statsSLC$Year), 3]
+    
+    
+  }
+  # CLC
+  
+  adult.last.year.skew.CLC <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(adult.last.year.skew.CLC) <- sigma #ADULTS
+  colnames(adult.last.year.skew.CLC) <- sigma #JUVENILES
+  
+  juvenile.last.year.skew.CLC <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(juvenile.last.year.skew.CLC) <- sigma #ADULTS
+  colnames(juvenile.last.year.skew.CLC) <- sigma #JUVENILES
+  
+  
+  for(i in 1:length(sigma)){
+    print(paste0("loop ", i, " started"))
+    for(c in 1:length(sigma)) {
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      
+      statsCLC <- NULL
+      
+      statsCLC <- data.frame(
+        Year = outputCLC$stats[, 1],
+        Adult_Pop = outputCLC$phenotypes[, 2],
+        Juvenile_Pop = outputCLC$phenotypes[, 3])
+      
+      
+      
+      
+      adult.last.year.skew.CLC[i, c] <- statsCLC[statsCLC$Year == max(statsCLC$Year), 2 ]
+      juvenile.last.year.skew.CLC[i, c] <- statsCLC[statsCLC$Year == max(statsCLC$Year), 3]
+    }
+    
   }
   
   
   # Control what is returned to the main session
-  job::export(last.year.list.skew)
-}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC))
+  job::export(list(adult.last.year.skew.CLC, juvenile.last.year.skew.CLC, adult.last.year.skew.SLC, juvenile.last.year.skew.SLC))
+}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, resource.prop.skew.slc, resource.freq.skew.slc, resourceCompetitionSLC))
+
+
+
+# Results ------------------------
 
 # Results
 
-# Results
-
-last.year.list.even <- endpoint.even$last.year.list.even
-last.year.list.norm <- endpoint.normal$last.year.list.norm
-last.year.list.skew <- endpoint.skew$last.year.list.skew
-
+result.pop.even <- population.even
+result.pop.norm <- population.norm
+result.pop.skew <- population.skew
 
 
 
