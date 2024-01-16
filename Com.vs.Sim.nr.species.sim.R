@@ -306,18 +306,18 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
-    #if (runif(1) < im){
+    if (runif(1) < im){
     
-    # trait <- sample(x = posstrait, size = 1)
+     trait <- sample(x = posstrait, size = 1)
     
-    #  if(sum(pop[,2] == trait) == 0) {                   # Checks wheter a exact match of immigrant already exists
-    #   rbind(pop, c(1, trait, NA))
-    # } else{
-    #   same <- which(pop[,2] == trait)
-    #   pop[same,1] <- pop[same,1]+1
-    # }
+      if(sum(pop[,2] == trait) == 0) {                   # Checks wheter a exact match of immigrant already exists
+       rbind(pop, c(1, trait, NA))
+       } else{
+        same <- which(pop[,2] == trait)
+        pop[same,1] <- pop[same,1]+1
+        }
     
-    # }
+     }
     
     
     # extract stats and phenotype ---------------------------------------------
@@ -363,6 +363,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
 
 slc.groups <- function(output = outputSLC, threshold = 0.2){
   
+  
   phenodataSLC <- data.frame(
     Year = outputSLC$phenotypes[, 1],
     Trait = outputSLC$phenotypes[, 3],
@@ -386,7 +387,9 @@ slc.groups <- function(output = outputSLC, threshold = 0.2){
   
   # Find indices of individuals to keep
   
-  
+  if(sum(which(distance_matrix_adult < threshold & distance_matrix_juvenile < threshold, arr.ind = T)) == 0){
+    return(last_year_dataSLC)
+  }   # Checks if there are zero individuals who are alike.
   same <- which(distance_matrix < threshold, arr.ind = T)
   same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
   rownames(same) <- NULL
@@ -553,7 +556,7 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
 }
 
 
-sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75)
+sigma <- c(0.05, 0.10, 0.15, 0.20, 0.25, 0.3,0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75)
 #Even -------------------------------------------------------------------------
 
 # Resources: 
@@ -561,17 +564,17 @@ sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75)
 # Evenly distributed Resources
 
 # SLC:
-resource.freq <- rep(1/25, times = 25)                                      # res. freq. 
-resource.prop <- c(seq(from = -2.5, to = 2.5, length.out = 25))            # res. property 
+resource.freq <- rep(1/16, times = 16)                                      # res. freq. 
+resource.prop <- c(seq(from = -2.5, to = 2.5, length.out = 16))            # res. property 
 abundance <- 50000
 resource.abundance <- abundance*resource.freq
 
 
 # CLC:
 
-resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 25)) 
+resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 16)) 
 
-resource.frequency <- rep(1/25, times = 25)
+resource.frequency <- rep(1/16, times = 16)
 
 resource.abundance.adults     <- 50000                              # res. abundance of adults and juveniles
 resource.abundance.juveniles  <- 50000
@@ -615,7 +618,7 @@ for(r in 1:10) {
   
   for(i in 1:length(sigma)){
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop, iniP = 0, resFreq=resource.abundance, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
     
     #Filter out similar "species"
     
@@ -628,11 +631,16 @@ for(r in 1:10) {
   Total.abund.SLC.list.even[[r]] <- Abundance.species.SLC.single.even
 }
 
+pheno <- outputSLC$phenotypes
+
+
 # Caluclating mean of 10 runs
 
 Total.mean.SLC.even <- Reduce(`+`, Total.SLC.list.even) / length(Total.SLC.list.even)
 Total.mean.abund.SLC.even <- Reduce(`+`, Total.abund.SLC.list.even) / length(Total.abund.SLC.list.even) 
 
+Total.mean.SLC.even.1 <- sapply(1:length(sigma), function(i) mean(sapply(Total.SLC.list.even, function(x) x[i])))
+Total.sd.SLC.even <- sapply(1:length(sigma), function(i) sd(sapply(Total.SLC.list.even, function(x) x[i])))
 
 
 # CLC
@@ -675,6 +683,14 @@ for(r in 1:10){
 Total.mean.CLC.even <- Reduce(`+`, Total.CLC.list.even) / length(Total.CLC.list.even)
 Total.mean.abund.CLC.even <- Reduce(`+`, Total.abund.CLC.list.even) / length(Total.abund.CLC.list.even) 
 
+# Calculate mean and standard deviation for each position across the entries
+Total.mean.CLC.even.1 <- sapply(1:length(sigma), function(i) mean(sapply(Total.CLC.list.even, function(x) x[i])))
+Total.sd.CLC.even <- sapply(1:length(sigma), function(i) sd(sapply(Total.CLC.list.even, function(x) x[i])))
+
+# Display the results
+result <- data.frame(Position = 1:9, Mean = means, SD = sds)
+print(result)
+
 
 
 # Normal -----------------------------------------------------------------------
@@ -686,7 +702,7 @@ Total.mean.abund.CLC.even <- Reduce(`+`, Total.abund.CLC.list.even) / length(Tot
 m <- 0 
 s <- 1
 N.resource.frequency <- c()
-N.resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 25)) 
+N.resource.property<- c(seq(from = -2.5, to = 2.5, length.out = 16)) 
 
 mid.add <- c()
 midpoint <- c()
@@ -825,7 +841,7 @@ Total.mean.abund.CLC.normal <- Reduce(`+`, Total.abund.CLC.list.normal) / length
 
 # SLC:
 
-nr.resources <- 25
+nr.resources <- 16
 tot <- (nr.resources*(nr.resources+1))/2
 
 x <- 1/tot

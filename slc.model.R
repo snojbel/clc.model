@@ -55,9 +55,12 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     # Spawning of offspring -------------------------------------------------
     
     juveniles <- adults                                                         # Create a matrix were we will add juveniles into
-                                                      
     
     juveniles[,1] <- rpois(n = nrow(juveniles), lambda = juveniles[,1]*juveniles[,3]) 
+    
+    juvenile.pop <- c()
+    juvenile.pop <- sum(juveniles[,1])   # To extract number of juveniles
+    
     
     # Mutation of offspring -------------------------------------------------
     
@@ -147,7 +150,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       break
     }
     
-    stats <- rbind(stats, c(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]))) 
+    stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]))) 
     
     pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2])
     phenotypes <- rbind(phenotypes, pStats)
@@ -156,20 +159,20 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   }
   
   #return output  ------------------------------------------------------------
-  colnames(stats) <- c("year", "population size", "Number of morphs", "mean trait", "var trait")
+  colnames(stats) <- c("year", "Adult Population size", "Juvenile Population Size", "Number of morphs", "mean trait", "var trait")
   rownames(phenotypes) <- NULL
   
   # Removing any morphs of very low abundance
-    pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
+    #pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
     
-    LastStats <- cbind(time.steps, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2])) 
-    LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2])
+    #LastStats <- cbind(time.steps, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2])) 
+    #LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2])
     
-    colnames(LastStats) <- c("year", "population size", "Number of morphs", "mean trait", "var trait")
-    colnames(LastPheno) <- c("Year", "Number of indivduals", "Trait")  
+    #colnames(LastStats) <- c("year", "population size", "Number of morphs", "mean trait", "var trait")
+    #colnames(LastPheno) <- c("Year", "Number of indivduals", "Trait")  
    
   
-  return(list(stats=stats, phenotypes=phenotypes, LastPheno = LastPheno, LastStats = LastStats))                                 #returns both the stats and the phenotype
+  return(list(stats=stats, phenotypes=phenotypes))                                 #returns both the stats and the phenotype
   
   
 }

@@ -48,8 +48,8 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   
   colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
  
-  stats         <- matrix(data = c(0, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]), 
-                            mean(pop[,3]), var(pop[,3])), nrow = 1, ncol = 7)                                                             #Where we will eventually save our stats and phenotypes
+  stats         <- matrix(data = c(0, sum(pop[,1]), 0, nrow(pop), mean(pop[,2]), var(pop[,2]), 
+                            mean(pop[,3]), var(pop[,3])), nrow = 1, ncol = 8)                                                             #Where we will eventually save our stats and phenotypes
   phenotypes <- matrix(data = c(0, popSize, iniPA, iniPJ), nrow = 1, ncol = 4)
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Adult trait", "Juvenile trait")                                        
   
@@ -87,6 +87,9 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       juveniles <- adults                                                         # Create a matrix were we will add juveniles into
       
       juveniles[,1] <- rpois(n = nrow(juveniles), lambda = juveniles[,1]*juveniles[,4]) 
+      
+      juvenile.pop <- c()
+      juvenile.pop <- sum(juveniles[,1])   # To extract number of juveniles
   
       
       # Mutation of offspring -------------------------------------------------
@@ -191,7 +194,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       }
    
     
-    stats <- rbind(stats, c(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]), 
+    stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]), 
                             mean(pop[,3]), var(pop[,3]))) 
     
     pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2], pop[,3])
@@ -210,7 +213,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   #colnames(LastPheno) <- c("Year", "Number of indivduals", "Adult Trait", "Juvenile Trait")  
   
   #return output  ------------------------------------------------------------
-  colnames(stats) <- c("year", "population size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
+  colnames(stats) <- c("year", "Adult population size","Juvenile Population Size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
   rownames(phenotypes) <- NULL
   
   return(list(stats=stats, phenotypes=phenotypes))  # LastPheno = LastPheno, LastStats = LastStats Add if we want to remove low abundance morphs                               #returns both the stats and the phenotype
