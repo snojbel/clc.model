@@ -18,7 +18,7 @@ library(dplyr)
 
 # Resource initializations -------------------
 
-Num.Res <- 10
+Num.Res <- 18
 res.Abund <-  50000
 
 # Evenly distributed Resources
@@ -451,9 +451,9 @@ job::job(endpoint.even = {
   
   last.year.list.even <- list()
   
-  for(i in 1:9){
+  for(i in 1:3){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 100000)
     
     phenodataCLC <- NULL
     
@@ -499,7 +499,6 @@ job::job(endpoint.skew = {
 
 # Results
 
-# Results
 
 last.year.list.even <- endpoint.even$last.year.list.even
 last.year.list.norm <- endpoint.normal$last.year.list.norm
