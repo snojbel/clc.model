@@ -122,7 +122,6 @@ for (i in 1:Num.Res){
 resource.prop.skew.slc <- c(seq(from = -2.5, to = 2.5, length.out = Num.Res))            # res. property 
 resource.freq.skew.slc <- res.Abund*resource.freq.skew.slc
 
-sum(resource.freq.skew.slc)
 
 # CLC:
 
@@ -150,7 +149,7 @@ colnames(resFreqMatrix.skew.clc)  <- paste0("Resource ", 1:ncol(resFreqMatrix.sk
 rownames(resPropMatrix.skew.clc)<-c("Adult", "Juvenile")
 colnames(resPropMatrix.skew.clc)  <- paste0("Resource ", 1:ncol(resPropMatrix.skew.clc))
 
-
+# ------------------------
 # Running simulations -----------------
 
 
@@ -419,7 +418,8 @@ ggplot(data = unf.species.Frame) +
 
 
 
-# Running simulations 9 run to see endpoint -----------------------------
+# ---------------------
+# Running simulations: 9 run to see endpoint -----------------------------
 
 # Normal
 
@@ -510,7 +510,7 @@ last.year.list.skew <- endpoint.skew$last.year.list.skew
 
 
 
-# Plotting 9 runts to see endpoint --------------------------
+# Plotting 9 runs to see endpoint --------------------------
 
 # Even
 
@@ -563,8 +563,123 @@ grid.arrange(grobs = plot.list.skew, ncol = 3, nrow = 3, top =text_grob("Skewed 
 
 
 
-# ----------------------
+# Plotting Abundance vs Trait of Juveniles and Adults ----------------------
 
+
+combined.even.adult <- list()
+combined.norm.adult <- list()
+combined.skew.adult <- list()
+
+combined.even.juvenile <- list()
+combined.norm.juvenile <- list()
+combined.skew.juvenile <- list()
+
+# -------------------------------  Even 
+
+
+bins <- seq(from = -2.5, to = 2.5, by = 0.5)
+mids <- c()
+for(i in 1:(length(bins)-1)){
+  mids[i] <- (bins[i]+bins[i+1])/2
+}
+
+
+
+for(i in 1:length(last.year.list.even)){
+  last.year.list.even[[i]]$adult.cut <- cut(last.year.list.even[[i]]$Adult_Trait, breaks = bins, labels = F, include.lowest = TRUE)
+  last.year.list.even[[i]]$juvenile.cut <- cut(last.year.list.even[[i]]$Juvenile_Trait, breaks = bins, labels = F, include.lowest = TRUE)
+  
+  # Group by the bin
+  grouped.data.adult <- group_by(last.year.list.even[[i]], adult.cut)
+  grouped.data.juvenile<- group_by(last.year.list.even[[i]], juvenile.cut)
+  
+  summarized.data.adult <- c()
+  
+  # Summarize the abundance
+  summarized.data.adult <- summarise(grouped.data.adult, total_abundance = sum(Num_Individuals))
+  summarized.data.juvenile <- summarise(grouped.data.juvenile, total_abundance = sum(Num_Individuals))
+  
+  
+  # Convert the summarized data to a dataframe
+  
+  combined.even.adult[[i]] <- as.data.frame(summarized.data.adult)
+  combined.even.juvenile[[i]] <- as.data.frame(summarized.data.juvenile)
+}
+
+# Fix first column 
+
+for(i in 1:length(combined.even.adult)){
+  for(k in 1:length(combined.even.adult[[i]][,1])){
+    combined.even.adult[[i]][k, 1] <- mids[combined.even.adult[[i]][k, 1]]
+  }
+}
+
+for(i in 1:length(combined.even.juvenile)){
+  for(k in 1:length(combined.even.juvenile[[i]][,1])){
+    combined.even.juvenile[[i]][k, 1] <- mids[combined.even.juvenile[[i]][k, 1]]
+  }
+}
+
+
+plot.list.even.adult <- list()
+plot.list.even.juvenile <- list()
+
+for (i in 1:length(sigma)){
+  
+  
+  plot.list.even.adult[[i]] <- ggplot(combined.even.adult[[i]], aes(x = adult.cut, y = total_abundance)) +
+    geom_bar(stat = "identity", width = 0.4, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Adult Trait", y = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    #scale_y_continuous(limits = c(-2.5, 2.5))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+  #color.palette <- mako(length(last.year.list.even[[i]]$Juvenile_Trait))
+  
+  plot.list.even.juvenile[[i]] <- ggplot(combined.even.juvenile[[i]], aes(x = juvenile.cut, y = total_abundance)) +
+    geom_bar(stat = "identity", width = 0.4, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    #scale_y_continuous(limits = c(-2.5, 2.5))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+
+layout <- "
+ABC
+DEF
+#G#
+HIJ
+KLM
+"
+
+combo.plot.list <- list()
+midtitle <- textGrob("Juvenile Trait", gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
+                     hjust = 0.5)
+
+for(i in 1:(length(plot.list.even.adult)*2 + 1)){
+  if(i == (length(plot.list.even.adult) + 1)){
+    combo.plot.list[[i]] <- midtitle
+  }
+  else if(i < (length(plot.list.even.adult) + 1)){
+    combo.plot.list[[i]] <- plot.list.even.adult[[i]]
+  }
+  else{
+    combo.plot.list[[i]] <- plot.list.even.juvenile[[i-(length(plot.list.even.adult) + 1)]]
+  }
+}
+
+plots <- wrap_plots(combo.plot.list, design = layout)
+
+plots + plot_annotation(
+  title = 'Even Distribution',
+  subtitle = 'Adult Trait',
+  theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+  #caption = 'Disclaimer: None of these plots are insightful'
+) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
+
+
+# ----------------------
 # Running simulations to see endpoint and number of species with varied sigma -----------------------------
 
 # Normal
@@ -681,7 +796,7 @@ for (i in 1:length(sigma)){
 
 
 
-# Plotting 9 runts to see endpoint --------------------------
+# Plotting 9 runs to see endpoint comparison of filtered vs unfiltered --------------------------
 
 # Even
 
@@ -888,331 +1003,8 @@ plots + plot_annotation(
   #caption = 'Disclaimer: None of these plots are insightful'
 )+ plot_layout(heights = c(1, 1, 0.4, 1, 1))
 
-
-# Plotting Abundance vs Trait of Juveniles and Adults ----------------------
-
-
-combined.even.adult <- list()
-combined.norm.adult <- list()
-combined.skew.adult <- list()
-
-combined.even.juvenile <- list()
-combined.norm.juvenile <- list()
-combined.skew.juvenile <- list()
-
-# -------------------------------  Even 
-
-
-bins <- seq(from = -2.5, to = 2.5, by = 0.5)
-mids <- c()
-for(i in 1:(length(bins)-1)){
-  mids[i] <- (bins[i]+bins[i+1])/2
-}
-
-
-
-for(i in 1:length(last.year.list.even)){
-  last.year.list.even[[i]]$adult.cut <- cut(last.year.list.even[[i]]$Adult_Trait, breaks = bins, labels = F, include.lowest = TRUE)
-  last.year.list.even[[i]]$juvenile.cut <- cut(last.year.list.even[[i]]$Juvenile_Trait, breaks = bins, labels = F, include.lowest = TRUE)
-  
-  # Group by the bin
-  grouped.data.adult <- group_by(last.year.list.even[[i]], adult.cut)
-  grouped.data.juvenile<- group_by(last.year.list.even[[i]], juvenile.cut)
-  
-  summarized.data.adult <- c()
-  
-  # Summarize the abundance
-  summarized.data.adult <- summarise(grouped.data.adult, total_abundance = sum(Num_Individuals))
-  summarized.data.juvenile <- summarise(grouped.data.juvenile, total_abundance = sum(Num_Individuals))
-  
-  
-  # Convert the summarized data to a dataframe
-  
-  combined.even.adult[[i]] <- as.data.frame(summarized.data.adult)
-  combined.even.juvenile[[i]] <- as.data.frame(summarized.data.juvenile)
-  }
-
-# Fix first column 
-
-for(i in 1:length(combined.even.adult)){
-  for(k in 1:length(combined.even.adult[[i]][,1])){
-    combined.even.adult[[i]][k, 1] <- mids[combined.even.adult[[i]][k, 1]]
-  }
-}
-
-for(i in 1:length(combined.even.juvenile)){
-  for(k in 1:length(combined.even.juvenile[[i]][,1])){
-    combined.even.juvenile[[i]][k, 1] <- mids[combined.even.juvenile[[i]][k, 1]]
-  }
-}
-
-
-plot.list.even.adult <- list()
-plot.list.even.juvenile <- list()
-
-for (i in 1:length(sigma)){
-  
-  
-  plot.list.even.adult[[i]] <- ggplot(combined.even.adult[[i]], aes(x = adult.cut, y = total_abundance)) +
-    geom_bar(stat = "identity", width = 0.4, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Adult Trait", y = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    #scale_y_continuous(limits = c(-2.5, 2.5))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-  
-  #color.palette <- mako(length(last.year.list.even[[i]]$Juvenile_Trait))
-  
-  plot.list.even.juvenile[[i]] <- ggplot(combined.even.juvenile[[i]], aes(x = juvenile.cut, y = total_abundance)) +
-    geom_bar(stat = "identity", width = 0.4, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    #scale_y_continuous(limits = c(-2.5, 2.5))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-}
-
-
-layout <- "
-ABC
-DEF
-#G#
-HIJ
-KLM
-"
-
-combo.plot.list <- list()
-midtitle <- textGrob("Juvenile Trait", gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
-                     hjust = 0.5)
-
-for(i in 1:(length(plot.list.even.adult)*2 + 1)){
-  if(i == (length(plot.list.even.adult) + 1)){
-    combo.plot.list[[i]] <- midtitle
-  }
-  else if(i < (length(plot.list.even.adult) + 1)){
-    combo.plot.list[[i]] <- plot.list.even.adult[[i]]
-  }
-  else{
-    combo.plot.list[[i]] <- plot.list.even.juvenile[[i-(length(plot.list.even.adult) + 1)]]
-  }
-}
-
-plots <- wrap_plots(combo.plot.list, design = layout)
-
-plots + plot_annotation(
-  title = 'Even Distribution',
-  subtitle = 'Adult Trait',
-  theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-  #caption = 'Disclaimer: None of these plots are insightful'
-) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
-
-
-
-#------------------------------------------- Normal
-
-
-
-for(i in 1:length(last.year.list.norm)){
-  last.year.list.norm[[i]]$adult.cut <- cut(last.year.list.norm[[i]]$Adult_Trait, breaks = bins, labels = F, include.lowest = TRUE)
-  last.year.list.norm[[i]]$juvenile.cut <- cut(last.year.list.norm[[i]]$Juvenile_Trait, breaks = bins, labels = F, include.lowest = TRUE)
-  
-  # Group by the bin
-  grouped.data.adult <- group_by(last.year.list.norm[[i]], adult.cut)
-  grouped.data.juvenile<- group_by(last.year.list.norm[[i]], juvenile.cut)
-  
-  summarized.data.adult <- c()
-  
-  # Summarize the abundance
-  summarized.data.adult <- summarise(grouped.data.adult, total_abundance = sum(Num_Individuals))
-  summarized.data.juvenile <- summarise(grouped.data.juvenile, total_abundance = sum(Num_Individuals))
-  
-  
-  # Convert the summarized data to a dataframe
-  
-  combined.norm.adult[[i]] <- as.data.frame(summarized.data.adult)
-  combined.norm.juvenile[[i]] <- as.data.frame(summarized.data.juvenile)
-}
-
-# Fix first column 
-
-for(i in 1:length(combined.norm.adult)){
-  for(k in 1:length(combined.norm.adult[[i]][,1])){
-    combined.norm.adult[[i]][k, 1] <- mids[combined.norm.adult[[i]][k, 1]]
-  }
-}
-
-for(i in 1:length(combined.norm.juvenile)){
-  for(k in 1:length(combined.norm.juvenile[[i]][,1])){
-    combined.norm.juvenile[[i]][k, 1] <- mids[combined.norm.juvenile[[i]][k, 1]]
-  }
-}
-
-
-plot.list.norm.adult <- list()
-plot.list.norm.juvenile <- list()
-
-for (i in 1:length(sigma)){
-  
-  
-  plot.list.norm.adult[[i]] <- ggplot(combined.norm.adult[[i]], aes(x = adult.cut, y = total_abundance)) +
-    geom_bar(stat = "identity", width = 0.4, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Adult Trait", y = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    #scale_y_continuous(limits = c(-2.5, 2.5))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-  
-  #color.palette <- mako(length(last.year.list.norm[[i]]$Juvenile_Trait))
-  
-  plot.list.norm.juvenile[[i]] <- ggplot(combined.norm.juvenile[[i]], aes(x = juvenile.cut, y = total_abundance)) +
-    geom_bar(stat = "identity", width = 0.4, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    #scale_y_continuous(limits = c(-2.5, 2.5))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-}
-
-
-
-layout <- "
-ABC
-DEF
-#G#
-HIJ
-KLM
-"
-
-combo.plot.list <- list()
-midtitle <- textGrob("Juvenile Trait", gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
-                     hjust = 0.5)
-
-for(i in 1:(length(plot.list.norm.adult)*2 + 1)){
-  if(i == (length(plot.list.norm.adult) + 1)){
-    combo.plot.list[[i]] <- midtitle
-  }
-  else if(i < (length(plot.list.norm.adult) + 1)){
-    combo.plot.list[[i]] <- plot.list.norm.adult[[i]]
-  }
-  else{
-    combo.plot.list[[i]] <- plot.list.norm.juvenile[[i-(length(plot.list.norm.adult) + 1)]]
-  }
-}
-
-plots <- wrap_plots(combo.plot.list, design = layout)
-
-plots + plot_annotation(
-  title = 'Normal Distribution',
-  subtitle = 'Adult Trait',
-  theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-  #caption = 'Disclaimer: None of these plots are insightful'
-) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
-
-
-
-
-
-
-#---------------------------------------- Skewed
-
-
-
-for(i in 1:length(last.year.list.skew)){
-  last.year.list.skew[[i]]$adult.cut <- cut(last.year.list.skew[[i]]$Adult_Trait, breaks = bins, labels = F, include.lowest = TRUE)
-  last.year.list.skew[[i]]$juvenile.cut <- cut(last.year.list.skew[[i]]$Juvenile_Trait, breaks = bins, labels = F, include.lowest = TRUE)
-  
-  # Group by the bin
-  grouped.data.adult <- group_by(last.year.list.skew[[i]], adult.cut)
-  grouped.data.juvenile<- group_by(last.year.list.skew[[i]], juvenile.cut)
-  
-  summarized.data.adult <- c()
-  
-  # Summarize the abundance
-  summarized.data.adult <- summarise(grouped.data.adult, total_abundance = sum(Num_Individuals))
-  summarized.data.juvenile <- summarise(grouped.data.juvenile, total_abundance = sum(Num_Individuals))
-  
-  
-  # Convert the summarized data to a dataframe
-  
-  combined.skew.adult[[i]] <- as.data.frame(summarized.data.adult)
-  combined.skew.juvenile[[i]] <- as.data.frame(summarized.data.juvenile)
-}
-
-# Fix first column 
-
-for(i in 1:length(combined.skew.adult)){
-  for(k in 1:length(combined.skew.adult[[i]][,1])){
-    combined.skew.adult[[i]][k, 1] <- mids[combined.skew.adult[[i]][k, 1]]
-  }
-}
-
-for(i in 1:length(combined.skew.juvenile)){
-  for(k in 1:length(combined.skew.juvenile[[i]][,1])){
-    combined.skew.juvenile[[i]][k, 1] <- mids[combined.skew.juvenile[[i]][k, 1]]
-  }
-}
-
-
-plot.list.skew.adult <- list()
-plot.list.skew.juvenile <- list()
-
-for (i in 1:length(sigma)){
-  
-  
-  plot.list.skew.adult[[i]] <- ggplot(combined.skew.adult[[i]], aes(x = adult.cut, y = total_abundance)) +
-    geom_bar(stat = "identity", width = 0.4, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Adult Trait", y = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    #scale_y_continuous(limits = c(-2.5, 2.5))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-  
-  #color.palette <- mako(length(last.year.list.skew[[i]]$Juvenile_Trait))
-  
-  plot.list.skew.juvenile[[i]] <- ggplot(combined.skew.juvenile[[i]], aes(x = juvenile.cut, y = total_abundance)) +
-    geom_bar(stat = "identity", width = 0.4, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    #scale_y_continuous(limits = c(-2.5, 2.5))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-}
-
-
-
-layout <- "
-ABC
-DEF
-#G#
-HIJ
-KLM
-"
-
-combo.plot.list <- list()
-midtitle <- textGrob("Juvenile Trait", gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
-                     hjust = 0.5)
-
-for(i in 1:(length(plot.list.skew.adult)*2 + 1)){
-  if(i == (length(plot.list.skew.adult) + 1)){
-    combo.plot.list[[i]] <- midtitle
-  }
-  else if(i < (length(plot.list.skew.adult) + 1)){
-    combo.plot.list[[i]] <- plot.list.skew.adult[[i]]
-  }
-  else{
-    combo.plot.list[[i]] <- plot.list.skew.juvenile[[i-(length(plot.list.skew.adult) + 1)]]
-  }
-}
-
-plots <- wrap_plots(combo.plot.list, design = layout)
-
-plots + plot_annotation(
-  title = 'Skewed Distribution',
-  subtitle = 'Adult Trait',
-  theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-  #caption = 'Disclaimer: None of these plots are insightful'
-) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
-
-
-
-
-
-
-# Running simulations to compare adult population vs Juvenile population -----------------------------
+# ------------------------
+# Running simulations: compare adult population vs Juvenile population -----------------------------
 
 # Normal
 
@@ -1231,13 +1023,13 @@ job::job(population.normal = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     
-      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, resFreq=resource.freq.norm.slc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, resFreq=resource.freq.norm.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
       statsSLC <- NULL
       
       statsSLC <- data.frame(
         Year = outputSLC$stats[, 1],
-        Adult_Pop = outputSLC$phenotypes[, 2],
-        Juvenile_Pop = outputSLC$phenotypes[, 3])
+        Adult_Pop = outputSLC$stats[, 2],
+        Juvenile_Pop = outputSLC$stats[, 3])
       
       
       
@@ -1261,14 +1053,14 @@ job::job(population.normal = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     for(c in 1:length(sigma)) {
-        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
         
         statsCLC <- NULL
         
         statsCLC <- data.frame(
           Year = outputCLC$stats[, 1],
-          Adult_Pop = outputCLC$phenotypes[, 2],
-          Juvenile_Pop = outputCLC$phenotypes[, 3])
+          Adult_Pop = outputCLC$stats[, 2],
+          Juvenile_Pop = outputCLC$stats[, 3])
         
         
         
@@ -1282,7 +1074,7 @@ job::job(population.normal = {
   
   # Control what is returned to the main session
   job::export(list(adult.last.year.norm.CLC, juvenile.last.year.norm.CLC, adult.last.year.norm.SLC, juvenile.last.year.norm.SLC))
-}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.even.slc, resource.freq.even.slc, resourceCompetitionSLC))
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC))
 
 
 # Even
@@ -1302,13 +1094,13 @@ job::job(population.even = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, resFreq=resource.freq.even.slc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, resFreq=resource.freq.even.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
     statsSLC <- NULL
     
     statsSLC <- data.frame(
       Year = outputSLC$stats[, 1],
-      Adult_Pop = outputSLC$phenotypes[, 2],
-      Juvenile_Pop = outputSLC$phenotypes[, 3])
+      Adult_Pop = outputSLC$stats[, 2],
+      Juvenile_Pop = outputSLC$stats[, 3])
     
     
     
@@ -1332,14 +1124,14 @@ job::job(population.even = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     for(c in 1:length(sigma)) {
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
       
       statsCLC <- NULL
       
       statsCLC <- data.frame(
         Year = outputCLC$stats[, 1],
-        Adult_Pop = outputCLC$phenotypes[, 2],
-        Juvenile_Pop = outputCLC$phenotypes[, 3])
+        Adult_Pop = outputCLC$stats[, 2],
+        Juvenile_Pop = outputCLC$stats[, 3])
       
       
       
@@ -1373,13 +1165,13 @@ job::job(population.skew = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.skew.slc, resFreq=resource.freq.skew.slc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.skew.slc, resFreq=resource.freq.skew.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
     statsSLC <- NULL
     
     statsSLC <- data.frame(
       Year = outputSLC$stats[, 1],
-      Adult_Pop = outputSLC$phenotypes[, 2],
-      Juvenile_Pop = outputSLC$phenotypes[, 3])
+      Adult_Pop = outputSLC$stats[, 2],
+      Juvenile_Pop = outputSLC$stats[, 3])
     
     
     
@@ -1403,14 +1195,14 @@ job::job(population.skew = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     for(c in 1:length(sigma)) {
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
       
       statsCLC <- NULL
       
       statsCLC <- data.frame(
         Year = outputCLC$stats[, 1],
-        Adult_Pop = outputCLC$phenotypes[, 2],
-        Juvenile_Pop = outputCLC$phenotypes[, 3])
+        Adult_Pop = outputCLC$stats[, 2],
+        Juvenile_Pop = outputCLC$stats[, 3])
       
       
       
@@ -1430,66 +1222,183 @@ job::job(population.skew = {
 
 # Results ------------------------
 
-# Results
 
-result.pop.even <- population.even
-result.pop.norm <- population.norm
-result.pop.skew <- population.skew
+adult.even.pop.clc <- population.even$adult.last.year.even.CLC
+juvenile.even.pop.clc <- population.even$juvenile.last.year.even.CLC
 
+adult.even.pop.slc <- population.even$adult.last.year.even.SLC
+juvenile.even.pop.slc <- population.even$juvenile.last.year.even.SLC
 
-
-# Plotting 9 runts to see endpoint --------------------------
+# Plotting abundance of adults and juveniles different sigmas --------------------------
 
 # Even
 
-plot.list.even <- list()
+x <- rownames(adult.even.pop.clc)
 
-for (i in 1:9){
-  
-  color.palette <- mako(length(last.year.list.even[[i]]$Adult_Trait))
-  
-  plot.list.even[[i]] <- ggplot(last.year.list.even[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
-    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-}
 
-grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =text_grob("Even Distribution 50 000 years", size = 10, family = "LM Roman 10"))
+juveniles <-  data.frame(x = rep(x, length(Total_mean_SLC)), y = Total_mean_SLC)
+shapes <- c(rep(x = 8, times =nrow(SLC)))
+SLC <- cbind(SLC, shapes)
 
-# Normal
+# Number of species
 
-plot.list.norm <- list()
+ggmatplot(x, juvenile.even.pop.clc,
+          plot_type = "point",
+          xlab = "Adult Generalism",
+          ylab = "Abundance",
+          legend_title = "Juvenile Generalism",
+          legend_label = x, size = 8, shape = 10) +#,
+          #color = "slateblue") +
+  scale_y_continuous(limits = c(0, 50000)) +
+  ggtitle("Even distribution") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15)+
+  theme(plot.title = element_text(size = 18)) #+                                                  
+  #geom_point(x, juvenile.even.pop.clc, size = 8, color = "thistle")
 
-for (i in 1:9){
-  
-  color.palette <- mako(length(last.year.list.norm[[i]]$Adult_Trait))
-  
-  plot.list.norm[[i]] <- ggplot(last.year.list.norm[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
-    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-}
 
-grid.arrange(grobs = plot.list.norm, ncol = 3, nrow = 3, top =text_grob("Normal Distribution 50 000 years", size = 10, family = "LM Roman 10"))
 
-# Skewed
 
-plot.list.skew <- list()
 
-for (i in 1:9){
-  
-  color.palette <- mako(length(last.year.list.skew[[i]]$Adult_Trait))
-  
-  plot.list.skew[[i]] <- ggplot(last.year.list.skew[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
-    labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-}
 
-grid.arrange(grobs = plot.list.skew, ncol = 3, nrow = 3, top =text_grob("Skewed Distribution 50 000 years", size = 10, family = "LM Roman 10"))
+
 
 
 
 # ----------------------
+# Running simulations: 10 runs number of species varied sigmas ----------------
 
+# Even
+
+job::job(ten.run.even = {
+
+sigma <- c(seq(from = 0.05, to = 0.95, by = 0.1))
+  
+Total.species.SLC.single.even <- c()
+
+Total.species.CLC.even <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+rownames(Total.species.CLC.even) <- sigma  #ADULTS
+colnames(Total.species.CLC.even) <- sigma #JUVENILES
+
+
+
+# SLC
+
+Total.SLC.list.even <- list()
+
+for(r in 1:10) {
+  
+  print(paste0("loop ", r, " started"))
+  
+  Total.species.SLC.single.even <- c()
+  
+  for(i in 1:length(sigma)){
+    
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, iniP = 0, resFreq=resource.freq.norm.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+    
+    #Filter out similar "species"
+    
+    final.data.SLC.even <- slc.groups(output = outputSLC)
+    Total.species.SLC.single.even[i] <- nrow(final.data.SLC.even)
+  }
+  
+  Total.SLC.list.even[[r]] <- Total.species.SLC.single.even
+
+}
+
+
+# Caluclating mean and SD of 10 runs
+
+Total.mean.SLC.even <- Reduce(`+`, Total.SLC.list.even) / length(Total.SLC.list.even)
+
+
+Total.mean.SLC.even.1 <- sapply(1:length(sigma), function(i) mean(sapply(Total.SLC.list.even, function(x) x[i])))
+Total.sd.SLC.even <- sapply(1:length(sigma), function(i) sd(sapply(Total.SLC.list.even, function(x) x[i])))
+
+
+# CLC
+
+Total.CLC.list.even <- list()
+
+
+for(r in 1:10){
+  print(paste0("loop ", r, " started"))
+  
+  Total.species.CLC.even <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(Total.species.CLC.even) <- sigma #ADULTS
+  colnames(Total.species.CLC.even) <- sigma #JUVENILES
+  
+  for(i in 1:length(sigma)){
+    
+    for(k in 1:length(sigma)){
+      
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+      
+      #Filter out similar "species"
+      
+      final.data.CLC.even <- clc.groups(output = outputCLC)
+      Total.species.CLC.even[i, k] <- nrow(final.data.CLC.even)
+      
+    }
+    
+  }
+  Total.CLC.list.even[[r]] <- Total.species.CLC.even
+}
+
+# Calculating mean of 10 runs
+
+Total.mean.CLC.even <- Reduce(`+`, Total.CLC.list.even) / length(Total.CLC.list.even)
+
+# Calculate mean and standard deviation for each position across the entries
+Total.mean.CLC.even.1 <- sapply(1:length(sigma), function(i) mean(sapply(Total.CLC.list.even, function(x) x[i])))
+Total.sd.CLC.even <- sapply(1:length(sigma), function(i) sd(sapply(Total.CLC.list.even, function(x) x[i])))
+
+
+job::export(list(Total.mean.CLC.even.1, Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, Total.mean.SLC.even.1, Total.sd.CLC.even))
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC, clc.groups, slc.groups))
+
+
+# Normal
+
+
+
+# Skewed
+
+
+
+# Plotting: 10 runs number of species varied sigmas -----------------------
+
+# Even
+
+Total.mean.CLC.even <- ten.run.even$Total.mean.CLC.even
+Total.mean.SLC.even <- ten.run.even$Total.mean.SLC.even
+
+Total.sd.CLC.even <-  ten.run.even$Total.sd.CLC.even
+Total.sd.SLC.even <-  ten.run.even$Total.sd.SLC.even
+
+
+x <- rownames(Total.mean.CLC.even)
+
+
+SLC <-  data.frame(x = rep(x, length(Total.mean.SLC.even)), y = Total.mean.SLC.even)
+shapes <- c(rep(x = 8, times =nrow(SLC)))
+SLC <- cbind(SLC, shapes)
+
+# Number of species
+
+ggmatplot(x, Total.mean.CLC.even,
+          plot_type = "point",
+          xlab = "Adult Generalism",
+          ylab = "Number of species",
+          legend_title = "Juvenile Generalism",
+          legend_label = x, size = 8) +
+  scale_y_continuous(limits = c(0, 20)) +
+  ggtitle("Even distribution") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15)+
+  theme(plot.title = element_text(size = 18)) +                                                  #,panel.grid.major = element_line(colour = "grey", linewidth = 0.3, inherit.blank = FALSE) to add some gridlines
+  geom_point(data = SLC, aes(x = x, y = y, group=x), size = 8, shape = shapes) +
+  geom_errorbar(aes(ymin=Total_mean_CLC-sd, ymax=len+sd), width=.2,
+                position=position_dodge(0.05))
+
+
+# -------------------------
 
