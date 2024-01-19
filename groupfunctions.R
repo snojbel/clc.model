@@ -29,7 +29,7 @@ slc.groups <- function(output = outputSLC, threshold = 0.2){
   
   # Find indices of individuals to keep
   
-  if(sum(which(distance_matrix_adult < threshold & distance_matrix_juvenile < threshold, arr.ind = T)) == 0){
+  if(sum(which(distance_matrix < threshold, arr.ind = T)) == 0){
     return(last_year_dataSLC)
   } # Checks if there are zero individuals who are alike.
   
