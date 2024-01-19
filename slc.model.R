@@ -17,8 +17,8 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   
   colnames(pop) <- c("Number of indivduals", "Trait", "Proxy")
   
-  stats         <- matrix(data = c(0, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2])) 
-                                  , nrow = 1, ncol = 5)                                                             #Where we will eventually save our stats and phenotypes
+  stats         <- matrix(data = c(0, sum(pop[,1]), 0, nrow(pop), mean(pop[,2]), var(pop[,2])) 
+                                  , nrow = 1, ncol = 6)                                                             #Where we will eventually save our stats and phenotypes
   phenotypes <- matrix(data = c(0, popSize, iniP), nrow = 1, ncol = 3)
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Trait")                                        
   
