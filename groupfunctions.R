@@ -29,7 +29,11 @@ slc.groups <- function(output = outputSLC, threshold = 0.2){
   
   # Find indices of individuals to keep
   
+<<<<<<< HEAD
   if(sum(which(distance_matrix  < threshold, arr.ind = T)) == 0){
+=======
+  if(sum(which(distance_matrix < threshold, arr.ind = T)) == 0){
+>>>>>>> 6df208ae489e2818008299a76854cffae3373ce0
     return(last_year_dataSLC)
   } # Checks if there are zero individuals who are alike.
   

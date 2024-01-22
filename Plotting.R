@@ -21,6 +21,16 @@ library(extrafont)
 
 
 
+
+ggplot(data = data.frame(x = c(-3, 3)), aes(x)) +
+  stat_function(fun = dnorm, n = 101, args = list(mean = 0, sd = 1)) + ylab("") +
+  scale_y_continuous(breaks = NULL)+
+  labs(x = "Trait (z)", y = expression(alpha)) +
+  theme_classic(base_size = 18)+ 
+  theme(axis.text = element_text(family = "LM Roman 10"),
+        axis.title = element_text(family = "LM Roman 10", size = 20),
+        plot.title = element_text(hjust = 0.5, family = "LM Roman 10"))
+
 # SLC:
 
 

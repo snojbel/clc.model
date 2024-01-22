@@ -90,7 +90,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       
       juvenile.pop <- c()
       juvenile.pop <- sum(juveniles[,1])   # To extract number of juveniles
-  
+    
       
       # Mutation of offspring -------------------------------------------------
       
