@@ -1,6 +1,7 @@
 # Updated simmer with jobs
 
 
+
 library(job)
 library(gganimate)
 library(gifski)
@@ -1271,7 +1272,7 @@ ggmatplot(x, juvenile.even.pop.clc,
 
 job::job(ten.run.even = {
 
-sigma <- c(seq(from = 0.05, to = 0.95, by = 0.1))
+sigma <- c(seq(from = 0.05, to = 1.05, by = 0.2))
   
 Total.species.SLC.single.even <- c()
 
@@ -1317,31 +1318,32 @@ Total.sd.SLC.even <- sapply(1:length(sigma), function(i) sd(sapply(Total.SLC.lis
 
 # CLC
 
+print("clc start")
 Total.CLC.list.even <- list()
 
 
-for(r in 1:10){
-  print(paste0("loop ", r, " started"))
+for(a in 1:10){
+  print(paste0("loop ", a, " started"))
   
   Total.species.CLC.even <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
   rownames(Total.species.CLC.even) <- sigma #ADULTS
   colnames(Total.species.CLC.even) <- sigma #JUVENILES
   
-  for(i in 1:length(sigma)){
+  for(b in 1:length(sigma)){
     
     for(k in 1:length(sigma)){
       
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 5000)
       
       #Filter out similar "species"
       
       final.data.CLC.even <- clc.groups(output = outputCLC)
-      Total.species.CLC.even[i, k] <- nrow(final.data.CLC.even)
+      Total.species.CLC.even[b, k] <- nrow(final.data.CLC.even)
       
     }
     
   }
-  Total.CLC.list.even[[r]] <- Total.species.CLC.even
+  Total.CLC.list.even[[a]] <- Total.species.CLC.even
 }
 
 # Calculating mean of 10 runs
@@ -1349,15 +1351,16 @@ for(r in 1:10){
 Total.mean.CLC.even <- Reduce(`+`, Total.CLC.list.even) / length(Total.CLC.list.even)
 
 # Calculate mean and standard deviation for each position across the entries
-Total.mean.CLC.even.1 <- sapply(1:length(sigma), function(i) mean(sapply(Total.CLC.list.even, function(x) x[i])))
-Total.sd.CLC.even <- sapply(1:length(sigma), function(i) sd(sapply(Total.CLC.list.even, function(x) x[i])))
+Total.mean.CLC.even.1 <- t(sapply(seq_along(Total.CLC.list.even[[1]]), function(i) {
+  sapply(Total.CLC.list.even, function(x) mean(x[, i]))
+}))
+Total.sd.CLC.even <- t(sapply(seq_along(Total.CLC.list.even[[1]]), function(i) {
+  sapply(Total.CLC.list.even, function(x) sd(x[, i]))
+}))
 
 
-job::export(list(Total.mean.CLC.even.1, Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, Total.mean.SLC.even.1, Total.sd.CLC.even))
-}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC, clc.groups, slc.groups))
-
-
-# Normal
+job::export(list(Total.mean.CLC.even.1, Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, Total.mean.SLC.even.1, Total.sd.SLC.even))
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC, clc.groups, slc.groups))# Normal
 
 
 
@@ -1369,8 +1372,8 @@ job::export(list(Total.mean.CLC.even.1, Total.mean.CLC.even, Total.sd.CLC.even, 
 
 # Even
 
-Total.mean.CLC.even <- ten.run.even$Total.mean.CLC.even
-Total.mean.SLC.even <- ten.run.even$Total.mean.SLC.even
+Total.mean.CLC.even <- ten.run.even$Total.mean.CLC.even.1
+Total.mean.SLC.even <- ten.run.even$Total.mean.SLC.even.1
 
 Total.sd.CLC.even <-  ten.run.even$Total.sd.CLC.even
 Total.sd.SLC.even <-  ten.run.even$Total.sd.SLC.even
