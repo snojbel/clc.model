@@ -1520,19 +1520,7 @@ for(a in 1:10){
 # Combine matrices in the list into a 3D array
 array.data.CLC <- array(unlist(Total.CLC.list.even), dim = c(dim(Total.CLC.list.even[[1]]), length(Total.CLC.list.even)))
 
-<<<<<<< HEAD
-# Calculate mean and standard deviation for each position across the entries
-Total.mean.CLC.even.1 <- t(sapply(seq_along(Total.CLC.list.even[[1]]), function(i) {
-  sapply(Total.CLC.list.even, function(x) mean(x[, i]))
-}))
-Total.sd.CLC.even <- t(sapply(seq_along(Total.CLC.list.even[[1]]), function(i) {
-  sapply(Total.CLC.list.even, function(x) sd(x[, i]))
-}))
 
-
-job::export(list(Total.mean.CLC.even.1, Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, Total.mean.SLC.even.1, Total.sd.SLC.even))
-}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC, clc.groups, slc.groups))# Normal
-=======
 # Calculate mean and standard deviation along the third dimension (across the list)
 Total.mean.CLC.even <- apply(array.data.CLC, c(1, 2), mean)
 Total.sd.CLC.even <- apply(array.data.CLC, c(1, 2), sd)
@@ -1544,7 +1532,7 @@ job::export(list(Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, To
 
 
 # Normal
->>>>>>> 6df208ae489e2818008299a76854cffae3373ce0
+
 
 job::job(ten.run.norm = {
   
