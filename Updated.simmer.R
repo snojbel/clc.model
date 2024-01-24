@@ -23,7 +23,7 @@ library(grid)
 
 
 Num.Res <- 16
-res.Abund <-  50000
+res.Abund <-  10000
 
 # Evenly distributed Resources
 
@@ -1460,7 +1460,7 @@ for(r in 1:10) {
   
   for(i in 1:length(sigma)){
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, iniP = 0, resFreq=resource.freq.norm.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
     #Filter out similar "species"
     
@@ -1501,7 +1501,7 @@ for(a in 1:10){
     
     for(k in 1:length(sigma)){
       
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 5000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 5000)
 
       
       #Filter out similar "species"
@@ -1528,7 +1528,7 @@ Total.sd.CLC.even <- apply(array.data.CLC, c(1, 2), sd)
 
 
 job::export(list(Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, Total.sd.SLC.even))
-}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC, clc.groups, slc.groups))
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, resource.prop.even.slc, resource.freq.even.slc, resourceCompetitionSLC, clc.groups, slc.groups))
 
 
 # Normal
@@ -1725,19 +1725,14 @@ job::job(ten.run.skew = {
 
 # Even
 
-Total.mean.CLC.even <- ten.run.even$Total.mean.CLC.even.1
-Total.mean.SLC.even <- ten.run.even$Total.mean.SLC.even.1
+Total.mean.CLC.even <- ten.run.even$Total.mean.CLC.even
+Total.mean.SLC.even <- ten.run.even$Total.mean.SLC.even
 
 Total.sd.CLC.even <-  ten.run.even$Total.sd.CLC.even
 Total.sd.SLC.even <-  ten.run.even$Total.sd.SLC.even
 
-
-x <- rownames(Total.mean.CLC.even)
-
-
-SLC <-  data.frame(x = rep(x, length(Total.mean.SLC.even)), y = Total.mean.SLC.even)
-shapes <- c(rep(x = 8, times =nrow(SLC)))
-SLC <- cbind(SLC, shapes)
+sigma <- c(seq(from = 0.05, to = 1.05, by = 0.2))
+x <- as.factor(sigma)
 
 
 
@@ -1765,15 +1760,114 @@ df.combined <- rbind(df.CLC, df.SLC)
 ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Juvenile.trait, stroke = 1.05)) +
   geom_point(size = 7) +
   geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
-  scale_y_continuous(limits = c(0, 20)) +
+  scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
   ylab("Abundance") +
   labs(shape = "Juvenile Generalism", color = "Life strategy") +
-  ggtitle("Complex Lifecyle") +
+  ggtitle("Even Resource distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
   theme(plot.title = element_text(size = 18))+
   scale_color_manual(values = c("slateblue", "thistle"))
 
+
+# Normal
+
+Total.mean.CLC.norm <- ten.run.norm$Total.mean.CLC.norm
+Total.mean.SLC.norm <- ten.run.norm$Total.mean.SLC.norm
+
+Total.sd.CLC.norm <-  ten.run.norm$Total.sd.CLC.norm
+Total.sd.SLC.norm <-  ten.run.norm$Total.sd.SLC.norm
+
+sigma <- c(seq(from = 0.05, to = 1.05, by = 0.2))
+x <- as.factor(sigma)
+
+
+
+
+df.CLC <- data.frame(
+  Juvenile.trait = rep(x, each = 6),
+  Adult.trait = rep(x, times = 6),
+  Richness = as.vector(Total.mean.CLC.norm),
+  sd = as.vector(Total.sd.CLC.norm),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df.SLC <- data.frame(
+  Juvenile.trait = x,
+  Adult.trait = x,
+  Richness = as.vector(Total.mean.SLC.norm),
+  sd = as.vector(Total.sd.SLC.norm),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df.combined <- rbind(df.CLC, df.SLC)
+
+
+ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 7) +
+  geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
+  scale_y_continuous(limits = c(0, 30)) +
+  xlab("Adult Generalism") +
+  ylab("Abundance") +
+  labs(shape = "Juvenile Generalism", color = "Life strategy") +
+  ggtitle("Normal Resource Distribution") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))+
+  scale_color_manual(values = c("slateblue", "thistle"))
+
+
+# Skewed
+
+
+
+
+
+Total.mean.CLC.skew <- ten.run.skew$Total.mean.CLC.skew
+Total.mean.SLC.skew <- ten.run.skew$Total.mean.SLC.skew
+
+Total.sd.CLC.skew <-  ten.run.skew$Total.sd.CLC.skew
+Total.sd.SLC.skew <-  ten.run.skew$Total.sd.SLC.skew
+
+sigma <- c(seq(from = 0.05, to = 1.05, by = 0.2))
+x <- as.factor(sigma)
+
+
+
+
+df.CLC <- data.frame(
+  Juvenile.trait = rep(x, each = 6),
+  Adult.trait = rep(x, times = 6),
+  Richness = as.vector(Total.mean.CLC.skew),
+  sd = as.vector(Total.sd.CLC.skew),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df.SLC <- data.frame(
+  Juvenile.trait = x,
+  Adult.trait = x,
+  Richness = as.vector(Total.mean.SLC.skew),
+  sd = as.vector(Total.sd.SLC.skew),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df.combined <- rbind(df.CLC, df.SLC)
+
+
+ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 7) +
+  geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
+  scale_y_continuous(limits = c(0, 30)) +
+  xlab("Adult Generalism") +
+  ylab("Abundance") +
+  labs(shape = "Juvenile Generalism", color = "Life strategy") +
+  ggtitle("Skewed Resource Distribution") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))+
+  scale_color_manual(values = c("slateblue", "thistle"))
 
 
 
