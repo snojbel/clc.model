@@ -1,6 +1,7 @@
 # Updated simmer with jobs
 
 
+
 library(job)
 library(gganimate)
 library(gifski)
@@ -1485,37 +1486,40 @@ Total.sd.SLC.even <- sapply(1:length(sigma), function(i) sd(sapply(Total.SLC.lis
 
 # CLC
 
+print("clc start")
 Total.CLC.list.even <- list()
 
 
-for(r in 1:10){
-  print(paste0("loop ", r, " started"))
+for(a in 1:10){
+  print(paste0("loop ", a, " started"))
   
   Total.species.CLC.even <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
   rownames(Total.species.CLC.even) <- sigma #ADULTS
   colnames(Total.species.CLC.even) <- sigma #JUVENILES
   
-  for(i in 1:length(sigma)){
+  for(b in 1:length(sigma)){
     
     for(k in 1:length(sigma)){
       
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 5000)
+
       
       #Filter out similar "species"
       
       final.data.CLC.even <- clc.groups(output = outputCLC)
-      Total.species.CLC.even[i, k] <- nrow(final.data.CLC.even)
+      Total.species.CLC.even[b, k] <- nrow(final.data.CLC.even)
       
     }
     
   }
-  Total.CLC.list.even[[r]] <- Total.species.CLC.even
+  Total.CLC.list.even[[a]] <- Total.species.CLC.even
 }
 
 # Calculating mean of 10 runs
 
 # Combine matrices in the list into a 3D array
 array.data.CLC <- array(unlist(Total.CLC.list.even), dim = c(dim(Total.CLC.list.even[[1]]), length(Total.CLC.list.even)))
+
 
 # Calculate mean and standard deviation along the third dimension (across the list)
 Total.mean.CLC.even <- apply(array.data.CLC, c(1, 2), mean)
@@ -1528,6 +1532,7 @@ job::export(list(Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, To
 
 
 # Normal
+
 
 job::job(ten.run.norm = {
   
@@ -1720,8 +1725,8 @@ job::job(ten.run.skew = {
 
 # Even
 
-Total.mean.CLC.even <- ten.run.even$Total.mean.CLC.even
-Total.mean.SLC.even <- ten.run.even$Total.mean.SLC.even
+Total.mean.CLC.even <- ten.run.even$Total.mean.CLC.even.1
+Total.mean.SLC.even <- ten.run.even$Total.mean.SLC.even.1
 
 Total.sd.CLC.even <-  ten.run.even$Total.sd.CLC.even
 Total.sd.SLC.even <-  ten.run.even$Total.sd.SLC.even
