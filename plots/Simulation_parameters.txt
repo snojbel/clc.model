@@ -3,6 +3,7 @@ OS (Official Sim conditions):
 Number of Resource types: 16
 Abundance of Resources: 50 000
 Resource Properties: -2.5 to 2.5
+Time steps: 50 000
 
 iniP = 0
 initial popSize = 10
