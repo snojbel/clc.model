@@ -1460,11 +1460,9 @@ for(r in 1:10) {
   
   for(i in 1:length(sigma)){
     
-<<<<<<< HEAD
+
     outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, iniP = 0, resFreq=resource.freq.norm.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
-=======
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
->>>>>>> 94cfc2584378697108a1ab29ebbcddeed9257617
+
     
     #Filter out similar "species"
     
@@ -1505,11 +1503,9 @@ for(a in 1:10){
     
     for(k in 1:length(sigma)){
       
-<<<<<<< HEAD
+
       outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
-=======
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 5000)
->>>>>>> 94cfc2584378697108a1ab29ebbcddeed9257617
+
 
       
       #Filter out similar "species"
