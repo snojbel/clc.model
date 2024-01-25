@@ -577,7 +577,7 @@ job::job(endpoint.normal.sigma = {
   
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
     phenodataCLC <- NULL
     
@@ -607,7 +607,7 @@ job::job(endpoint.even.sigma = {
   
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
     phenodataCLC <- NULL
     
@@ -636,7 +636,7 @@ job::job(endpoint.skew.sigma = {
   
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 10000)
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
     phenodataCLC <- NULL
     
