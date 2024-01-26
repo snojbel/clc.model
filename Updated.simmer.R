@@ -2105,14 +2105,14 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Ju
 job::job(Two.res = {
 
   last.year.list.2.res <- list()
-sigma <- seq(from = 0.25, to = 0.4, by = 0.01)
+sigma <- seq(from = 0.16, to = 0.40, by = 0.01)
 
 # Symmetric
 
 for(i in 1:length(sigma)){
   
   
-  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.2res, resFreq=resFreqMatrix.2res, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.2res, resFreq=resFreqMatrix.2res, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
   
   phenodataCLC <- NULL
   
@@ -2139,7 +2139,7 @@ last.year.list.2.res.as <- list()
 for(i in 1:length(sigma)){
   
   
-  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.2res, resFreq=resFreqMatrixAs.2res, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.2res, resFreq=resFreqMatrixAs.2res, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
   
   phenodataCLC <- NULL
   
@@ -2168,7 +2168,7 @@ last.year.list.2.res.as <- Two.res$last.year.list.2.res.as
 
 # Two Resources Plotting ----------------------------------------------------
 
-sigmas <- seq(from = 0.25, to = 0.4, by = 0.01)
+sigmas <- seq(from = 0.16, to = 0.40, by = 0.01)
 
 plot.list.2rs <- list()
 
