@@ -150,6 +150,37 @@ colnames(resFreqMatrix.skew.clc)  <- paste0("Resource ", 1:ncol(resFreqMatrix.sk
 rownames(resPropMatrix.skew.clc)<-c("Adult", "Juvenile")
 colnames(resPropMatrix.skew.clc)  <- paste0("Resource ", 1:ncol(resPropMatrix.skew.clc))
 
+
+
+# Two resources 
+
+resource.prop <- c(-1,1)
+resource.frequency <- c(0.5, 0.5)
+resource.frequency.as <- c(0.2, 0.8)
+
+resFreqMatrix.2res <- matrix(resource.frequency, nrow=2, ncol=length(resource.frequency), byrow = TRUE)
+resFreqMatrixAs.2res <- matrix(resource.frequency.as, nrow=2, ncol=length(resource.frequency.as), byrow = TRUE)
+
+
+resFreqMatrix.2res[1, ] <- resFreqMatrix.2res[1, ]*res.Abund
+resFreqMatrix.2res[2, ] <- resFreqMatrix.2res[2, ]*res.Abund
+
+resFreqMatrixAs.2res[1, ] <- resFreqMatrixAs.2res[1, ]*res.Abund
+resFreqMatrixAs.2res[2, ] <- resFreqMatrixAs.2res[2, ]*res.Abund
+
+rownames(resFreqMatrix.2res) <- c("Adult", "Juvenile")
+colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resFreqMatrixAs.2res))
+
+rownames(resFreqMatrixAs.2res) <- c("Adult", "Juvenile")
+colnames(resFreqMatrixAs.2res)  <- paste0("Resource ", 1:ncol(resFreqMatrixAs.2res))
+
+resPropMatrix.2res <- matrix(resource.prop, nrow=2, ncol=length(resource.prop), byrow = TRUE) 
+
+
+rownames(resPropMatrix.2res)<-c("Adult", "Juvenile")
+colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
+
+
 # ------------------------
 # Running simulations -----------------
 
@@ -1696,13 +1727,9 @@ for(a in 1:10){
     
     for(k in 1:length(sigma)){
       
-<<<<<<< HEAD
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
-=======
 
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
 
->>>>>>> c7b9ca736d831d67190a7b47b421e28573a0e128
 
       
       #Filter out similar "species"
@@ -2073,4 +2100,110 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Ju
 
 
 # -------------------------
+# Two resources simulation
+
+job::job(Two.res = {
+
+  last.year.list.2.res <- list()
+sigma <- seq(from = 0.25, to = 0.4, by = 0.01)
+
+# Symmetric
+
+for(i in 1:length(sigma)){
+  
+  
+  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.2res, resFreq=resFreqMatrix.2res, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+  
+  phenodataCLC <- NULL
+  
+  phenodataCLC <- data.frame(
+    Year = outputCLC$phenotypes[, 1],
+    Adult_Trait = outputCLC$phenotypes[, 3],
+    Juvenile_Trait = outputCLC$phenotypes[, 4],
+    Num_Individuals = outputCLC$phenotypes[, 2])
+  
+  last.year.list.2.res[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  
+  
+}
+
+
+
+# Asymmetric 
+
+
+
+last.year.list.2.res.as <- list()
+
+
+for(i in 1:length(sigma)){
+  
+  
+  outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.2res, resFreq=resFreqMatrixAs.2res, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+  
+  phenodataCLC <- NULL
+  
+  phenodataCLC <- data.frame(
+    Year = outputCLC$phenotypes[, 1],
+    Adult_Trait = outputCLC$phenotypes[, 3],
+    Juvenile_Trait = outputCLC$phenotypes[, 4],
+    Num_Individuals = outputCLC$phenotypes[, 2])
+  
+  last.year.list.2.res.as[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+  
+  
+}
+
+  job::export(list(last.year.list.2.res, last.year.list.2.res.as))
+}, import = c(resPropMatrix.2res, resFreqMatrix.2res, resourceCompetitionCLC, resFreqMatrixAs.2res))
+
+
+
+# Results
+
+
+last.year.list.2.res <- Two.res$last.year.list.2.res
+last.year.list.2.res.as <- Two.res$last.year.list.2.res.as
+
+
+# Two Resources Plotting ----------------------------------------------------
+
+sigmas <- seq(from = 0.25, to = 0.4, by = 0.01)
+
+plot.list.2rs <- list()
+
+
+for (i in 1:length(last.year.list.2.res)){
+  
+  color.palette <- mako(length(last.year.list.2.res[[i]]$Adult_Trait))
+  
+  plot.list.2rs[[i]] <- ggplot(last.year.list.2.res[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
+    labs(title = substitute(sigma == value, list(value = sigmas[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-1.5,1.5)) +
+    scale_y_continuous(limits = c(-1.5,1.5)) +
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.2rs, ncol = 4, nrow = 4,
+             top = text_grob("Symmetric resources", size = 10, family = "LM Roman 10"))
+
+
+plot.list.2rs.as <- list()
+
+for (i in 1:length(last.year.list.2.res.as)){
+  
+  color.palette <- mako(length(last.year.list.2.res.as[[i]]$Adult_Trait))
+  
+  plot.list.2rs.as[[i]] <- ggplot(last.year.list.2.res.as[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) +                                  # Add points
+    labs(title = substitute(sigma == value, list(value = sigmas[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-1.5,1.5)) +
+    scale_y_continuous(limits = c(-1.5,1.5)) +
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+}
+
+grid.arrange(grobs = plot.list.2rs.as, ncol = 4, nrow = 4,
+             top = text_grob("Asymmetric resources", size = 10, family = "LM Roman 10"))
+
 
