@@ -604,7 +604,7 @@ job::job(endpoint.normal.sigma = {
   
   last.year.list.norm <- list()
   filtered.list.norm <- list()
-  sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90)
+  sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90, 1.05, 1.20, 1.35)
   
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
@@ -634,7 +634,7 @@ job::job(endpoint.even.sigma = {
   
   last.year.list.even <- list()
   filtered.list.even <- list()
-  sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90)
+  sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90, 1.05, 1.20, 1.35)
   
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
@@ -663,7 +663,7 @@ job::job(endpoint.skew.sigma = {
   
   last.year.list.skew <- list()
   filtered.list.skew <- list()
-  sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90)
+  sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90, 1.05, 1.20, 1.35)
   
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
@@ -1662,7 +1662,7 @@ plots + plot_annotation(
 
 job::job(ten.run.even = {
 
-sigma <- c(seq(from = 0.05, to = 1.05, by = 0.2))
+sigma <- c(seq(from = 0.60, to = 2, by = 0.2))
   
 Total.species.SLC.single.even <- c()
 
@@ -1685,7 +1685,7 @@ for(r in 1:10) {
   for(i in 1:length(sigma)){
     
 
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, iniP = 0, resFreq=resource.freq.norm.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
 
     
     #Filter out similar "species"
@@ -1764,7 +1764,7 @@ job::export(list(Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, To
 
 job::job(ten.run.norm = {
   
-  sigma <- c(seq(from = 0.05, to = 1.05, by = 0.2))
+  sigma <- c(seq(from = 0.60, to = 2, by = 0.2))
   
   Total.species.SLC.single.norm <- c()
   
@@ -1859,7 +1859,7 @@ job::job(ten.run.norm = {
 
 job::job(ten.run.skew = {
   
-  sigma <- c(seq(from = 0.05, to = 1.05, by = 0.2))
+  sigma <- c(seq(from = 0.60, to = 2, by = 0.2))
   
   Total.species.SLC.single.skew <- c()
   
@@ -1990,7 +1990,7 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Ju
   geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
-  ylab("Abundance") +
+  ylab("Number of species") +
   labs(shape = "Juvenile Generalism", color = "Life strategy") +
   ggtitle("Even Resource distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
