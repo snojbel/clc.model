@@ -459,9 +459,10 @@ job::job(endpoint.normal = {
   
   last.year.list.norm <- list()
   
+  
   for(i in 1:9){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
     
     phenodataCLC <- NULL
     
@@ -686,9 +687,102 @@ job::job(endpoint.skew.sigma = {
   job::export(list(last.year.list.skew, filtered.list.skew))
 }, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, clc.groups))
 
+# Running simulations to see endpoint and number of species with varied initial phenotype -----------------------------
+
+# Normal
+
+job::job(endpoint.normal.ini = {
+  
+  last.year.list.norm <- list()
+  filtered.list.norm <- list()
+  iniPhen <- c(seq(from = -2.5, to = 2.5, length.out = 6))
+  
+  for(i in 1:length(iniPhen)){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = iniPhen[i], iniPJ = iniPhen[i], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.norm[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+    filtered.list.norm[[i]] <- clc.groups(output = outputCLC)
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(list(last.year.list.norm, filtered.list.norm))
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, clc.groups))
 
 
-# Results
+# Even
+
+job::job(endpoint.even.ini = {
+  
+  last.year.list.even <- list()
+  filtered.list.even <- list()
+  iniPhen <- c(seq(from = -2.5, to = 2.5, length.out = 6))
+  
+  for(i in 1:length(iniPhen)){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = iniPhen[i], iniPJ = iniPhen[i], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.even[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+    filtered.list.even[[i]] <- clc.groups(output = outputCLC)
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(list(last.year.list.even, filtered.list.even))
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, clc.groups))
+
+# Skewed
+
+job::job(endpoint.skew.ini = {
+  
+  last.year.list.skew <- list()
+  filtered.list.skew <- list()
+  iniPhen <- c(seq(from = -2.5, to = 2.5, length.out = 6))
+  
+  for(i in 1:length(iniPhen)){
+    print(paste0("loop ", i, " started"))
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = iniPhen[i], iniPJ = iniPhen[i], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+    
+    phenodataCLC <- NULL
+    
+    phenodataCLC <- data.frame(
+      Year = outputCLC$phenotypes[, 1],
+      Adult_Trait = outputCLC$phenotypes[, 3],
+      Juvenile_Trait = outputCLC$phenotypes[, 4],
+      Num_Individuals = outputCLC$phenotypes[, 2])
+    
+    last.year.list.skew[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+    filtered.list.skew[[i]] <- clc.groups(output = outputCLC)
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(list(last.year.list.skew, filtered.list.skew))
+}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, clc.groups))
+
+
+
+
+# Results --------------------------------------------
+
+#Sigma
 
 last.year.list.even <- endpoint.even.sigma$last.year.list.even
 last.year.list.norm <- endpoint.normal.sigma$last.year.list.norm
@@ -698,7 +792,18 @@ filtered.list.even <- endpoint.even.sigma$filtered.list.even
 filtered.list.norm <- endpoint.normal.sigma$filtered.list.norm
 filtered.list.skew <- endpoint.skew.sigma$filtered.list.skew
 
+
 sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90)
+
+# Initial Phenotype  
+
+last.year.list.even <- endpoint.even.ini$last.year.list.even
+last.year.list.norm <- endpoint.normal.ini$last.year.list.norm
+last.year.list.skew <- endpoint.skew.ini$last.year.list.skew
+
+sigma <- c(seq(from = -2.5, to = 2.5, length.out = 6))
+
+
 
 num.of.spe.even <- c()
 num.of.spe.norm <- c()

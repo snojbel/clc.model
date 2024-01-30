@@ -162,7 +162,7 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
   rownames(same) <- NULL
   
   if(sum(same) == 0){
-    return(last_year_dataSLC)
+    return(last_year_dataCLC)
   }
   
   print("B works")
