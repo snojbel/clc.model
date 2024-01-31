@@ -23,7 +23,7 @@ library(grid)
 
 
 Num.Res <- 16
-res.Abund <-  50000
+res.Abund <-  10000
 
 # Evenly distributed Resources
 
@@ -565,7 +565,7 @@ grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =text_grob("Even Di
 plot.list.norm <- list()
 
 
-for (i in 1:3){
+for (i in 1:9){
   
   color.palette <- mako(length(last.year.list.norm[[i]]$Adult_Trait))
   
@@ -2103,7 +2103,7 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Ju
 
 
 # -------------------------
-# Two resources simulation
+# Two resources simulation ---------------------------------------------------
 
 job::job(Two.res = {
 
