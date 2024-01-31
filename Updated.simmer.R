@@ -698,7 +698,7 @@ filtered.list.even <- endpoint.even.sigma$filtered.list.even
 filtered.list.norm <- endpoint.normal.sigma$filtered.list.norm
 filtered.list.skew <- endpoint.skew.sigma$filtered.list.skew
 
-sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90)
+sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90, 1.05, 1.20, 1.35)
 
 num.of.spe.even <- c()
 num.of.spe.norm <- c()
@@ -797,9 +797,11 @@ for (i in 1:length(sigma)){
 layout <- "
 ABC
 DEF
-#G#
-HIJ
+GHI
+#J#
 KLM
+NOP
+QRS
 "
 
 combo.plot.list <- list()
@@ -825,7 +827,7 @@ plots + plot_annotation(
   subtitle = 'Adult Trait',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
+) + plot_layout(heights = c(1, 1, 1, 0.4, 1, 1, 1))
 
 
 # Norm
@@ -920,7 +922,7 @@ plots + plot_annotation(
   subtitle = 'Adult Trait',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
+) + plot_layout(heights = c(1, 1, 1, 0.4, 1, 1, 1))
 
 
 
@@ -1019,11 +1021,12 @@ plots + plot_annotation(
   subtitle = 'Adult Trait',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
+) + plot_layout(heights = c(1, 1, 1, 0.4, 1, 1, 1))
 
 # Plotting 9 runs to see endpoint comparison of filtered vs unfiltered --------------------------
 
 # Even
+
 
 plot.list.even <- list()
 plot.filtered.list.even <- list()
@@ -1088,7 +1091,7 @@ plots + plot_annotation(
   subtitle = 'Unfiltered Endpoint',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-)+ plot_layout(heights = c(1, 1, 0.4, 1, 1))
+)+ plot_layout(heights = c(1, 1, 1,  0.4, 1, 1))
 
 
 
@@ -1157,7 +1160,7 @@ plots + plot_annotation(
   subtitle = 'Unfiltered Endpoint',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-)+ plot_layout(heights = c(1, 1, 0.4, 1, 1))
+)+ plot_layout(heights = c(1, 1, 1, 0.4, 1, 1))
 
 
 
@@ -1226,7 +1229,7 @@ plots + plot_annotation(
   subtitle = 'Unfiltered Endpoint',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-)+ plot_layout(heights = c(1, 1, 0.4, 1, 1))
+)+ plot_layout(heights = c(1, 1, 1, 0.4, 1, 1))
 
 # ------------------------
 # Running simulations: compare adult population vs Juvenile population -----------------------------
@@ -2038,7 +2041,7 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Ju
   geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
-  ylab("Abundance") +
+  ylab("Number of species") +
   labs(shape = "Juvenile Generalism", color = "Life strategy") +
   ggtitle("Normal Resource Distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
@@ -2090,7 +2093,7 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Ju
   geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
-  ylab("Abundance") +
+  ylab("Number of species") +
   labs(shape = "Juvenile Generalism", color = "Life strategy") +
   ggtitle("Skewed Resource Distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
