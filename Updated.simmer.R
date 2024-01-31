@@ -23,7 +23,7 @@ library(grid)
 
 
 Num.Res <- 16
-res.Abund <-  10000
+res.Abund <-  50000
 
 # Evenly distributed Resources
 
@@ -1251,7 +1251,7 @@ job::job(population.normal = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     
-      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, resFreq=resource.freq.norm.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, resFreq=resource.freq.norm.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
       
       
       adult.last.year.norm.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 2]
@@ -1273,7 +1273,7 @@ job::job(population.normal = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     for(c in 1:length(sigma)) {
-        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
         
         adult.last.year.norm.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 2]
         juvenile.last.year.norm.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 3]
@@ -1305,7 +1305,7 @@ job::job(population.even = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, resFreq=resource.freq.even.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, resFreq=resource.freq.even.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
     
     adult.last.year.even.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 2]
@@ -1327,7 +1327,7 @@ job::job(population.even = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     for(c in 1:length(sigma)) {
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
       
       adult.last.year.even.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 2]
       juvenile.last.year.even.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 3]
@@ -1360,7 +1360,7 @@ job::job(population.skew = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.skew.slc, resFreq=resource.freq.skew.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.skew.slc, resFreq=resource.freq.skew.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
     adult.last.year.skew.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 2]
     juvenile.last.year.skew.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 3]
@@ -1381,7 +1381,7 @@ job::job(population.skew = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     for(c in 1:length(sigma)) {
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
       
       adult.last.year.skew.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 2]
       juvenile.last.year.skew.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 3]
@@ -1688,7 +1688,7 @@ for(r in 1:10) {
   for(i in 1:length(sigma)){
     
 
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
 
     
     #Filter out similar "species"
@@ -1731,7 +1731,7 @@ for(a in 1:10){
     for(k in 1:length(sigma)){
       
 
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
 
 
       
