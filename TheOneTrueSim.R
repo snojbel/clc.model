@@ -22,10 +22,6 @@ library(dplyr)
 library(grid)
 
 
-a <- list(1,2,3)
-b <- list("Hello", "Goodday")
-
-matrix(c(a, b))
 
 
 # Resource initializations -------------------
@@ -203,7 +199,7 @@ kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.0005
 mutVar <- 0.05
-time.steps <- 50000
+time.steps <- 10000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
@@ -213,7 +209,7 @@ threshold <-  0.005
 
 # -------------------------
 
-# Running simulation
+# Running simulations -----------------------------
 
 
 # Even
@@ -287,12 +283,10 @@ job::job(even = {
     print(paste0("loop ", a, " started"))
     
     species.CLC.even <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
-    rownames(Total.species.CLC.even) <- sigma  #ADULTS
-    colnames(Total.species.CLC.even) <- sigma #JUVENILES
+    rownames(species.CLC.even) <- sigma  #ADULTS
+    colnames(species.CLC.even) <- sigma #JUVENILES
     
-    endpoint.CLC.even <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
-    rownames(Total.species.CLC.even) <- sigma  #ADULTS
-    colnames(Total.species.CLC.even) <- sigma #JUVENILES
+    endpoint.CLC.even <- c()
     
     for(b in 1:length(sigma)){
       
@@ -311,7 +305,9 @@ job::job(even = {
         # Collect Data
         
         species.CLC.even[b, k] <- nrow(final.data.CLC.even)
-        endpoint.CLC.even[b, k] <- final.data.CLC.even 
+        final.data.CLC.even$Adult.gen <- c(rep(sigma[b], times = nrow(final.data.CLC.even)))
+        final.data.CLC.even$Juv.gen <- c(rep(sigma[k], times = nrow(final.data.CLC.even)))
+        endpoint.CLC.even <- rbind(endpoint.CLC.even, final.data.CLC.even) 
         
       }
       
@@ -339,7 +335,397 @@ job::job(even = {
 
 
 
+# Normal 
 
+job::job(norm = {
+  
+  Total.species.SLC.single.norm <- c()
+  
+  Total.species.CLC.norm <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(Total.species.CLC.norm) <- sigma  #ADULTS
+  colnames(Total.species.CLC.norm) <- sigma #JUVENILES
+  
+  
+  
+  # SLC
+  
+  Total.species.SLC.norm <- list()
+  Total.endpoint.SLC.norm <- list()
+  
+  for(r in 1:10) {
+    
+    print(paste0("loop ", r, " started"))
+    
+    Number.species.SLC.norm <- c()
+    endpoint.SLC.norm <- list()
+    
+    for(i in 1:length(sigma)){
+      
+      
+      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, iniP = iniP, resFreq=resource.freq.norm.slc, resGen=matrix(c(sigma[i],sigma[i])),
+                                          popSize = popSize, mutProb=mutProb, mutVar=mutVar, time.steps = time.steps, im = im, fmax = fmax, kA = kA, nmorphs = nmorphs,
+                                          threshold = threshold)
+      
+      
+      #Filter out similar "species" and collect number of species data
+      
+      final.data.SLC.norm <- slc.groups(output = outputSLC)
+      Number.species.SLC.norm[i] <- nrow(final.data.SLC.norm)
+      
+      #Collect endpoint data
+      
+      endpoint.SLC.norm[[i]] <- final.data.SLC.norm 
+    }
+    
+    Total.species.SLC.norm[[r]] <- Number.species.SLC.norm
+    Total.endpoint.SLC.norm[[r]] <- endpoint.SLC.norm
+  }
+  
+  
+  # Caluclating mean and SD of 10 runs
+  
+  
+  
+  Total.mean.SLC.norm <- sapply(1:length(sigma), function(i) mean(sapply(Total.species.SLC.norm, function(x) x[i])))
+  
+  array.data.SLC <- array(unlist(Total.species.SLC.norm), dim = c(dim(Total.species.SLC.norm[[1]]), length(Total.species.SLC.norm)))
+  
+  Total.sd.SLC.norm <- sapply(1:length(sigma), function(i) sd(sapply(Total.species.SLC.norm, function(x) x[i])))
+  
+  
+  # CLC
+  
+  print("clc start")
+  
+  Total.species.CLC.norm <- list()
+  
+  Total.endpoint.CLC.norm <- list()
+  
+  
+  for(a in 1:10){
+    print(paste0("loop ", a, " started"))
+    
+    species.CLC.norm <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+    rownames(species.CLC.norm) <- sigma  #ADULTS
+    colnames(species.CLC.norm) <- sigma #JUVENILES
+    
+    endpoint.CLC.norm <- c()
+    
+    for(b in 1:length(sigma)){
+      
+      for(k in 1:length(sigma)){
+        
+        
+        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = iniPA, iniPJ = iniPJ, resGen=matrix(c(sigma[b],sigma[k])), 
+                                            popSize = popSize, mutProb=mutProb, mutVar=mutVar, time.steps = time.steps, im = im, fmax = fmax, kA = kA, nmorphs = nmorphs,
+                                            threshold = threshold)
+        
+        
+        
+        #Filter out similar "species"
+        final.data.CLC.norm <- clc.groups(output = outputCLC)
+        
+        # Collect Data
+        
+        species.CLC.norm[b, k] <- nrow(final.data.CLC.norm)
+        final.data.CLC.norm$Adult.gen <- c(rep(sigma[b], times = nrow(final.data.CLC.norm)))
+        final.data.CLC.norm$Juv.gen <- c(rep(sigma[k], times = nrow(final.data.CLC.norm)))
+        endpoint.CLC.norm <- rbind(endpoint.CLC.norm, final.data.CLC.norm) 
+        
+      }
+      
+    }
+    Total.species.CLC.norm[[a]] <- species.CLC.norm
+    Total.endpoint.CLC.norm[[a]] <- endpoint.CLC.norm
+  }
+  
+  # Calculating mean of 10 runs
+  
+  # Combine matrices in the list into a 3D array
+  array.data.CLC <- array(unlist(Total.species.CLC.norm), dim = c(dim(Total.species.CLC.norm[[1]]), length(Total.species.CLC.norm)))
+  
+  
+  # Calculate mean and standard deviation along the third dimension (across the list)
+  Total.mean.CLC.norm <- apply(array.data.CLC, c(1, 2), mean)
+  Total.sd.CLC.norm <- apply(array.data.CLC, c(1, 2), sd)
+  
+  
+  
+  job::export(list(Total.mean.CLC.norm, Total.sd.CLC.norm, Total.mean.SLC.norm, Total.sd.SLC.norm, Total.endpoint.SLC.norm, Total.endpoint.CLC.norm))
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
+              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold))
+
+
+
+# Skewed
+
+
+job::job(skew = {
+  
+  Total.species.SLC.single.skew <- c()
+  
+  Total.species.CLC.skew <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(Total.species.CLC.skew) <- sigma  #ADULTS
+  colnames(Total.species.CLC.skew) <- sigma #JUVENILES
+  
+  
+  
+  # SLC
+  
+  Total.species.SLC.skew <- list()
+  Total.endpoint.SLC.skew <- list()
+  
+  for(r in 1:10) {
+    
+    print(paste0("loop ", r, " started"))
+    
+    Number.species.SLC.skew <- c()
+    endpoint.SLC.skew <- list()
+    
+    for(i in 1:length(sigma)){
+      
+      
+      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.skew.slc, iniP = iniP, resFreq=resource.freq.skew.slc, resGen=matrix(c(sigma[i],sigma[i])),
+                                          popSize = popSize, mutProb=mutProb, mutVar=mutVar, time.steps = time.steps, im = im, fmax = fmax, kA = kA, nmorphs = nmorphs,
+                                          threshold = threshold)
+      
+      
+      #Filter out similar "species" and collect number of species data
+      
+      final.data.SLC.skew <- slc.groups(output = outputSLC)
+      Number.species.SLC.skew[i] <- nrow(final.data.SLC.skew)
+      
+      #Collect endpoint data
+      
+      endpoint.SLC.skew[[i]] <- final.data.SLC.skew 
+    }
+    
+    Total.species.SLC.skew[[r]] <- Number.species.SLC.skew
+    Total.endpoint.SLC.skew[[r]] <- endpoint.SLC.skew
+  }
+  
+  
+  # Caluclating mean and SD of 10 runs
+  
+  
+  
+  Total.mean.SLC.skew <- sapply(1:length(sigma), function(i) mean(sapply(Total.species.SLC.skew, function(x) x[i])))
+  
+  array.data.SLC <- array(unlist(Total.species.SLC.skew), dim = c(dim(Total.species.SLC.skew[[1]]), length(Total.species.SLC.skew)))
+  
+  Total.sd.SLC.skew <- sapply(1:length(sigma), function(i) sd(sapply(Total.species.SLC.skew, function(x) x[i])))
+  
+  
+  # CLC
+  
+  print("clc start")
+  
+  Total.species.CLC.skew <- list()
+  
+  Total.endpoint.CLC.skew <- list()
+  
+  
+  for(a in 1:10){
+    print(paste0("loop ", a, " started"))
+    
+    species.CLC.skew <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+    rownames(species.CLC.skew) <- sigma  #ADULTS
+    colnames(species.CLC.skew) <- sigma #JUVENILES
+    
+    endpoint.CLC.skew <- c()
+    
+    for(b in 1:length(sigma)){
+      
+      for(k in 1:length(sigma)){
+        
+        
+        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = iniPA, iniPJ = iniPJ, resGen=matrix(c(sigma[b],sigma[k])), 
+                                            popSize = popSize, mutProb=mutProb, mutVar=mutVar, time.steps = time.steps, im = im, fmax = fmax, kA = kA, nmorphs = nmorphs,
+                                            threshold = threshold)
+        
+        
+        
+        #Filter out similar "species"
+        final.data.CLC.skew <- clc.groups(output = outputCLC)
+        
+        # Collect Data
+        
+        species.CLC.skew[b, k] <- nrow(final.data.CLC.skew)
+        final.data.CLC.skew$Adult.gen <- c(rep(sigma[b], times = nrow(final.data.CLC.skew)))
+        final.data.CLC.skew$Juv.gen <- c(rep(sigma[k], times = nrow(final.data.CLC.skew)))
+        endpoint.CLC.skew <- rbind(endpoint.CLC.skew, final.data.CLC.skew) 
+        
+      }
+      
+    }
+    Total.species.CLC.skew[[a]] <- species.CLC.skew
+    Total.endpoint.CLC.skew[[a]] <- endpoint.CLC.skew
+  }
+  
+  # Calculating mean of 10 runs
+  
+  # Combine matrices in the list into a 3D array
+  array.data.CLC <- array(unlist(Total.species.CLC.skew), dim = c(dim(Total.species.CLC.skew[[1]]), length(Total.species.CLC.skew)))
+  
+  
+  # Calculate mean and standard deviation along the third dimension (across the list)
+  Total.mean.CLC.skew <- apply(array.data.CLC, c(1, 2), mean)
+  Total.sd.CLC.skew <- apply(array.data.CLC, c(1, 2), sd)
+  
+  
+  
+  job::export(list(Total.mean.CLC.skew, Total.sd.CLC.skew, Total.mean.SLC.skew, Total.sd.SLC.skew, Total.endpoint.SLC.skew, Total.endpoint.CLC.skew))
+}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, resource.prop.skew.slc, resource.freq.skew.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
+              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold))
+
+
+# -------------------------------------------------
+
+# Plotting Mean number of Species ----------------------------------------------
+
+# Even
+
+Total.mean.CLC.even <- even$Total.mean.CLC.even
+Total.mean.SLC.even <- even$Total.mean.SLC.even
+
+Total.sd.CLC.even <-  even$Total.sd.CLC.even
+Total.sd.SLC.even <-  even$Total.sd.SLC.even
+
+x <- as.factor(sigma)
+
+
+
+df.CLC <- data.frame(
+  Juvenile.trait = rep(x, each = length(x)),
+  Adult.trait = rep(x, times = length(x)),
+  Richness = as.vector(Total.mean.CLC.even),
+  sd = as.vector(Total.sd.CLC.even),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df.SLC <- data.frame(
+  Juvenile.trait = x,
+  Adult.trait = x,
+  Richness = as.vector(Total.mean.SLC.even),
+  sd = as.vector(Total.sd.SLC.even),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df.combined <- rbind(df.CLC, df.SLC)
+
+
+ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 5) +
+  #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
+  scale_y_continuous(limits = c(0, 30)) +
+  xlab("Adult Generalism") +
+  ylab("Number of species") +
+  labs(color = "Juvenile Generalism", shape = "Life strategy") +
+  ggtitle("Even Resource distribution") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))#+
+  #scale_color_manual(values = c("slateblue", "thistle"))
+
+
+# Normal
+
+
+Total.sd.CLC.norm <-  norm$Total.sd.CLC.norm
+Total.sd.SLC.norm <-  norm$Total.sd.SLC.norm
+
+x <- as.factor(sigma)
+
+
+
+df.CLC <- data.frame(
+  Juvenile.trait = rep(x, each = length(x)),
+  Adult.trait = rep(x, times = length(x)),
+  Richness = as.vector(Total.mean.CLC.norm),
+  sd = as.vector(Total.sd.CLC.norm),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df.SLC <- data.frame(
+  Juvenile.trait = x,
+  Adult.trait = x,
+  Richness = as.vector(Total.mean.SLC.norm),
+  sd = as.vector(Total.sd.SLC.norm),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df.combined <- rbind(df.CLC, df.SLC)
+
+
+ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 5) +
+  #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
+  scale_y_continuous(limits = c(0, 30)) +
+  xlab("Adult Generalism") +
+  ylab("Number of species") +
+  labs(color = "Juvenile Generalism", shape = "Life strategy") +
+  ggtitle("Normal Resource distribution") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))#+
+#scale_color_manual(values = c("slateblue", "thistle"))
+
+
+# Skewed
+
+
+Total.mean.CLC.skew <- skew$Total.mean.CLC.skew
+Total.mean.SLC.skew <- skew$Total.mean.SLC.skew
+
+Total.sd.CLC.skew <-  skew$Total.sd.CLC.skew
+Total.sd.SLC.skew <-  skew$Total.sd.SLC.skew
+
+x <- as.factor(sigma)
+
+
+
+df.CLC <- data.frame(
+  Juvenile.trait = rep(x, each = length(x)),
+  Adult.trait = rep(x, times = length(x)),
+  Richness = as.vector(Total.mean.CLC.skew),
+  sd = as.vector(Total.sd.CLC.skew),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df.SLC <- data.frame(
+  Juvenile.trait = x,
+  Adult.trait = x,
+  Richness = as.vector(Total.mean.SLC.skew),
+  sd = as.vector(Total.sd.SLC.skew),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df.combined <- rbind(df.CLC, df.SLC)
+
+
+ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 5) +
+  #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
+  scale_y_continuous(limits = c(0, 30)) +
+  xlab("Adult Generalism") +
+  ylab("Number of species") +
+  labs(color = "Juvenile Generalism", shape = "Life strategy") +
+  ggtitle("Skewed Resource distribution") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))#+
+#scale_color_manual(values = c("slateblue", "thistle"))
+
+
+#--------------------------------
+
+# Plotting Phenotype Endpoint --------------------------------------------------
+
+
+#--------------------------------
 
 
 
