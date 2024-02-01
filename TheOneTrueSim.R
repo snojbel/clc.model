@@ -199,7 +199,7 @@ kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.0005
 mutVar <- 0.05
-time.steps <- 10000
+time.steps <- 1000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
@@ -282,6 +282,8 @@ job::job(even = {
   for(a in 1:10){
     print(paste0("loop ", a, " started"))
     
+    id <- 1
+    
     species.CLC.even <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
     rownames(species.CLC.even) <- sigma  #ADULTS
     colnames(species.CLC.even) <- sigma #JUVENILES
@@ -307,8 +309,9 @@ job::job(even = {
         species.CLC.even[b, k] <- nrow(final.data.CLC.even)
         final.data.CLC.even$Adult.gen <- c(rep(sigma[b], times = nrow(final.data.CLC.even)))
         final.data.CLC.even$Juv.gen <- c(rep(sigma[k], times = nrow(final.data.CLC.even)))
+        final.data.CLC.even$Run <- c(rep(id, times = nrow(final.data.CLC.even)))
         endpoint.CLC.even <- rbind(endpoint.CLC.even, final.data.CLC.even) 
-        
+        id <- id + 1
       }
       
     }
@@ -723,6 +726,76 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Ju
 #--------------------------------
 
 # Plotting Phenotype Endpoint --------------------------------------------------
+
+# Choose Run and Simulation(which sigmas)
+run <- sample(x = 1:10, size = 1)
+
+
+last.year.list.even <- evenT$Total.endpoint.CLC.even[[run]]
+last.year.list.even <- last.year.list.even[last.year.list.even$Run == 21, ]
+  
+last.year.list.norm <- endpoint.normal.sigma$last.year.list.norm
+last.year.list.skew <- endpoint.skew.sigma$last.year.list.skew
+
+
+plot.list.even <- list()
+
+
+for (i in 1:length(sigma)){
+  
+  color.palette <- mako(length(last.year.list.even$Adult_Trait))
+  
+  plot.list.even[[i]] <- ggplot(last.year.list.even[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-2.5, 2.5))+
+    scale_y_continuous(limits = c(-2.5, 2.5))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+  color.palette <- mako(length(filtered.list.even[[i]]$Adult_Trait))
+  
+}
+
+
+
+combo.plot.list <- list()
+midtitle <- textGrob("Filtered Endpoint", gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
+                     hjust = 0.5)
+
+for(i in 1:(length(plot.list.even)*2 + 1)){
+  if(i == (length(plot.list.even) + 1)){
+    combo.plot.list[[i]] <- midtitle
+  }
+  else if(i < (length(plot.list.even) + 1)){
+    combo.plot.list[[i]] <- plot.list.even[[i]]
+  }
+  else{
+    combo.plot.list[[i]] <- plot.filtered.list.even[[i-(length(plot.list.even) + 1)]]
+  }
+}
+
+
+
+
+
+layout <- "
+ABC
+DEF
+#G#
+HIJ
+KLM
+"
+
+plots <- wrap_plots(combo.plot.list, design = layout)
+
+
+plots + plot_annotation(
+  title = 'Even Distribution',
+  subtitle = 'Unfiltered Endpoint',
+  theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+  #caption = 'Disclaimer: None of these plots are insightful'
+)+ plot_layout(heights = c(1, 1, 1,  0.4, 1, 1))
+
 
 
 #--------------------------------
