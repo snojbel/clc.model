@@ -199,7 +199,7 @@ kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.0005
 mutVar <- 0.05
-time.steps <- 1000
+time.steps <- 50000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
@@ -309,7 +309,7 @@ job::job(even = {
         species.CLC.even[b, k] <- nrow(final.data.CLC.even)
         final.data.CLC.even$Adult.gen <- c(rep(sigma[b], times = nrow(final.data.CLC.even)))
         final.data.CLC.even$Juv.gen <- c(rep(sigma[k], times = nrow(final.data.CLC.even)))
-        final.data.CLC.even$Run <- c(rep(id, times = nrow(final.data.CLC.even)))
+        final.data.CLC.even$ID <- c(rep(id, times = nrow(final.data.CLC.even)))
         endpoint.CLC.even <- rbind(endpoint.CLC.even, final.data.CLC.even) 
         id <- id + 1
       }
@@ -727,50 +727,107 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Ju
 
 # Plotting Phenotype Endpoint --------------------------------------------------
 
-# Choose Run and Simulation(which sigmas)
-run <- sample(x = 1:10, size = 1)
+# Even
 
+# Plotting several runs ---------------------------------------
 
-last.year.list.even <- evenT$Total.endpoint.CLC.even[[run]]
-last.year.list.even <- last.year.list.even[last.year.list.even$Run == 21, ]
-  
-last.year.list.norm <- endpoint.normal.sigma$last.year.list.norm
-last.year.list.skew <- endpoint.skew.sigma$last.year.list.skew
+# Adult = Juvenile sigma
+adu.sigma <- sample(sigma, size = 1)
+juv.sigma <- adu.sigma
 
+last.year.list.even <- c()
+
+for(i in 1:10){
+  this.run <- even$Total.endpoint.CLC.even[[i]]
+  this.run$run <- rep(i, time = nrow(this.run))
+  this.run <- this.run[last.year.list.even$Adult.gen == adu.sigma, ]
+  this.run <- this.run[last.year.list.even$Juv.gen == juv.sigma, ]
+  last.year.list.even <- cbind(last.year.list.even, this.run)
+}
 
 plot.list.even <- list()
 
+for (i in 1:9){
+  
+  color.palette <- mako(length(last.year.list.even[[i]]$Adult_Trait))
+  
+  plot.list.even.adu[[i]] <- ggplot(last.year.list.even[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-2.5, 2.5))+
+    scale_y_continuous(limits = c(-2.5, 2.5))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+  
+}
+
+
+
+# Choose Run -------------------------
+run <- sample(x = 1:10, size = 1)
+
+
+last.year.list.even <- even$Total.endpoint.CLC.even[[run]]
+
+#Choose which sigmas
+
+# Same adult sigma
+adu.sigma <- sample(sigma, size = 1)
+last.year.list.even.adu <- last.year.list.even[last.year.list.even$Adult.gen == adu.sigma, ]
+  
+# Same juvenile sigma
+juv.sigma <- sample(sigma, size = 1)
+last.year.list.even.juv <- last.year.list.even[last.year.list.even$Juv.gen == juv.sigma, ]
+
+#Plotting different runs
+
+  
+# Plotting different sigmas
+
+
+plot.list.even.adu <- list()
+plot.list.even.juv <- list()
+
+A.ids <- unique(last.year.list.even.adu$ID)
+J.ids <- unique(last.year.list.even.juv$ID)
 
 for (i in 1:length(sigma)){
   
-  color.palette <- mako(length(last.year.list.even$Adult_Trait))
+  color.palette <- mako(length(last.year.list.even.adu[last.year.list.even.adu$id == A.ids[i], ]$Adult_Trait))
   
-  plot.list.even[[i]] <- ggplot(last.year.list.even[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  plot.list.even.adu[[i]] <- ggplot(last.year.list.even.adu[last.year.list.even.adu$id == A.ids[i], ], aes(x = Juvenile_Trait, y = Adult_Trait)) +
     geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
     labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
     scale_x_continuous(limits = c(-2.5, 2.5))+
     scale_y_continuous(limits = c(-2.5, 2.5))+
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
   
-  color.palette <- mako(length(filtered.list.even[[i]]$Adult_Trait))
+  color.palette <- mako(length(last.year.list.even.juv[last.year.list.even.juv$id == J.ids[i], ]$Adult_Trait))
+  
+  plot.list.even.juv[[i]] <- ggplot(last.year.list.even.juv[last.year.list.even.juv$id == J.ids[i], ], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-2.5, 2.5))+
+    scale_y_continuous(limits = c(-2.5, 2.5))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
   
 }
 
 
 
 combo.plot.list <- list()
-midtitle <- textGrob("Filtered Endpoint", gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
+midtitle <- textGrob(paste0("Juvenile ",substitute(sigma == value, list(value = juv.sigma))), gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
                      hjust = 0.5)
 
-for(i in 1:(length(plot.list.even)*2 + 1)){
-  if(i == (length(plot.list.even) + 1)){
+for(i in 1:(length(plot.list.even.adu)*2 + 1)){
+  if(i == (length(plot.list.even.adu) + 1)){
     combo.plot.list[[i]] <- midtitle
   }
   else if(i < (length(plot.list.even) + 1)){
-    combo.plot.list[[i]] <- plot.list.even[[i]]
+    combo.plot.list[[i]] <- plot.list.even.adu[[i]]
   }
   else{
-    combo.plot.list[[i]] <- plot.filtered.list.even[[i-(length(plot.list.even) + 1)]]
+    combo.plot.list[[i]] <- plot.list.even.juv[[i-(length(plot.list.even.juv) + 1)]]
   }
 }
 
@@ -791,10 +848,10 @@ plots <- wrap_plots(combo.plot.list, design = layout)
 
 plots + plot_annotation(
   title = 'Even Distribution',
-  subtitle = 'Unfiltered Endpoint',
+  subtitle = paste0("Adult ",substitute(sigma == value, list(value = adu.sigma))),
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-)+ plot_layout(heights = c(1, 1, 1,  0.4, 1, 1))
+)+ plot_layout(heights = c(1, 1,  0.4, 1, 1))
 
 
 
