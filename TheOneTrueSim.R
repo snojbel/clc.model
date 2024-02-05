@@ -231,6 +231,8 @@ job::job(even = {
   
   for(r in 1:10) {
     
+    id <- 1
+    
     print(paste0("loop ", r, " started"))
     
     Number.species.SLC.even <- c()
@@ -250,8 +252,11 @@ job::job(even = {
       Number.species.SLC.even[i] <- nrow(final.data.SLC.even)
       
       #Collect endpoint data
+      final.data.SLC.even$ID <- c(rep(id, times = nrow(final.data.SLC.even)))
+     
       
       endpoint.SLC.even[[i]] <- final.data.SLC.even 
+      id <- id + 1 
     }
     
     Total.species.SLC.even[[r]] <- Number.species.SLC.even
@@ -357,6 +362,8 @@ job::job(norm = {
   
   for(r in 1:10) {
     
+    id <- 1
+    
     print(paste0("loop ", r, " started"))
     
     Number.species.SLC.norm <- c()
@@ -376,8 +383,11 @@ job::job(norm = {
       Number.species.SLC.norm[i] <- nrow(final.data.SLC.norm)
       
       #Collect endpoint data
+      final.data.SLC.norm$ID <- c(rep(id, times = nrow(final.data.SLC.norm)))
+      
       
       endpoint.SLC.norm[[i]] <- final.data.SLC.norm 
+      id <- id + 1 
     }
     
     Total.species.SLC.norm[[r]] <- Number.species.SLC.norm
@@ -408,6 +418,8 @@ job::job(norm = {
   for(a in 1:10){
     print(paste0("loop ", a, " started"))
     
+    id <- 1
+    
     species.CLC.norm <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
     rownames(species.CLC.norm) <- sigma  #ADULTS
     colnames(species.CLC.norm) <- sigma #JUVENILES
@@ -433,8 +445,9 @@ job::job(norm = {
         species.CLC.norm[b, k] <- nrow(final.data.CLC.norm)
         final.data.CLC.norm$Adult.gen <- c(rep(sigma[b], times = nrow(final.data.CLC.norm)))
         final.data.CLC.norm$Juv.gen <- c(rep(sigma[k], times = nrow(final.data.CLC.norm)))
+        final.data.CLC.norm$ID <- c(rep(id, times = nrow(final.data.CLC.norm)))
         endpoint.CLC.norm <- rbind(endpoint.CLC.norm, final.data.CLC.norm) 
-        
+        id <- id + 1
       }
       
     }
@@ -460,6 +473,8 @@ job::job(norm = {
 
 
 
+
+
 # Skewed
 
 
@@ -480,6 +495,8 @@ job::job(skew = {
   
   for(r in 1:10) {
     
+    id <- 1
+    
     print(paste0("loop ", r, " started"))
     
     Number.species.SLC.skew <- c()
@@ -499,8 +516,11 @@ job::job(skew = {
       Number.species.SLC.skew[i] <- nrow(final.data.SLC.skew)
       
       #Collect endpoint data
+      final.data.SLC.skew$ID <- c(rep(id, times = nrow(final.data.SLC.skew)))
+      
       
       endpoint.SLC.skew[[i]] <- final.data.SLC.skew 
+      id <- id + 1 
     }
     
     Total.species.SLC.skew[[r]] <- Number.species.SLC.skew
@@ -531,6 +551,8 @@ job::job(skew = {
   for(a in 1:10){
     print(paste0("loop ", a, " started"))
     
+    id <- 1
+    
     species.CLC.skew <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
     rownames(species.CLC.skew) <- sigma  #ADULTS
     colnames(species.CLC.skew) <- sigma #JUVENILES
@@ -556,8 +578,9 @@ job::job(skew = {
         species.CLC.skew[b, k] <- nrow(final.data.CLC.skew)
         final.data.CLC.skew$Adult.gen <- c(rep(sigma[b], times = nrow(final.data.CLC.skew)))
         final.data.CLC.skew$Juv.gen <- c(rep(sigma[k], times = nrow(final.data.CLC.skew)))
+        final.data.CLC.skew$ID <- c(rep(id, times = nrow(final.data.CLC.skew)))
         endpoint.CLC.skew <- rbind(endpoint.CLC.skew, final.data.CLC.skew) 
-        
+        id <- id + 1
       }
       
     }
@@ -634,6 +657,8 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Ju
 
 # Normal
 
+Total.mean.CLC.norm <- even$Total.mean.CLC.norm
+Total.mean.SLC.norm <- even$Total.mean.SLC.norm
 
 Total.sd.CLC.norm <-  norm$Total.sd.CLC.norm
 Total.sd.SLC.norm <-  norm$Total.sd.SLC.norm
@@ -725,33 +750,39 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Ju
 
 #--------------------------------
 
-# Plotting Phenotype Endpoint --------------------------------------------------
+# Plotting Phenotype Endpoint --------------------
 
-# Even
-
+# Even ----------------
 # Plotting several runs ---------------------------------------
 
 # Adult = Juvenile sigma
+# Randomize
 adu.sigma <- sample(sigma, size = 1)
+# Or choose
+adu.sigma <- 0.05
+
 juv.sigma <- adu.sigma
 
-last.year.list.even <- c()
+
+last.year.list.even <- data.frame()
 
 for(i in 1:10){
   this.run <- even$Total.endpoint.CLC.even[[i]]
   this.run$run <- rep(i, time = nrow(this.run))
-  this.run <- this.run[last.year.list.even$Adult.gen == adu.sigma, ]
-  this.run <- this.run[last.year.list.even$Juv.gen == juv.sigma, ]
-  last.year.list.even <- cbind(last.year.list.even, this.run)
+  this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
+  this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
+  last.year.list.even <- rbind(last.year.list.even, this.run)
 }
 
 plot.list.even <- list()
 
 for (i in 1:9){
   
-  color.palette <- mako(length(last.year.list.even[[i]]$Adult_Trait))
+  data <- last.year.list.even[last.year.list.even$run == i, ]
   
-  plot.list.even.adu[[i]] <- ggplot(last.year.list.even[[i]], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  color.palette <- mako(length(data$Adult_Trait))
+  
+  plot.list.even[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
     geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
     labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
     scale_x_continuous(limits = c(-2.5, 2.5))+
@@ -760,6 +791,14 @@ for (i in 1:9){
   
   
 }
+
+
+plots <- wrap_plots(plot.list.even)
+
+plots + plot_annotation(
+  title = 'Even Distribution',
+  theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)
 
 
 
@@ -771,12 +810,12 @@ last.year.list.even <- even$Total.endpoint.CLC.even[[run]]
 
 #Choose which sigmas
 
-# Same adult sigma
-adu.sigma <- sample(sigma, size = 1)
+# Same adult sigma 
+adu.sigma <- sigma[1]                                    # Choose random: sample(sigma, size = 1)
 last.year.list.even.adu <- last.year.list.even[last.year.list.even$Adult.gen == adu.sigma, ]
   
 # Same juvenile sigma
-juv.sigma <- sample(sigma, size = 1)
+juv.sigma <-  sigma[1]                                    #Choose random: sample(sigma, size = 1)
 last.year.list.even.juv <- last.year.list.even[last.year.list.even$Juv.gen == juv.sigma, ]
 
 #Plotting different runs
@@ -791,24 +830,29 @@ plot.list.even.juv <- list()
 A.ids <- unique(last.year.list.even.adu$ID)
 J.ids <- unique(last.year.list.even.juv$ID)
 
+
 for (i in 1:length(sigma)){
   
-  color.palette <- mako(length(last.year.list.even.adu[last.year.list.even.adu$id == A.ids[i], ]$Adult_Trait))
+  adu.data <- last.year.list.even.adu[last.year.list.even.adu$ID == A.ids[i], ]
+  juv.data <- last.year.list.even.juv[last.year.list.even.juv$ID == J.ids[i], ]
+
   
-  plot.list.even.adu[[i]] <- ggplot(last.year.list.even.adu[last.year.list.even.adu$id == A.ids[i], ], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  color.palette <- mako(length(adu.data$Juvenile_Trait))
+  
+  plot.list.even.adu[[i]] <- ggplot(adu.data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
     geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
     labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-2.5, 2.5))+
-    scale_y_continuous(limits = c(-2.5, 2.5))+
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
   
-  color.palette <- mako(length(last.year.list.even.juv[last.year.list.even.juv$id == J.ids[i], ]$Adult_Trait))
+  color.palette <- mako(length(juv.data$Adult_Trait))
   
-  plot.list.even.juv[[i]] <- ggplot(last.year.list.even.juv[last.year.list.even.juv$id == J.ids[i], ], aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  plot.list.even.juv[[i]] <- ggplot(juv.data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
     geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
     labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-2.5, 2.5))+
-    scale_y_continuous(limits = c(-2.5, 2.5))+
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
   
 }
@@ -816,14 +860,14 @@ for (i in 1:length(sigma)){
 
 
 combo.plot.list <- list()
-midtitle <- textGrob(paste0("Juvenile ",substitute(sigma == value, list(value = juv.sigma))), gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
+midtitle <- textGrob(substitute("Juvenile Generalism" == value, list(value = juv.sigma)), gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
                      hjust = 0.5)
 
 for(i in 1:(length(plot.list.even.adu)*2 + 1)){
   if(i == (length(plot.list.even.adu) + 1)){
     combo.plot.list[[i]] <- midtitle
   }
-  else if(i < (length(plot.list.even) + 1)){
+  else if(i < (length(plot.list.even.adu) + 1)){
     combo.plot.list[[i]] <- plot.list.even.adu[[i]]
   }
   else{
@@ -833,14 +877,12 @@ for(i in 1:(length(plot.list.even.adu)*2 + 1)){
 
 
 
-
-
 layout <- "
 ABC
-DEF
-#G#
-HIJ
-KLM
+DE#
+#F#
+GHI
+JK#
 "
 
 plots <- wrap_plots(combo.plot.list, design = layout)
@@ -848,14 +890,301 @@ plots <- wrap_plots(combo.plot.list, design = layout)
 
 plots + plot_annotation(
   title = 'Even Distribution',
-  subtitle = paste0("Adult ",substitute(sigma == value, list(value = adu.sigma))),
+  subtitle = substitute("Adult generalism" == value, list(value = adu.sigma)),
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-  #caption = 'Disclaimer: None of these plots are insightful'
 )+ plot_layout(heights = c(1, 1,  0.4, 1, 1))
 
 
 
-#--------------------------------
+# Normal ------------------
+# Plotting several runs ---------------------------------------
+
+# Adult = Juvenile sigma
+# Randomize
+adu.sigma <- sample(sigma, size = 1)
+# Or choose
+adu.sigma <- 0.05
+
+juv.sigma <- adu.sigma
+
+
+last.year.list.norm <- data.frame()
+
+for(i in 1:10){
+  this.run <- norm$Total.endpoint.CLC.norm[[i]]
+  this.run$run <- rep(i, time = nrow(this.run))
+  this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
+  this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
+  last.year.list.norm <- rbind(last.year.list.norm, this.run)
+}
+
+plot.list.norm <- list()
+
+for (i in 1:9){
+  
+  data <- last.year.list.norm[last.year.list.norm$run == i, ]
+  
+  color.palette <- mako(length(data$Adult_Trait))
+  
+  plot.list.norm[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+  
+}
+
+
+plots <- wrap_plots(plot.list.norm)
+
+plots + plot_annotation(
+  title = 'Normal Distribution',
+  theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)
+
+
+
+# Choose Run -------------------------
+run <- sample(x = 1:10, size = 1)
+
+
+last.year.list.norm <- norm$Total.endpoint.CLC.norm[[run]]
+
+#Choose which sigmas
+
+# Same adult sigma 
+adu.sigma <- sigma[1]                                    # Choose random: sample(sigma, size = 1)
+last.year.list.norm.adu <- last.year.list.norm[last.year.list.norm$Adult.gen == adu.sigma, ]
+
+# Same juvenile sigma
+juv.sigma <-  sigma[1]                                    #Choose random: sample(sigma, size = 1)
+last.year.list.norm.juv <- last.year.list.norm[last.year.list.norm$Juv.gen == juv.sigma, ]
+
+#Plotting different runs
+
+
+# Plotting different sigmas
+
+
+plot.list.norm.adu <- list()
+plot.list.norm.juv <- list()
+
+A.ids <- unique(last.year.list.norm.adu$ID)
+J.ids <- unique(last.year.list.norm.juv$ID)
+
+
+for (i in 1:length(sigma)){
+  
+  adu.data <- last.year.list.norm.adu[last.year.list.norm.adu$ID == A.ids[i], ]
+  juv.data <- last.year.list.norm.juv[last.year.list.norm.juv$ID == J.ids[i], ]
+  
+  
+  color.palette <- mako(length(adu.data$Juvenile_Trait))
+  
+  plot.list.norm.adu[[i]] <- ggplot(adu.data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+  color.palette <- mako(length(juv.data$Adult_Trait))
+  
+  plot.list.norm.juv[[i]] <- ggplot(juv.data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+}
+
+
+
+combo.plot.list <- list()
+midtitle <- textGrob(substitute("Juvenile Generalism" == value, list(value = juv.sigma)), gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
+                     hjust = 0.5)
+
+for(i in 1:(length(plot.list.norm.adu)*2 + 1)){
+  if(i == (length(plot.list.norm.adu) + 1)){
+    combo.plot.list[[i]] <- midtitle
+  }
+  else if(i < (length(plot.list.norm.adu) + 1)){
+    combo.plot.list[[i]] <- plot.list.norm.adu[[i]]
+  }
+  else{
+    combo.plot.list[[i]] <- plot.list.norm.juv[[i-(length(plot.list.norm.juv) + 1)]]
+  }
+}
+
+
+
+layout <- "
+ABC
+DE#
+#F#
+GHI
+JK#
+"
+
+plots <- wrap_plots(combo.plot.list, design = layout)
+
+
+plots + plot_annotation(
+  title = 'Normal Distribution',
+  subtitle = substitute("Adult generalism" == value, list(value = adu.sigma)),
+  theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)+ plot_layout(heights = c(1, 1,  0.4, 1, 1))
+
+
+
+
+# Skewed -------------------
+# Plotting several runs ---------------------------------------
+
+# Adult = Juvenile sigma
+# Randomize
+adu.sigma <- sample(sigma, size = 1)
+# Or choose
+adu.sigma <- 0.05
+
+juv.sigma <- adu.sigma
+
+
+last.year.list.skew <- data.frame()
+
+for(i in 1:10){
+  this.run <- skew$Total.endpoint.CLC.skew[[i]]
+  this.run$run <- rep(i, time = nrow(this.run))
+  this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
+  this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
+  last.year.list.skew <- rbind(last.year.list.skew, this.run)
+}
+
+plot.list.skew <- list()
+
+for (i in 1:9){
+  
+  data <- last.year.list.skew[last.year.list.skew$run == i, ]
+  
+  color.palette <- mako(length(data$Adult_Trait))
+  
+  plot.list.skew[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-2.5, 2.5))+
+    scale_y_continuous(limits = c(-2.5, 2.5))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+  
+}
+
+
+plots <- wrap_plots(plot.list.skew)
+
+plots + plot_annotation(
+  title = 'Skewed Distribution',
+  theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)
+
+
+
+# Choose Run -------------------------
+run <- sample(x = 1:10, size = 1)
+
+
+last.year.list.skew <- skew$Total.endpoint.CLC.skew[[run]]
+
+#Choose which sigmas
+
+# Same adult sigma 
+adu.sigma <- sigma[1]                                    # Choose random: sample(sigma, size = 1)
+last.year.list.skew.adu <- last.year.list.skew[last.year.list.skew$Adult.gen == adu.sigma, ]
+
+# Same juvenile sigma
+juv.sigma <-  sigma[1]                                    #Choose random: sample(sigma, size = 1)
+last.year.list.skew.juv <- last.year.list.skew[last.year.list.skew$Juv.gen == juv.sigma, ]
+
+#Plotting different runs
+
+
+# Plotting different sigmas
+
+
+plot.list.skew.adu <- list()
+plot.list.skew.juv <- list()
+
+A.ids <- unique(last.year.list.skew.adu$ID)
+J.ids <- unique(last.year.list.skew.juv$ID)
+
+
+for (i in 1:length(sigma)){
+  
+  adu.data <- last.year.list.skew.adu[last.year.list.skew.adu$ID == A.ids[i], ]
+  juv.data <- last.year.list.skew.juv[last.year.list.skew.juv$ID == J.ids[i], ]
+  
+  
+  color.palette <- mako(length(adu.data$Juvenile_Trait))
+  
+  plot.list.skew.adu[[i]] <- ggplot(adu.data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+  color.palette <- mako(length(juv.data$Adult_Trait))
+  
+  plot.list.skew.juv[[i]] <- ggplot(juv.data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+}
+
+
+
+combo.plot.list <- list()
+midtitle <- textGrob(substitute("Juvenile Generalism" == value, list(value = juv.sigma)), gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
+                     hjust = 0.5)
+
+for(i in 1:(length(plot.list.skew.adu)*2 + 1)){
+  if(i == (length(plot.list.skew.adu) + 1)){
+    combo.plot.list[[i]] <- midtitle
+  }
+  else if(i < (length(plot.list.skew.adu) + 1)){
+    combo.plot.list[[i]] <- plot.list.skew.adu[[i]]
+  }
+  else{
+    combo.plot.list[[i]] <- plot.list.skew.juv[[i-(length(plot.list.skew.juv) + 1)]]
+  }
+}
+
+
+
+layout <- "
+ABC
+DE#
+#F#
+GHI
+JK#
+"
+
+plots <- wrap_plots(combo.plot.list, design = layout)
+
+
+plots + plot_annotation(
+  title = 'Skewed Distribution',
+  subtitle = substitute("Adult generalism" == value, list(value = adu.sigma)),
+  theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)+ plot_layout(heights = c(1, 1,  0.4, 1, 1))
+
+
+#-------------------------------------------------
 
 
 
