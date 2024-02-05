@@ -1498,7 +1498,9 @@ job::job(population.skew = {
 
 
 
+
 # Results ------------------------
+
 
 
 adult.norm.pop.clc <- population.normal$adult.last.year.norm.CLC
@@ -1761,6 +1763,437 @@ plots + plot_annotation(
 
 
 # ----------------------
+# Simulations adult vs juvenile population size varied initial phenotype ----------
+
+# Normal
+
+job::job(population.normal.ini = {
+  
+  #SLC
+  iniP <- c(seq(from = -2.5, to = 2.5, length.out = 6))
+  
+  adult.last.year.norm.SLC <- matrix(data = NA, nrow = 1, ncol = length(iniP))
+  colnames(adult.last.year.norm.SLC) <- iniP #JUVENILES
+  
+  juvenile.last.year.norm.SLC <- matrix(data = NA, nrow = 1, ncol = length(iniP))
+  colnames(juvenile.last.year.norm.SLC) <- iniP #JUVENILES
+  
+  
+  for(i in 1:length(iniP)){
+    print(paste0("loop ", i, " started"))
+    
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, resFreq=resource.freq.norm.slc, iniP = iniP[i], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+    
+    
+    adult.last.year.norm.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 2]
+    juvenile.last.year.norm.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 3]
+    
+    
+  }
+  # CLC
+  
+  adult.last.year.norm.CLC <- matrix(data = NA, nrow = length(iniP), ncol = length(iniP))
+  rownames(adult.last.year.norm.CLC) <- iniP #ADULTS
+  colnames(adult.last.year.norm.CLC) <- iniP #JUVENILES
+  
+  juvenile.last.year.norm.CLC <- matrix(data = NA, nrow = length(iniP), ncol = length(iniP))
+  rownames(juvenile.last.year.norm.CLC) <- iniP #ADULTS
+  colnames(juvenile.last.year.norm.CLC) <- iniP #JUVENILES
+  
+  
+  for(i in 1:length(iniP)){
+    print(paste0("loop ", i, " started"))
+    for(c in 1:length(iniP)) {
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = iniP[i], iniPJ = iniP[c], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+      
+      adult.last.year.norm.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 2]
+      juvenile.last.year.norm.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 3]
+      
+    }
+    
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(list(adult.last.year.norm.CLC, juvenile.last.year.norm.CLC, adult.last.year.norm.SLC, juvenile.last.year.norm.SLC))
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC))
+
+
+# Even
+
+job::job(population.even.ini = {
+  
+  #SLC
+  iniP <- c(seq(from = -2.5, to = 2.5, length.out = 6))
+  
+  adult.last.year.even.SLC <- matrix(data = NA, nrow = 1, ncol = length(iniP))
+  colnames(adult.last.year.even.SLC) <- iniP #JUVENILES
+  
+  juvenile.last.year.even.SLC <- matrix(data = NA, nrow = 1, ncol = length(iniP))
+  colnames(juvenile.last.year.even.SLC) <- iniP #JUVENILES
+  
+  
+  for(i in 1:length(iniP)){
+    print(paste0("loop ", i, " started"))
+    
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, resFreq=resource.freq.even.slc, iniP = iniP[i], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+    
+    
+    adult.last.year.even.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 2]
+    juvenile.last.year.even.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 3]
+    
+    
+  }
+  # CLC
+  
+  adult.last.year.even.CLC <- matrix(data = NA, nrow = length(iniP), ncol = length(iniP))
+  rownames(adult.last.year.even.CLC) <- iniP #ADULTS
+  colnames(adult.last.year.even.CLC) <- iniP #JUVENILES
+  
+  juvenile.last.year.even.CLC <- matrix(data = NA, nrow = length(iniP), ncol = length(iniP))
+  rownames(juvenile.last.year.even.CLC) <- iniP #ADULTS
+  colnames(juvenile.last.year.even.CLC) <- iniP #JUVENILES
+  
+  
+  for(i in 1:length(iniP)){
+    print(paste0("loop ", i, " started"))
+    for(c in 1:length(iniP)) {
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = iniP[i], iniPJ = iniP[c], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+      
+      adult.last.year.even.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 2]
+      juvenile.last.year.even.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 3]
+      
+    }
+    
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(list(adult.last.year.even.CLC, juvenile.last.year.even.CLC, adult.last.year.even.SLC, juvenile.last.year.even.SLC))
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, resource.prop.even.slc, resource.freq.even.slc, resourceCompetitionSLC))
+
+# Skewed
+
+job::job(population.skew.ini = {
+  
+  #SLC
+  iniP <- c(seq(from = -2.5, to = 2.5, length.out = 6))
+  
+  adult.last.year.skew.SLC <- matrix(data = NA, nrow = 1, ncol = length(iniP))
+  colnames(adult.last.year.skew.SLC) <- iniP #JUVENILES
+  
+  juvenile.last.year.skew.SLC <- matrix(data = NA, nrow = 1, ncol = length(iniP))
+  colnames(juvenile.last.year.skew.SLC) <- iniP #JUVENILES
+  
+  
+  for(i in 1:length(iniP)){
+    print(paste0("loop ", i, " started"))
+    
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.skew.slc, resFreq=resource.freq.skew.slc, iniP = iniP[i], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+    
+    
+    adult.last.year.skew.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 2]
+    juvenile.last.year.skew.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 3]
+    
+    
+  }
+  # CLC
+  
+  adult.last.year.skew.CLC <- matrix(data = NA, nrow = length(iniP), ncol = length(iniP))
+  rownames(adult.last.year.skew.CLC) <- iniP #ADULTS
+  colnames(adult.last.year.skew.CLC) <- iniP #JUVENILES
+  
+  juvenile.last.year.skew.CLC <- matrix(data = NA, nrow = length(iniP), ncol = length(iniP))
+  rownames(juvenile.last.year.skew.CLC) <- iniP #ADULTS
+  colnames(juvenile.last.year.skew.CLC) <- iniP #JUVENILES
+  
+  
+  for(i in 1:length(iniP)){
+    print(paste0("loop ", i, " started"))
+    for(c in 1:length(iniP)) {
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = iniP[i], iniPJ = iniP[c], resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+      
+      adult.last.year.skew.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 2]
+      juvenile.last.year.skew.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 3]
+      
+    }
+    
+  }
+  
+  
+  # Control what is returned to the main session
+  job::export(list(adult.last.year.skew.CLC, juvenile.last.year.skew.CLC, adult.last.year.skew.SLC, juvenile.last.year.skew.SLC))
+}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, resource.prop.skew.slc, resource.freq.skew.slc, resourceCompetitionSLC))
+
+
+# Results ------------------------
+
+
+
+adult.norm.pop.clc <- population.normal.ini$adult.last.year.norm.CLC
+juvenile.norm.pop.clc <- population.normal.ini$juvenile.last.year.norm.CLC
+adult.norm.pop.slc <- population.normal.ini$adult.last.year.norm.SLC
+juvenile.norm.pop.slc <- population.normal.ini$juvenile.last.year.norm.SLC
+
+
+adult.even.pop.clc <- population.even.ini$adult.last.year.even.CLC
+juvenile.even.pop.clc <- population.even.ini$juvenile.last.year.even.CLC
+adult.even.pop.slc <- population.even.ini$adult.last.year.even.SLC
+juvenile.even.pop.slc <- population.even.ini$juvenile.last.year.even.SLC
+
+adult.skew.pop.clc <- population.skew.ini$adult.last.year.skew.CLC
+juvenile.skew.pop.clc <- population.skew.ini$juvenile.last.year.skew.CLC
+adult.skew.pop.slc <- population.skew.ini$adult.last.year.skew.SLC
+juvenile.skew.pop.slc <- population.skew.ini$juvenile.last.year.skew.SLC
+
+# Plotting abundance of adults and juveniles different sigmas --------------------------
+
+# Normal
+
+x <- rownames(adult.norm.pop.clc)
+
+# Number of species
+
+
+df_adult <- data.frame(
+  Juvenile.trait = rep(x, each = 6),
+  Abundance = as.vector(adult.norm.pop.clc),
+  Adult.trait = rep(x, times = 6),
+  Stage = rep("Adult", times = length(x)*length(x)),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df_juvenile <- data.frame(
+  Juvenile.trait = rep(x, each = 6),
+  Abundance = as.vector(juvenile.norm.pop.clc),
+  Adult.trait = rep(x, times = 6),
+  Stage = rep("Juvenile", times = length(x)*length(x)),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df_simple_adult <- data.frame(
+  Juvenile.trait = x ,
+  Abundance = as.vector(adult.norm.pop.slc),
+  Adult.trait = x,
+  Stage = rep("Adult", times = length(x)),
+  Cycle = rep("Simple", times = length(x))
+)
+
+df_simple_juvenile <- data.frame(
+  Juvenile.trait =x ,
+  Abundance = as.vector(juvenile.norm.pop.slc),
+  Adult.trait = x,
+  Stage = rep("Juvenile", times = length(x)),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df_combined_complex <- rbind(df_adult, df_juvenile)
+df_combined_simple <- rbind(df_simple_adult, df_simple_juvenile)
+
+
+com <- ggplot(df_combined_complex, aes(x = Adult.trait, y = Abundance, color = Stage, shape = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 7) +
+  scale_y_continuous(limits = c(20000, 60000)) +
+  xlab("Adult Phenotype") +
+  ylab("Abundance") +
+  ggtitle("Complex Lifecyle") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18),
+        legend.position = "none")+
+  scale_color_manual(values = c("slateblue", "thistle"))
+
+sim <- ggplot(df_combined_simple, aes(x = Adult.trait, y = Abundance, color = Stage, shape = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 7) +
+  scale_y_continuous(limits = c(20000, 60000)) +
+  xlab("Adult Phenotype") +
+  ylab("Abundance") +
+  labs(shape = "Juvenile Phenotype", color = "Stage") +
+  ggtitle("Simple Lifecycle") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))+
+  scale_color_manual(values = c("slateblue", "thistle"))+
+  guides(shape= guide_legend(override.aes = list(stroke = 1.05)))
+
+
+layout <- "
+AB"
+
+combo.plots <- list(com, sim)
+
+plots <- wrap_plots(combo.plots, design = layout)
+
+plots + plot_annotation(
+  title = 'Normal Distribution',
+  theme = theme(plot.title = element_text(hjust = 0.35, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)
+
+
+# Even
+
+
+
+df_adult <- data.frame(
+  Juvenile.trait = rep(x, each = 6),
+  Abundance = as.vector(adult.even.pop.clc),
+  Adult.trait = rep(x, times = 6),
+  Stage = rep("Adult", times = length(x)*length(x)),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df_juvenile <- data.frame(
+  Juvenile.trait = rep(x, each = 6),
+  Abundance = as.vector(juvenile.even.pop.clc),
+  Adult.trait = rep(x, times = 6),
+  Stage = rep("Juvenile", times = length(x)*length(x)),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df_simple_adult <- data.frame(
+  Juvenile.trait = x ,
+  Abundance = as.vector(adult.even.pop.slc),
+  Adult.trait = x,
+  Stage = rep("Adult", times = length(x)),
+  Cycle = rep("Simple", times = length(x))
+)
+
+df_simple_juvenile <- data.frame(
+  Juvenile.trait =x ,
+  Abundance = as.vector(juvenile.even.pop.slc),
+  Adult.trait = x,
+  Stage = rep("Juvenile", times = length(x)),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df_combined_complex <- rbind(df_adult, df_juvenile)
+df_combined_simple <- rbind(df_simple_adult, df_simple_juvenile)
+
+com <- ggplot(df_combined_complex, aes(x = Adult.trait, y = Abundance, color = Stage, shape = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 7) +
+  scale_y_continuous(limits = c(20000, 60000)) +
+  xlab("Adult Phenotype") +
+  ylab("Abundance") +
+  ggtitle("Complex Lifecyle") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18),
+        legend.position = "none")+
+  scale_color_manual(values = c("slateblue", "thistle"))
+
+sim <- ggplot(df_combined_simple, aes(x = Adult.trait, y = Abundance, color = Stage, shape = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 7) +
+  scale_y_continuous(limits = c(20000, 60000)) +
+  xlab("Adult Phenotype") +
+  ylab("Abundance") +
+  labs(shape = "Juvenile Phenotype", color = "Stage") +
+  ggtitle("Simple Lifecycle") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))+
+  scale_color_manual(values = c("slateblue", "thistle"))+
+  guides(shape= guide_legend(override.aes = list(stroke = 1.05)))
+
+
+layout <- "
+AB"
+
+combo.plots <- list(com, sim)
+
+plots <- wrap_plots(combo.plots, design = layout)
+
+plots + plot_annotation(
+  title = 'Even Distribution',
+  theme = theme(plot.title = element_text(hjust = 0.35, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)
+
+
+# Skewed
+
+
+df_adult <- data.frame(
+  Juvenile.trait = rep(x, each = 6),
+  Abundance = as.vector(adult.skew.pop.clc),
+  Adult.trait = rep(x, times = 6),
+  Stage = rep("Adult", times = length(x)*length(x)),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df_juvenile <- data.frame(
+  Juvenile.trait = rep(x, each = 6),
+  Abundance = as.vector(juvenile.skew.pop.clc),
+  Adult.trait = rep(x, times = 6),
+  Stage = rep("Juvenile", times = length(x)*length(x)),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df_simple_adult <- data.frame(
+  Juvenile.trait = x ,
+  Abundance = as.vector(adult.skew.pop.slc),
+  Adult.trait = x,
+  Stage = rep("Adult", times = length(x)),
+  Cycle = rep("Simple", times = length(x))
+)
+
+df_simple_juvenile <- data.frame(
+  Juvenile.trait =x ,
+  Abundance = as.vector(juvenile.skew.pop.slc),
+  Adult.trait = x,
+  Stage = rep("Juvenile", times = length(x)),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df_combined_complex <- rbind(df_adult, df_juvenile)
+df_combined_simple <- rbind(df_simple_adult, df_simple_juvenile)
+
+
+com <- ggplot(df_combined_complex, aes(x = Adult.trait, y = Abundance, color = Stage, shape = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 7) +
+  scale_y_continuous(limits = c(20000, 60000)) +
+  xlab("Adult Phenotype") +
+  ylab("Abundance") +
+  ggtitle("Complex Lifecyle") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18),
+        legend.position = "none")+
+  scale_color_manual(values = c("slateblue", "thistle"))
+
+sim <- ggplot(df_combined_simple, aes(x = Adult.trait, y = Abundance, color = Stage, shape = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 7) +
+  scale_y_continuous(limits = c(20000, 60000)) +
+  xlab("Adult Phenotype") +
+  ylab("Abundance") +
+  labs(shape = "Juvenile Phenotype", color = "Stage") +
+  ggtitle("Simple Lifecycle") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))+
+  scale_color_manual(values = c("slateblue", "thistle"))+
+  guides(shape= guide_legend(override.aes = list(stroke = 1.05)))
+
+
+layout <- "
+AB"
+
+combo.plots <- list(com, sim)
+
+plots <- wrap_plots(combo.plots, design = layout)
+
+plots + plot_annotation(
+  title = 'Skewed Distribution',
+  theme = theme(plot.title = element_text(hjust = 0.35, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)
+
+
+
+
+
+# Plotting different starting initial phenotype adult and juvenile population.
+
+
+
+# ----------------------------------
 # Running simulations: 10 runs number of species varied sigmas ----------------
 
 # Even
