@@ -459,10 +459,9 @@ job::job(endpoint.normal = {
   
   last.year.list.norm <- list()
   
-  
   for(i in 1:9){
     print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
+    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
     
     phenodataCLC <- NULL
     
@@ -566,7 +565,7 @@ grid.arrange(grobs = plot.list.even, ncol = 3, nrow = 3, top =text_grob("Even Di
 plot.list.norm <- list()
 
 
-for (i in 1:3){
+for (i in 1:9){
   
   color.palette <- mako(length(last.year.list.norm[[i]]$Adult_Trait))
   
@@ -687,102 +686,9 @@ job::job(endpoint.skew.sigma = {
   job::export(list(last.year.list.skew, filtered.list.skew))
 }, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, clc.groups))
 
-# Running simulations to see endpoint and number of species with varied initial phenotype -----------------------------
-
-# Normal
-
-job::job(endpoint.normal.ini = {
-  
-  last.year.list.norm <- list()
-  filtered.list.norm <- list()
-  iniPhen <- c(seq(from = -2.5, to = 2.5, length.out = 6))
-  
-  for(i in 1:length(iniPhen)){
-    print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = iniPhen[i], iniPJ = 1, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
-    
-    phenodataCLC <- NULL
-    
-    phenodataCLC <- data.frame(
-      Year = outputCLC$phenotypes[, 1],
-      Adult_Trait = outputCLC$phenotypes[, 3],
-      Juvenile_Trait = outputCLC$phenotypes[, 4],
-      Num_Individuals = outputCLC$phenotypes[, 2])
-    
-    last.year.list.norm[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
-    filtered.list.norm[[i]] <- clc.groups(output = outputCLC)
-  }
-  
-  
-  # Control what is returned to the main session
-  job::export(list(last.year.list.norm, filtered.list.norm))
-}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, clc.groups))
 
 
-# Even
-
-job::job(endpoint.even.ini = {
-  
-  last.year.list.even <- list()
-  filtered.list.even <- list()
-  iniPhen <- c(seq(from = -2.5, to = 2.5, length.out = 6))
-  
-  for(i in 1:length(iniPhen)){
-    print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = iniPhen[i], iniPJ = 1, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
-    
-    phenodataCLC <- NULL
-    
-    phenodataCLC <- data.frame(
-      Year = outputCLC$phenotypes[, 1],
-      Adult_Trait = outputCLC$phenotypes[, 3],
-      Juvenile_Trait = outputCLC$phenotypes[, 4],
-      Num_Individuals = outputCLC$phenotypes[, 2])
-    
-    last.year.list.even[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
-    filtered.list.even[[i]] <- clc.groups(output = outputCLC)
-  }
-  
-  
-  # Control what is returned to the main session
-  job::export(list(last.year.list.even, filtered.list.even))
-}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, clc.groups))
-
-# Skewed
-
-job::job(endpoint.skew.ini = {
-  
-  last.year.list.skew <- list()
-  filtered.list.skew <- list()
-  iniPhen <- c(seq(from = -2.5, to = 2.5, length.out = 6))
-  
-  for(i in 1:length(iniPhen)){
-    print(paste0("loop ", i, " started"))
-    outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = iniPhen[i], iniPJ = 1, resGen=matrix(c(0.15, 0.15)), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 10000)
-    
-    phenodataCLC <- NULL
-    
-    phenodataCLC <- data.frame(
-      Year = outputCLC$phenotypes[, 1],
-      Adult_Trait = outputCLC$phenotypes[, 3],
-      Juvenile_Trait = outputCLC$phenotypes[, 4],
-      Num_Individuals = outputCLC$phenotypes[, 2])
-    
-    last.year.list.skew[[i]]<- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
-    filtered.list.skew[[i]] <- clc.groups(output = outputCLC)
-  }
-  
-  
-  # Control what is returned to the main session
-  job::export(list(last.year.list.skew, filtered.list.skew))
-}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, clc.groups))
-
-
-
-
-# Results --------------------------------------------
-
-#Sigma
+# Results
 
 last.year.list.even <- endpoint.even.sigma$last.year.list.even
 last.year.list.norm <- endpoint.normal.sigma$last.year.list.norm
@@ -792,18 +698,7 @@ filtered.list.even <- endpoint.even.sigma$filtered.list.even
 filtered.list.norm <- endpoint.normal.sigma$filtered.list.norm
 filtered.list.skew <- endpoint.skew.sigma$filtered.list.skew
 
-
-sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90)
-
-# Initial Phenotype  
-
-last.year.list.even <- endpoint.even.ini$last.year.list.even
-last.year.list.norm <- endpoint.normal.ini$last.year.list.norm
-last.year.list.skew <- endpoint.skew.ini$last.year.list.skew
-
-sigma <- c(seq(from = -2.5, to = 2.5, length.out = 6))
-
-
+sigma <- c(0.15, 0.3, 0.45, 0.6, 0.75, 0.90, 1.05, 1.20, 1.35)
 
 num.of.spe.even <- c()
 num.of.spe.norm <- c()
@@ -902,9 +797,11 @@ for (i in 1:length(sigma)){
 layout <- "
 ABC
 DEF
-#G#
-HIJ
+GHI
+#J#
 KLM
+NOP
+QRS
 "
 
 combo.plot.list <- list()
@@ -930,7 +827,7 @@ plots + plot_annotation(
   subtitle = 'Adult Trait',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
+) + plot_layout(heights = c(1, 1, 1, 0.4, 1, 1, 1))
 
 
 # Norm
@@ -1025,7 +922,7 @@ plots + plot_annotation(
   subtitle = 'Adult Trait',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
+) + plot_layout(heights = c(1, 1, 1, 0.4, 1, 1, 1))
 
 
 
@@ -1124,11 +1021,12 @@ plots + plot_annotation(
   subtitle = 'Adult Trait',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-) + plot_layout(heights = c(1, 1, 0.4, 1, 1))
+) + plot_layout(heights = c(1, 1, 1, 0.4, 1, 1, 1))
 
 # Plotting 9 runs to see endpoint comparison of filtered vs unfiltered --------------------------
 
 # Even
+
 
 plot.list.even <- list()
 plot.filtered.list.even <- list()
@@ -1193,7 +1091,7 @@ plots + plot_annotation(
   subtitle = 'Unfiltered Endpoint',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-)+ plot_layout(heights = c(1, 1, 0.4, 1, 1))
+)+ plot_layout(heights = c(1, 1, 1,  0.4, 1, 1))
 
 
 
@@ -1262,7 +1160,7 @@ plots + plot_annotation(
   subtitle = 'Unfiltered Endpoint',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-)+ plot_layout(heights = c(1, 1, 0.4, 1, 1))
+)+ plot_layout(heights = c(1, 1, 1, 0.4, 1, 1))
 
 
 
@@ -1331,7 +1229,7 @@ plots + plot_annotation(
   subtitle = 'Unfiltered Endpoint',
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   #caption = 'Disclaimer: None of these plots are insightful'
-)+ plot_layout(heights = c(1, 1, 0.4, 1, 1))
+)+ plot_layout(heights = c(1, 1, 1, 0.4, 1, 1))
 
 # ------------------------
 # Running simulations: compare adult population vs Juvenile population -----------------------------
@@ -1353,7 +1251,7 @@ job::job(population.normal = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     
-      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, resFreq=resource.freq.norm.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.norm.slc, resFreq=resource.freq.norm.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 50000)
       
       
       adult.last.year.norm.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 2]
@@ -1375,7 +1273,7 @@ job::job(population.normal = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     for(c in 1:length(sigma)) {
-        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, resFreq=resFreqMatrix.norm.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 50000)
         
         adult.last.year.norm.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 2]
         juvenile.last.year.norm.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 3]
@@ -1407,7 +1305,7 @@ job::job(population.even = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, resFreq=resource.freq.even.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, resFreq=resource.freq.even.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 50000)
     
     
     adult.last.year.even.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 2]
@@ -1429,7 +1327,7 @@ job::job(population.even = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     for(c in 1:length(sigma)) {
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 50000)
       
       adult.last.year.even.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 2]
       juvenile.last.year.even.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 3]
@@ -1462,7 +1360,7 @@ job::job(population.skew = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.skew.slc, resFreq=resource.freq.skew.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.skew.slc, resFreq=resource.freq.skew.slc, iniP = 0, resGen=matrix(c(sigma[i], sigma[i])), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 50000)
     
     adult.last.year.skew.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 2]
     juvenile.last.year.skew.SLC[1, i] <- outputSLC$stats[outputSLC$stats[,1] == max(outputSLC$stats[,1]), 3]
@@ -1483,7 +1381,7 @@ job::job(population.skew = {
   for(i in 1:length(sigma)){
     print(paste0("loop ", i, " started"))
     for(c in 1:length(sigma)) {
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.skew.clc, resFreq=resFreqMatrix.skew.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[i], sigma[c])), popSize = 10, mutProb=0, mutVar=0.05, time.steps = 50000)
       
       adult.last.year.skew.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 2]
       juvenile.last.year.skew.CLC[i, c] <- outputCLC$stats[outputCLC$stats[,1] == max(outputCLC$stats[,1]), 3]
@@ -2223,7 +2121,7 @@ for(r in 1:10) {
   for(i in 1:length(sigma)){
     
 
-    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+    outputSLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, resGen=matrix(c(sigma[i],sigma[i])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
 
     
     #Filter out similar "species"
@@ -2266,7 +2164,7 @@ for(a in 1:10){
     for(k in 1:length(sigma)){
       
 
-      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 20000)
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, resFreq=resFreqMatrix.even.clc, iniPA = 0, iniPJ = 0, resGen=matrix(c(sigma[b],sigma[k])), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
 
 
       
@@ -2576,7 +2474,7 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Ju
   geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
-  ylab("Abundance") +
+  ylab("Number of species") +
   labs(shape = "Juvenile Generalism", color = "Life strategy") +
   ggtitle("Normal Resource Distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
@@ -2628,7 +2526,7 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Ju
   geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
-  ylab("Abundance") +
+  ylab("Number of species") +
   labs(shape = "Juvenile Generalism", color = "Life strategy") +
   ggtitle("Skewed Resource Distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
@@ -2638,7 +2536,7 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, color = Cycle, shape = Ju
 
 
 # -------------------------
-# Two resources simulation
+# Two resources simulation ---------------------------------------------------
 
 job::job(Two.res = {
 

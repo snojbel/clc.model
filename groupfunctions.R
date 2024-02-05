@@ -37,22 +37,21 @@ slc.groups <- function(output = outputSLC, threshold = 0.2){
     return(last_year_dataSLC)
   } # Checks if there are zero individuals who are alike.
   
-  print("1 works")
+ 
   
   same <- which(distance_matrix < threshold, arr.ind = T)
   
-  print("A works")
+ 
   same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
   rownames(same) <- NULL
 
-  print("2 works")
-
+  
   if(sum(same) == 0){
     return(last_year_dataSLC)
   }
 
   
-  print("B works")
+ 
   # Initialize an empty list to store groups
   groups <- list()
   
@@ -92,7 +91,7 @@ slc.groups <- function(output = outputSLC, threshold = 0.2){
   }
   
 
-  print("3 works")
+ 
 
   # Filter out duplicate species in each group
   groups <- lapply(groups, function(group) unique(group))
@@ -155,7 +154,7 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
     return(last_year_dataCLC)
   }   # Checks if there are zero individuals who are alike.
   
-  print("A works")
+ 
   
   same <- which(distance_matrix_adult < threshold & distance_matrix_juvenile < threshold, arr.ind = T)
   same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
@@ -165,7 +164,7 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
     return(last_year_dataCLC)
   }
   
-  print("B works")
+ 
   
   # Initialize an empty list to store groups
   groups <- list()
@@ -205,7 +204,7 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
     }
   }
   
-  print("C works")
+  
   # Filter out duplicate species in each group
   groups <- lapply(groups, function(group) unique(group))
   
@@ -230,13 +229,4 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
 }
 
 
-final_data_CLC <- clc.groups()
 
-color_palette <- mako(length(final_data_CLC$Adult_Trait))
-
-ggplot(final_data_CLC, aes(x = Juvenile_Trait, y = Adult_Trait)) +
-  geom_point(aes(size=Num_Individuals), color = color_palette) +                                  # Add points
-  labs(x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-  theme_minimal(base_family = "LM Roman 10", base_size = 18)
-
-nrow(final_data_CLC)
