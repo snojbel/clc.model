@@ -192,7 +192,7 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 
 popSize <- 10
-sigma <- seq(from = 0.05, to = 1.25, length.out = 5)
+sigma <- seq(from = 0.05, to = 1.25, length.out = 6)
 im <-  0 
 fmax <-  2
 kA <-  0.5
