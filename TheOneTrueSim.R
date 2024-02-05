@@ -657,8 +657,8 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Ju
 
 # Normal
 
-Total.mean.CLC.norm <- even$Total.mean.CLC.norm
-Total.mean.SLC.norm <- even$Total.mean.SLC.norm
+Total.mean.CLC.norm <- norm$Total.mean.CLC.norm
+Total.mean.SLC.norm <- norm$Total.mean.SLC.norm
 
 Total.sd.CLC.norm <-  norm$Total.sd.CLC.norm
 Total.sd.SLC.norm <-  norm$Total.sd.SLC.norm
@@ -785,8 +785,8 @@ for (i in 1:9){
   plot.list.even[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
     geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
     labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-2.5, 2.5))+
-    scale_y_continuous(limits = c(-2.5, 2.5))+
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
   
   
@@ -879,10 +879,10 @@ for(i in 1:(length(plot.list.even.adu)*2 + 1)){
 
 layout <- "
 ABC
-DE#
-#F#
-GHI
-JK#
+DEF
+#G#
+HIJ
+KLM
 "
 
 plots <- wrap_plots(combo.plot.list, design = layout)
@@ -1023,11 +1023,12 @@ for(i in 1:(length(plot.list.norm.adu)*2 + 1)){
 
 layout <- "
 ABC
-DE#
-#F#
-GHI
-JK#
+DEF
+#G#
+HIJ
+KLM
 "
+
 
 plots <- wrap_plots(combo.plot.list, design = layout)
 
@@ -1074,8 +1075,8 @@ for (i in 1:9){
   plot.list.skew[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
     geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
     labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-2.5, 2.5))+
-    scale_y_continuous(limits = c(-2.5, 2.5))+
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
     theme_minimal(base_family = "LM Roman 10", base_size = 10)
   
   
@@ -1168,10 +1169,10 @@ for(i in 1:(length(plot.list.skew.adu)*2 + 1)){
 
 layout <- "
 ABC
-DE#
-#F#
-GHI
-JK#
+DEF
+#G#
+HIJ
+KLM
 "
 
 plots <- wrap_plots(combo.plot.list, design = layout)
