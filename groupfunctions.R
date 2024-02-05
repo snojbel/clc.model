@@ -37,22 +37,21 @@ slc.groups <- function(output = outputSLC, threshold = 0.2){
     return(last_year_dataSLC)
   } # Checks if there are zero individuals who are alike.
   
-  print("1 works")
+ 
   
   same <- which(distance_matrix < threshold, arr.ind = T)
   
-  print("A works")
+ 
   same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
   rownames(same) <- NULL
 
-  print("2 works")
-
+  
   if(sum(same) == 0){
     return(last_year_dataSLC)
   }
 
   
-  print("B works")
+ 
   # Initialize an empty list to store groups
   groups <- list()
   
@@ -92,7 +91,7 @@ slc.groups <- function(output = outputSLC, threshold = 0.2){
   }
   
 
-  print("3 works")
+ 
 
   # Filter out duplicate species in each group
   groups <- lapply(groups, function(group) unique(group))
@@ -155,7 +154,7 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
     return(last_year_dataCLC)
   }   # Checks if there are zero individuals who are alike.
   
-  print("A works")
+ 
   
   same <- which(distance_matrix_adult < threshold & distance_matrix_juvenile < threshold, arr.ind = T)
   same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
@@ -165,7 +164,7 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
     return(last_year_dataCLC)
   }
   
-  print("B works")
+ 
   
   # Initialize an empty list to store groups
   groups <- list()
@@ -205,7 +204,7 @@ clc.groups <- function(output = outputCLC, threshold = 0.2){
     }
   }
   
-  print("C works")
+  
   # Filter out duplicate species in each group
   groups <- lapply(groups, function(group) unique(group))
   
