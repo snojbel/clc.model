@@ -20,7 +20,7 @@ library(extrafont)
 library(patchwork)
 library(dplyr)
 library(grid)
-
+library(FamilyRank)
 
 
 
@@ -157,6 +157,64 @@ colnames(resPropMatrix.skew.clc)  <- paste0("Resource ", 1:ncol(resPropMatrix.sk
 
 
 
+# Bimodal resources
+
+
+m1 <- -1.25
+m2 <-  1.25
+s <- 0.5
+Bi.resource.frequency <- c()
+Bi.resource.property<- c(seq(from = -2.5, to = 2.5, length.out = Num.Res)) 
+
+
+
+mid.add <- c()
+midpoint <- c()
+
+for(i in 1:(length(Bi.resource.property))){
+  mid.add <- (Bi.resource.property[i+1]-Bi.resource.property[i])/2
+  high.midpoint <- Bi.resource.property[(i)]+mid.add
+  low.midpoint <- Bi.resource.property[(i)]-mid.add
+  if(i == 1){
+    Bi.resource.frequency[i] <- pnorm(high.midpoint, mean = m1, sd = s)/2 
+  }else if(i == length(Bi.resource.property)){
+    low.midpoint <- Bi.resource.property[(i-1)] + (Bi.resource.property[i]-Bi.resource.property[i-1])/2
+    Bi.resource.frequency[i] <- pnorm(low.midpoint, mean = m2, sd = s, lower.tail = FALSE)
+  }else if (Bi.resource.property[i]<0) {
+    Bi.resource.frequency[i] <- (pnorm(high.midpoint, mean = m1, sd = s) - pnorm(low.midpoint, mean = m1, sd = s))/2
+  }else{
+    Bi.resource.frequency[i] <- (pnorm(high.midpoint, mean = m2, sd = s) - pnorm(low.midpoint, mean = m2, sd = s))/2
+  }
+}
+
+
+resource.abundance.adults.binorm.clc      <- res.Abund                              # res. abundance of adults and juveniles
+resource.abundance.juveniles.binorm.clc   <- res.Abund
+
+# SLC:
+
+resource.prop.binorm.slc  <- Bi.resource.property             # res. property 
+resource.freq.binorm.slc  <- res.Abund*Bi.resource.frequency
+
+
+# CLC:
+
+resFreqMatrix.binorm.clc  <- matrix(Bi.resource.frequency, nrow=2, ncol=length(Bi.resource.frequency), byrow = TRUE)
+
+resFreqMatrix.binorm.clc [1, ] <- resFreqMatrix.binorm.clc [1, ]*resource.abundance.adults.binorm.clc 
+resFreqMatrix.binorm.clc [2, ] <- resFreqMatrix.binorm.clc [2, ]*resource.abundance.juveniles.binorm.clc 
+
+rownames(resFreqMatrix.binorm.clc ) <- c("Adult", "Juvenile")
+colnames(resFreqMatrix.binorm.clc )  <- paste0("Resource ", 1:ncol(resFreqMatrix.binorm.clc ))
+
+
+resPropMatrix.binorm.clc  <- matrix(Bi.resource.property, nrow=2, ncol=length(Bi.resource.property), byrow = TRUE) 
+
+
+rownames(resPropMatrix.binorm.clc )<-c("Adult", "Juvenile")
+colnames(resPropMatrix.binorm.clc )  <- paste0("Resource ", 1:ncol(resPropMatrix.binorm.clc))
+
+
 # Two resources 
 
 resource.prop <- c(-1,1)
@@ -192,19 +250,21 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 
 popSize <- 10
-sigma <- seq(from = 0.05, to = 1.25, length.out = 6)
-im <-  0 
+sigma <- seq(from = 0.05, to = 1.3, length.out = 6)
+im <-  0.0005 
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.0005
-mutVar <- 0.05
+mutVar <- 0.005
 time.steps <- 50000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
 nmorphs <-  1
 threshold <-  0.005
+maxTr = 3
+minTr = -3
 
 
 # -------------------------
@@ -605,6 +665,136 @@ job::job(skew = {
               popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold))
 
 
+# Bimodal Normal
+
+job::job(binorm = {
+  
+  Total.species.SLC.single.binorm <- c()
+  
+  Total.species.CLC.binorm <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+  rownames(Total.species.CLC.binorm) <- sigma  #ADULTS
+  colnames(Total.species.CLC.binorm) <- sigma #JUVENILES
+  
+  
+  
+  # SLC
+  
+  Total.species.SLC.binorm <- list()
+  Total.endpoint.SLC.binorm <- list()
+  
+  for(r in 1:10) {
+    
+    id <- 1
+    
+    print(paste0("loop ", r, " started"))
+    
+    Number.species.SLC.binorm <- c()
+    endpoint.SLC.binorm <- list()
+    
+    for(i in 1:length(sigma)){
+      
+      
+      outputSLC <- resourceCompetitionSLC(resProp=resource.prop.binorm.slc, iniP = iniP, resFreq=resource.freq.binorm.slc, resGen=matrix(c(sigma[i],sigma[i])),
+                                          popSize = popSize, mutProb=mutProb, mutVar=mutVar, time.steps = time.steps, im = im, fmax = fmax, kA = kA, nmorphs = nmorphs,
+                                          threshold = threshold)
+      
+      
+      #Filter out similar "species" and collect number of species data
+      
+      final.data.SLC.binorm <- slc.groups(output = outputSLC)
+      Number.species.SLC.binorm[i] <- nrow(final.data.SLC.binorm)
+      
+      #Collect endpoint data
+      final.data.SLC.binorm$ID <- c(rep(id, times = nrow(final.data.SLC.binorm)))
+      
+      
+      endpoint.SLC.binorm[[i]] <- final.data.SLC.binorm 
+      id <- id + 1 
+    }
+    
+    Total.species.SLC.binorm[[r]] <- Number.species.SLC.binorm
+    Total.endpoint.SLC.binorm[[r]] <- endpoint.SLC.binorm
+  }
+  
+  
+  # Caluclating mean and SD of 10 runs
+  
+  
+  
+  Total.mean.SLC.binorm <- sapply(1:length(sigma), function(i) mean(sapply(Total.species.SLC.binorm, function(x) x[i])))
+  
+  array.data.SLC <- array(unlist(Total.species.SLC.binorm), dim = c(dim(Total.species.SLC.binorm[[1]]), length(Total.species.SLC.binorm)))
+  
+  Total.sd.SLC.binorm <- sapply(1:length(sigma), function(i) sd(sapply(Total.species.SLC.binorm, function(x) x[i])))
+  
+  
+  # CLC
+  
+  print("clc start")
+  
+  Total.species.CLC.binorm <- list()
+  
+  Total.endpoint.CLC.binorm <- list()
+  
+  
+  for(a in 1:10){
+    print(paste0("loop ", a, " started"))
+    
+    id <- 1
+    
+    species.CLC.binorm <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
+    rownames(species.CLC.binorm) <- sigma  #ADULTS
+    colnames(species.CLC.binorm) <- sigma #JUVENILES
+    
+    endpoint.CLC.binorm <- c()
+    
+    for(b in 1:length(sigma)){
+      
+      for(k in 1:length(sigma)){
+        
+        
+        outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.binorm.clc, resFreq=resFreqMatrix.binorm.clc, iniPA = iniPA, iniPJ = iniPJ, resGen=matrix(c(sigma[b],sigma[k])), 
+                                            popSize = popSize, mutProb=mutProb, mutVar=mutVar, time.steps = time.steps, im = im, fmax = fmax, kA = kA, nmorphs = nmorphs,
+                                            threshold = threshold)
+        
+        
+        
+        #Filter out similar "species"
+        final.data.CLC.binorm <- clc.groups(output = outputCLC)
+        
+        # Collect Data
+        
+        species.CLC.binorm[b, k] <- nrow(final.data.CLC.binorm)
+        final.data.CLC.binorm$Adult.gen <- c(rep(sigma[b], times = nrow(final.data.CLC.binorm)))
+        final.data.CLC.binorm$Juv.gen <- c(rep(sigma[k], times = nrow(final.data.CLC.binorm)))
+        final.data.CLC.binorm$ID <- c(rep(id, times = nrow(final.data.CLC.binorm)))
+        endpoint.CLC.binorm <- rbind(endpoint.CLC.binorm, final.data.CLC.binorm) 
+        id <- id + 1
+      }
+      
+    }
+    Total.species.CLC.binorm[[a]] <- species.CLC.binorm
+    Total.endpoint.CLC.binorm[[a]] <- endpoint.CLC.binorm
+  }
+  
+  # Calculating mean of 10 runs
+  
+  # Combine matrices in the list into a 3D array
+  array.data.CLC <- array(unlist(Total.species.CLC.binorm), dim = c(dim(Total.species.CLC.binorm[[1]]), length(Total.species.CLC.binorm)))
+  
+  
+  # Calculate mean and standard deviation along the third dimension (across the list)
+  Total.mean.CLC.binorm <- apply(array.data.CLC, c(1, 2), mean)
+  Total.sd.CLC.binorm <- apply(array.data.CLC, c(1, 2), sd)
+  
+  
+  
+  job::export(list(Total.mean.CLC.binorm, Total.sd.CLC.binorm, Total.mean.SLC.binorm, Total.sd.SLC.binorm, Total.endpoint.SLC.binorm, Total.endpoint.CLC.binorm))
+}, import = c(resPropMatrix.binorm.clc, resFreqMatrix.binorm.clc, resourceCompetitionCLC, resource.prop.binorm.slc, resource.freq.binorm.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
+              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold))
+
+
+
 # -------------------------------------------------
 
 # Plotting Mean number of Species ----------------------------------------------
@@ -642,7 +832,7 @@ df.SLC <- data.frame(
 df.combined <- rbind(df.CLC, df.SLC)
 
 
-ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
+even.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
   geom_point(size = 5) +
   #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
@@ -654,6 +844,7 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Ju
   theme(plot.title = element_text(size = 18))#+
   #scale_color_manual(values = c("slateblue", "thistle"))
 
+even.plot
 
 # Normal
 
@@ -688,7 +879,7 @@ df.SLC <- data.frame(
 df.combined <- rbind(df.CLC, df.SLC)
 
 
-ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
+norm.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
   geom_point(size = 5) +
   #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
@@ -700,6 +891,7 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Ju
   theme(plot.title = element_text(size = 18))#+
 #scale_color_manual(values = c("slateblue", "thistle"))
 
+norm.plot 
 
 # Skewed
 
@@ -735,7 +927,7 @@ df.SLC <- data.frame(
 df.combined <- rbind(df.CLC, df.SLC)
 
 
-ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
+skew.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
   geom_point(size = 5) +
   #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
@@ -747,6 +939,15 @@ ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Ju
   theme(plot.title = element_text(size = 18))#+
 #scale_color_manual(values = c("slateblue", "thistle"))
 
+skew.plot
+
+# Together:
+
+plot <- list()
+plot[[1]] <- even.plot
+plot[[2]] <- norm.plot
+plot[[3]] <- skew.plot
+wrap_plots(plot)
 
 #--------------------------------
 
@@ -1183,6 +1384,153 @@ plots + plot_annotation(
   subtitle = substitute("Adult generalism" == value, list(value = adu.sigma)),
   theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
 )+ plot_layout(heights = c(1, 1,  0.4, 1, 1))
+
+
+
+
+
+# Bi modal Normal -------------------
+# Plotting several runs ---------------------------------------
+
+# Adult = Juvenile sigma
+# Randomize
+adu.sigma <- sample(sigma, size = 1)
+# Or choose
+adu.sigma <- 0.05
+
+juv.sigma <- adu.sigma
+
+
+last.year.list.binorm <- data.frame()
+
+for(i in 1:10){
+  this.run <- binorm$Total.endpoint.CLC.binorm[[i]]
+  this.run$run <- rep(i, time = nrow(this.run))
+  this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
+  this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
+  last.year.list.binorm <- rbind(last.year.list.binorm, this.run)
+}
+
+plot.list.binorm <- list()
+
+for (i in 1:9){
+  
+  data <- last.year.list.binorm[last.year.list.binorm$run == i, ]
+  
+  color.palette <- mako(length(data$Adult_Trait))
+  
+  plot.list.binorm[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+  
+}
+
+
+plots <- wrap_plots(plot.list.binorm)
+
+plots + plot_annotation(
+  title = 'Bimodal Normal Distribution',
+  theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)
+
+
+
+# Choose Run -------------------------
+run <- sample(x = 1:10, size = 1)
+
+
+last.year.list.binorm <- binorm$Total.endpoint.CLC.binorm[[run]]
+
+#Choose which sigmas
+
+# Same adult sigma 
+adu.sigma <- sigma[1]                                    # Choose random: sample(sigma, size = 1)
+last.year.list.binorm.adu <- last.year.list.binorm[last.year.list.binorm$Adult.gen == adu.sigma, ]
+
+# Same juvenile sigma
+juv.sigma <-  sigma[1]                                    #Choose random: sample(sigma, size = 1)
+last.year.list.binorm.juv <- last.year.list.binorm[last.year.list.binorm$Juv.gen == juv.sigma, ]
+
+#Plotting different runs
+
+
+# Plotting different sigmas
+
+
+plot.list.binorm.adu <- list()
+plot.list.binorm.juv <- list()
+
+A.ids <- unique(last.year.list.binorm.adu$ID)
+J.ids <- unique(last.year.list.binorm.juv$ID)
+
+
+for (i in 1:length(sigma)){
+  
+  adu.data <- last.year.list.binorm.adu[last.year.list.binorm.adu$ID == A.ids[i], ]
+  juv.data <- last.year.list.binorm.juv[last.year.list.binorm.juv$ID == J.ids[i], ]
+  
+  
+  color.palette <- mako(length(adu.data$Juvenile_Trait))
+  
+  plot.list.binorm.adu[[i]] <- ggplot(adu.data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+  color.palette <- mako(length(juv.data$Adult_Trait))
+  
+  plot.list.binorm.juv[[i]] <- ggplot(juv.data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = sigma[i])), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
+    theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  
+}
+
+
+
+combo.plot.list <- list()
+midtitle <- textGrob(substitute("Juvenile Generalism" == value, list(value = juv.sigma)), gp = gpar(fontsize = 15, fontfamily = "LM Roman 10"),
+                     hjust = 0.5)
+
+for(i in 1:(length(plot.list.binorm.adu)*2 + 1)){
+  if(i == (length(plot.list.binorm.adu) + 1)){
+    combo.plot.list[[i]] <- midtitle
+  }
+  else if(i < (length(plot.list.binorm.adu) + 1)){
+    combo.plot.list[[i]] <- plot.list.binorm.adu[[i]]
+  }
+  else{
+    combo.plot.list[[i]] <- plot.list.binorm.juv[[i-(length(plot.list.binorm.juv) + 1)]]
+  }
+}
+
+
+
+layout <- "
+ABC
+DEF
+#G#
+HIJ
+KLM
+"
+
+plots <- wrap_plots(combo.plot.list, design = layout)
+
+
+plots + plot_annotation(
+  title = 'Bimodal Normal Distribution',
+  subtitle = substitute("Adult generalism" == value, list(value = adu.sigma)),
+  theme = theme(plot.title = element_text(hjust = 0.5, size = 10, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+)+ plot_layout(heights = c(1, 1,  0.4, 1, 1))
+
 
 
 #-------------------------------------------------

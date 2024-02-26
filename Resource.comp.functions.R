@@ -6,7 +6,7 @@
 
 resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), im = 0, 
                                    fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=5, 
-                                   threshold = 0.005, nmorphs = 1){
+                                   threshold = 0.005, nmorphs = 1, maxTr = 3, minTr = -3){
   
   pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -22,7 +22,6 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Trait")                                        
   
   epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
-  posstrait <- seq(from = min(resProp)-1, to = max(resProp)+1, by = mutVar)
   
   for (t in 1:time.steps){
     
@@ -124,8 +123,8 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     # Adding immigrants ---------------------------------------------------------------------
     
     if (runif(1) < im){
-      print("immigration!")
-      trait <- sample(x = posstrait, size = 1)
+      
+      trait <- runif(1, min = minTr, max = maxTr)
       
       if(sum(pop[,2] == trait) == 0) {                   # Checks whether a exact match of immigrant already exists
         rbind(pop, c(1, trait, NA))
@@ -183,7 +182,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
 
 resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 2, 
                                    kA = 0.5, kJ = 0.5,mutProb=0.0001, mutVar=0.05, time.steps=200, iniPA=5, iniPJ=5, 
-                                   threshold = 0.005, nmorphs = 1, im = 0){
+                                   threshold = 0.005, nmorphs = 1, im = 0, maxTr = 3, minTr = -3){
   
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
@@ -200,8 +199,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Adult trait", "Juvenile trait")                                        
   
   epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
-  possAtrait <- seq(from = min(resProp[1,])-1, to = max(resProp[1,])+1, by = mutVar)  # Used when generating immigrants
-  possJtrait <- seq(from = min(resProp[2,])-1, to = max(resProp[2,])+1, by = mutVar)
+
   
   
   for (t in 1:time.steps){
@@ -313,8 +311,8 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     if (runif(1) < im){
       print("immigration!")
-      Atrait <- sample(x = possAtrait, size = 1)
-      Jtrait <- sample(x = possJtrait, size = 1)
+      Atrait <- trait <- runif(1, min = minTr, max = maxTr)
+      Jtrait <- trait <- runif(1, min = minTr, max = maxTr)
       
       if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks whether a exact match of immigrant already exists
         rbind(pop, c(1, Atrait, Jtrait, NA))
