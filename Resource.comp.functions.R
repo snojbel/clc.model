@@ -310,7 +310,6 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     # Adding immigrants ---------------------------------------------------------------------
     
     if (runif(1) < im){
-      print("immigration!")
       Atrait <- trait <- runif(1, min = minTr, max = maxTr)
       Jtrait <- trait <- runif(1, min = minTr, max = maxTr)
       
