@@ -251,7 +251,7 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 popSize <- 10
 sigma <- seq(from = 0.05, to = 1.3, length.out = 6)
-im <-  0.0005 
+im <-  0 
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
@@ -941,12 +941,60 @@ skew.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycl
 
 skew.plot
 
+# Binormal
+
+Total.mean.CLC.binorm <- binorm$Total.mean.CLC.binorm
+Total.mean.SLC.binorm <- binorm$Total.mean.SLC.binorm
+
+Total.sd.CLC.binorm <-  binorm$Total.sd.CLC.binorm
+Total.sd.SLC.binorm <-  binorm$Total.sd.SLC.binorm
+
+x <- as.factor(sigma)
+
+
+
+df.CLC <- data.frame(
+  Juvenile.trait = rep(x, each = length(x)),
+  Adult.trait = rep(x, times = length(x)),
+  Richness = as.vector(Total.mean.CLC.binorm),
+  sd = as.vector(Total.sd.CLC.binorm),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df.SLC <- data.frame(
+  Juvenile.trait = x,
+  Adult.trait = x,
+  Richness = as.vector(Total.mean.SLC.binorm),
+  sd = as.vector(Total.sd.SLC.binorm),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df.combined <- rbind(df.CLC, df.SLC)
+
+
+binorm.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 5) +
+  #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
+  scale_y_continuous(limits = c(0, 30)) +
+  xlab("Adult Generalism") +
+  ylab("Number of species") +
+  labs(color = "Juvenile Generalism", shape = "Life strategy") +
+  ggtitle("Bivariate Normal Resource distribution") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))#+
+#scale_color_manual(values = c("slateblue", "thistle"))
+
+binorm.plot
+
 # Together:
 
 plot <- list()
 plot[[1]] <- even.plot
 plot[[2]] <- norm.plot
 plot[[3]] <- skew.plot
+plot[[4]] <- binorm.plot
 wrap_plots(plot)
 
 #--------------------------------
@@ -1535,7 +1583,12 @@ plots + plot_annotation(
 
 #-------------------------------------------------
 
+# Saving data -----------------------------------
 
+save(norm, file = "norm.im0.0005.mutvar0.005")
+save(even, file = "even.im0.0005.mutvar0.005")
+save(skew, file = "skew.im0.0005.mutvar0.005")
+save(binorm, file = "binorm.im0.0005.mutvar0.005")
 
 
 
