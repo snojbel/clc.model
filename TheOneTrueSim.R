@@ -832,17 +832,18 @@ df.SLC <- data.frame(
 df.combined <- rbind(df.CLC, df.SLC)
 
 
-even.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
-  geom_point(size = 5) +
+even.plot <- ggplot(df.combined[df.combined$Cycle == "Complex", ], aes(x = Adult.trait, y = Richness, shape = Juvenile.trait, color = Juvenile.trait, stroke = 1.05)) +
+  geom_point(size = 7) +
   #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
   ylab("Number of species") +
-  labs(color = "Juvenile Generalism", shape = "Life strategy") +
+  labs(color = "Juvenile Generalism", shape = "Juvenile Generalism") +
   ggtitle("Even Resource distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
-  theme(plot.title = element_text(size = 18))#+
-  #scale_color_manual(values = c("slateblue", "thistle"))
+  theme(plot.title = element_text(size = 18))+
+  geom_point(df.combined[df.combined$Cycle == "Simple", ], aes(x = Adult.trait, y = Richness, shape = Juvenile.trait, color = Juvenile.trait, stroke = 1.05))
+
 
 even.plot
 
@@ -1008,7 +1009,7 @@ wrap_plots(plot)
 # Randomize
 adu.sigma <- sample(sigma, size = 1)
 # Or choose
-adu.sigma <- 0.05
+adu.sigma <- 0.3
 
 juv.sigma <- adu.sigma
 
@@ -1496,11 +1497,11 @@ last.year.list.binorm <- binorm$Total.endpoint.CLC.binorm[[run]]
 #Choose which sigmas
 
 # Same adult sigma 
-adu.sigma <- sigma[1]                                    # Choose random: sample(sigma, size = 1)
+adu.sigma <- sigma[2]                                    # Choose random: sample(sigma, size = 1)
 last.year.list.binorm.adu <- last.year.list.binorm[last.year.list.binorm$Adult.gen == adu.sigma, ]
 
 # Same juvenile sigma
-juv.sigma <-  sigma[1]                                    #Choose random: sample(sigma, size = 1)
+juv.sigma <-  sigma[2]                                    #Choose random: sample(sigma, size = 1)
 last.year.list.binorm.juv <- last.year.list.binorm[last.year.list.binorm$Juv.gen == juv.sigma, ]
 
 #Plotting different runs
