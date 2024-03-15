@@ -250,13 +250,13 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 
 popSize <- 10
-sigma <- seq(from = 0.05, to = 1.3, length.out = 6)
-im <-  0 
+sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
+im <-  0.5 
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.0005
-mutVar <- 0.005
+mutVar <- 0.05
 time.steps <- 50000
 iniP <- 0
 iniPJ <- 0
@@ -274,7 +274,7 @@ minTr = -3
 
 # Even
 
-job::job(even = {
+job::job(even.im = {
   
   Total.species.SLC.single.even <- c()
   
@@ -405,7 +405,7 @@ job::job(even = {
 
 # Normal 
 
-job::job(norm = {
+job::job(norm.im = {
   
   Total.species.SLC.single.norm <- c()
   
@@ -538,7 +538,7 @@ job::job(norm = {
 # Skewed
 
 
-job::job(skew = {
+job::job(skew.im = {
   
   Total.species.SLC.single.skew <- c()
   
@@ -667,7 +667,7 @@ job::job(skew = {
 
 # Bimodal Normal
 
-job::job(binorm = {
+job::job(binorm.im = {
   
   Total.species.SLC.single.binorm <- c()
   
@@ -831,18 +831,24 @@ df.SLC <- data.frame(
 
 df.combined <- rbind(df.CLC, df.SLC)
 
+color_palette <- plasma(length(sigma))
 
-even.plot <- ggplot(df.combined[df.combined$Cycle == "Complex", ], aes(x = Adult.trait, y = Richness, shape = Juvenile.trait, color = Juvenile.trait, stroke = 1.05)) +
-  geom_point(size = 7) +
+even.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.7)) +
+  geom_point(data = ~filter(.x, Cycle == "Simple"),size = 7, position = position_dodge(0.2), color = "black") +
+  geom_point(data = ~filter(.x, Cycle == "Complex"),size = 7, position = position_dodge(0.2)) +
   #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
   ylab("Number of species") +
-  labs(color = "Juvenile Generalism", shape = "Juvenile Generalism") +
+  labs(color = "Juvenile \nGeneralism", shape = "Life cycle") +
   ggtitle("Even Resource distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
-  theme(plot.title = element_text(size = 18))+
-  geom_point(df.combined[df.combined$Cycle == "Simple", ], aes(x = Adult.trait, y = Richness, shape = Juvenile.trait, color = Juvenile.trait, stroke = 1.05))
+  theme(plot.title = element_text(size = 18)) +
+  scale_shape_manual(values = c(1,4)) +
+  scale_color_manual(values = c(color_palette, "black"))
+  
+  #+
+  #geom_point(df.combined[df.combined$Cycle == "Simple", ], aes(x = Adult.trait, y = Richness, shape = Juvenile.trait, color = Juvenile.trait, stroke = 1.05))
 
 
 even.plot
@@ -880,17 +886,19 @@ df.SLC <- data.frame(
 df.combined <- rbind(df.CLC, df.SLC)
 
 
-norm.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
-  geom_point(size = 5) +
+norm.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.7)) +
+  geom_point(data = ~filter(.x, Cycle == "Simple"),size = 7, position = position_dodge(0.2), color = "black") +
+  geom_point(data = ~filter(.x, Cycle == "Complex"),size = 7, position = position_dodge(0.2)) +
   #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
   ylab("Number of species") +
-  labs(color = "Juvenile Generalism", shape = "Life strategy") +
+  labs(color = "Juvenile \nGeneralism", shape = "Life cycle") +
   ggtitle("Normal Resource distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
-  theme(plot.title = element_text(size = 18))#+
-#scale_color_manual(values = c("slateblue", "thistle"))
+  theme(plot.title = element_text(size = 18)) +
+  scale_shape_manual(values = c(1,4)) +
+  scale_color_manual(values = c(color_palette, "black"))
 
 norm.plot 
 
@@ -928,17 +936,19 @@ df.SLC <- data.frame(
 df.combined <- rbind(df.CLC, df.SLC)
 
 
-skew.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
-  geom_point(size = 5) +
+skew.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.7)) +
+  geom_point(data = ~filter(.x, Cycle == "Simple"),size = 7, position = position_dodge(0.2), color = "black") +
+  geom_point(data = ~filter(.x, Cycle == "Complex"),size = 7, position = position_dodge(0.2)) +
   #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
   ylab("Number of species") +
-  labs(color = "Juvenile Generalism", shape = "Life strategy") +
+  labs(color = "Juvenile \nGeneralism", shape = "Life cycle") +
   ggtitle("Skewed Resource distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
-  theme(plot.title = element_text(size = 18))#+
-#scale_color_manual(values = c("slateblue", "thistle"))
+  theme(plot.title = element_text(size = 18)) +
+  scale_shape_manual(values = c(1,4)) +
+  scale_color_manual(values = c(color_palette, "black"))
 
 skew.plot
 
@@ -975,17 +985,19 @@ df.SLC <- data.frame(
 df.combined <- rbind(df.CLC, df.SLC)
 
 
-binorm.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.05)) +
-  geom_point(size = 5) +
+binorm.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.7)) +
+  geom_point(data = ~filter(.x, Cycle == "Simple"),size = 7, position = position_dodge(0.2), color = "black") +
+  geom_point(data = ~filter(.x, Cycle == "Complex"),size = 7, position = position_dodge(0.2)) +
   #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
   ylab("Number of species") +
-  labs(color = "Juvenile Generalism", shape = "Life strategy") +
-  ggtitle("Bivariate Normal Resource distribution") +
+  labs(color = "Juvenile \nGeneralism", shape = "Life cycle") +
+  ggtitle("binormed Resource distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
-  theme(plot.title = element_text(size = 18))#+
-#scale_color_manual(values = c("slateblue", "thistle"))
+  theme(plot.title = element_text(size = 18)) +
+  scale_shape_manual(values = c(1,4)) +
+  scale_color_manual(values = c(color_palette, "black"))
 
 binorm.plot
 
@@ -1586,10 +1598,10 @@ plots + plot_annotation(
 
 # Saving data -----------------------------------
 
-save(norm, file = "norm.im0.0005.mutvar0.005")
-save(even, file = "even.im0.0005.mutvar0.005")
-save(skew, file = "skew.im0.0005.mutvar0.005")
-save(binorm, file = "binorm.im0.0005.mutvar0.005")
+save(norm, file = "norm.RESULT")
+save(even, file = "even.RESULT")
+save(skew, file = "skew.RESULT")
+save(binorm, file = "binorm.RESULT")
 
 
 
