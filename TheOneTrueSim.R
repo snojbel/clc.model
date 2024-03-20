@@ -993,7 +993,7 @@ binorm.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cy
   xlab("Adult Generalism") +
   ylab("Number of species") +
   labs(color = "Juvenile \nGeneralism", shape = "Life cycle") +
-  ggtitle("binormed Resource distribution") +
+  ggtitle("Bimodal Normal Resource distribution") +
   theme_minimal(base_family = "LM Roman 10", base_size = 15) +
   theme(plot.title = element_text(size = 18)) +
   scale_shape_manual(values = c(1,4)) +
@@ -1010,6 +1010,11 @@ plot[[3]] <- skew.plot
 plot[[4]] <- binorm.plot
 wrap_plots(plot)
 
+all.plots <- (even.plot + norm.plot) / (skew.plot + binorm.plot)
+all.plots + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A",
+  tag_prefix = "(",
+  tag_suffix = ")")
+
 #--------------------------------
 
 # Plotting Phenotype Endpoint --------------------
@@ -1018,51 +1023,57 @@ wrap_plots(plot)
 # Plotting several runs ---------------------------------------
 
 # Adult = Juvenile sigma
-# Randomize
-adu.sigma <- sample(sigma, size = 1)
-# Or choose
-adu.sigma <- 0.3
 
-juv.sigma <- adu.sigma
+Res <- list()
 
+for(s in 1:length(sigma)){
+  adu.sigma <- sigma[s]
+  
+  
+  juv.sigma <- adu.sigma
+  
+  
+  last.year.list.even <- data.frame()
+  
+  for(i in 1:10){
+    this.run <- even$Total.endpoint.CLC.even[[i]]
+    this.run$run <- rep(i, time = nrow(this.run))
+    this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
+    this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
+    last.year.list.even <- rbind(last.year.list.even, this.run)
+  }
+  
+  plot.list.even <- list()
+  
+  for (i in 1:9){
+    
+    data <- last.year.list.even[last.year.list.even$run == i, ]
+    
+    color.palette <- plasma(length(data$Adult_Trait))
+    
+    plot.list.even[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+      geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+      labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+      scale_x_continuous(limits = c(-3, 3))+
+      scale_y_continuous(limits = c(-3, 3))+
+      theme_minimal(base_family = "LM Roman 10", base_size = 10)
+    
+    
+  }
+  
+  
+  plots <- wrap_plots(plot.list.even)
+  
+  
+  
+  Res[[s]] <- plots + plot_annotation(
+    title = 'Even Distribution',
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+  )
 
-last.year.list.even <- data.frame()
-
-for(i in 1:10){
-  this.run <- even$Total.endpoint.CLC.even[[i]]
-  this.run$run <- rep(i, time = nrow(this.run))
-  this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
-  this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
-  last.year.list.even <- rbind(last.year.list.even, this.run)
 }
 
-plot.list.even <- list()
-
-for (i in 1:9){
-  
-  data <- last.year.list.even[last.year.list.even$run == i, ]
-  
-  color.palette <- mako(length(data$Adult_Trait))
-  
-  plot.list.even[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    scale_y_continuous(limits = c(-3, 3))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-  
-  
-}
-
-
-plots <- wrap_plots(plot.list.even)
-
-plots + plot_annotation(
-  title = 'Even Distribution',
-  theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-)
-
-
+Res[[6]]
 
 # Choose Run -------------------------
 run <- sample(x = 1:10, size = 1)
@@ -1162,50 +1173,53 @@ plots + plot_annotation(
 # Plotting several runs ---------------------------------------
 
 # Adult = Juvenile sigma
-# Randomize
-adu.sigma <- sample(sigma, size = 1)
-# Or choose
-adu.sigma <- 0.05
 
-juv.sigma <- adu.sigma
+Res <- list()
 
-
-last.year.list.norm <- data.frame()
-
-for(i in 1:10){
-  this.run <- norm$Total.endpoint.CLC.norm[[i]]
-  this.run$run <- rep(i, time = nrow(this.run))
-  this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
-  this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
-  last.year.list.norm <- rbind(last.year.list.norm, this.run)
+for(s in 1:length(sigma)){
+  adu.sigma <- sigma[s]
+  
+  juv.sigma <- adu.sigma
+  
+  
+  last.year.list.norm <- data.frame()
+  
+  for(i in 1:10){
+    this.run <- norm$Total.endpoint.CLC.norm[[i]]
+    this.run$run <- rep(i, time = nrow(this.run))
+    this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
+    this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
+    last.year.list.norm <- rbind(last.year.list.norm, this.run)
+  }
+  
+  plot.list.norm <- list()
+  
+  for (i in 1:9){
+    
+    data <- last.year.list.norm[last.year.list.norm$run == i, ]
+    
+    color.palette <- plasma(length(data$Adult_Trait))
+    
+    plot.list.norm[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+      geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+      labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+      scale_x_continuous(limits = c(-3, 3))+
+      scale_y_continuous(limits = c(-3, 3))+
+      theme_minimal(base_family = "LM Roman 10", base_size = 10)
+    
+    
+  }
+  
+  
+  plots <- wrap_plots(plot.list.norm)
+  
+  Res[[s]] <- plots + plot_annotation(
+    title = 'Normal Distribution',
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+  )
 }
 
-plot.list.norm <- list()
-
-for (i in 1:9){
-  
-  data <- last.year.list.norm[last.year.list.norm$run == i, ]
-  
-  color.palette <- mako(length(data$Adult_Trait))
-  
-  plot.list.norm[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    scale_y_continuous(limits = c(-3, 3))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-  
-  
-}
-
-
-plots <- wrap_plots(plot.list.norm)
-
-plots + plot_annotation(
-  title = 'Normal Distribution',
-  theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-)
-
+Res[[6]]
 
 
 # Choose Run -------------------------
@@ -1308,50 +1322,52 @@ plots + plot_annotation(
 # Plotting several runs ---------------------------------------
 
 # Adult = Juvenile sigma
-# Randomize
-adu.sigma <- sample(sigma, size = 1)
-# Or choose
-adu.sigma <- 0.05
+Res <- list()
 
-juv.sigma <- adu.sigma
-
-
-last.year.list.skew <- data.frame()
-
-for(i in 1:10){
-  this.run <- skew$Total.endpoint.CLC.skew[[i]]
-  this.run$run <- rep(i, time = nrow(this.run))
-  this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
-  this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
-  last.year.list.skew <- rbind(last.year.list.skew, this.run)
+for(s in 1:length(sigma)){
+  adu.sigma <- sigma[s]
+  
+  juv.sigma <- adu.sigma
+  
+  
+  last.year.list.skew <- data.frame()
+  
+  for(i in 1:10){
+    this.run <- skew$Total.endpoint.CLC.skew[[i]]
+    this.run$run <- rep(i, time = nrow(this.run))
+    this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
+    this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
+    last.year.list.skew <- rbind(last.year.list.skew, this.run)
+  }
+  
+  plot.list.skew <- list()
+  
+  for (i in 1:9){
+    
+    data <- last.year.list.skew[last.year.list.skew$run == i, ]
+    
+    color.palette <- plasma(length(data$Adult_Trait))
+    
+    plot.list.skew[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+      geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+      labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+      scale_x_continuous(limits = c(-3, 3))+
+      scale_y_continuous(limits = c(-3, 3))+
+      theme_minimal(base_family = "LM Roman 10", base_size = 10)
+    
+    
+  }
+  
+  
+  plots <- wrap_plots(plot.list.skew)
+  
+  Res[[s]] <- plots + plot_annotation(
+    title = 'Skewed Distribution',
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+  )
 }
 
-plot.list.skew <- list()
-
-for (i in 1:9){
-  
-  data <- last.year.list.skew[last.year.list.skew$run == i, ]
-  
-  color.palette <- mako(length(data$Adult_Trait))
-  
-  plot.list.skew[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    scale_y_continuous(limits = c(-3, 3))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-  
-  
-}
-
-
-plots <- wrap_plots(plot.list.skew)
-
-plots + plot_annotation(
-  title = 'Skewed Distribution',
-  theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-)
-
+Res[[6]]
 
 
 # Choose Run -------------------------
@@ -1454,50 +1470,52 @@ plots + plot_annotation(
 # Plotting several runs ---------------------------------------
 
 # Adult = Juvenile sigma
-# Randomize
-adu.sigma <- sample(sigma, size = 1)
-# Or choose
-adu.sigma <- 0.05
+Res <- list()
 
-juv.sigma <- adu.sigma
+for(s in 1:length(sigma)){
+  adu.sigma <- sigma[s]
 
-
-last.year.list.binorm <- data.frame()
-
-for(i in 1:10){
-  this.run <- binorm$Total.endpoint.CLC.binorm[[i]]
-  this.run$run <- rep(i, time = nrow(this.run))
-  this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
-  this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
-  last.year.list.binorm <- rbind(last.year.list.binorm, this.run)
+  juv.sigma <- adu.sigma
+  
+  
+  last.year.list.binorm <- data.frame()
+  
+  for(i in 1:10){
+    this.run <- binorm$Total.endpoint.CLC.binorm[[i]]
+    this.run$run <- rep(i, time = nrow(this.run))
+    this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
+    this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
+    last.year.list.binorm <- rbind(last.year.list.binorm, this.run)
+  }
+  
+  plot.list.binorm <- list()
+  
+  for (i in 1:9){
+    
+    data <- last.year.list.binorm[last.year.list.binorm$run == i, ]
+    
+    color.palette <- plasma(length(data$Adult_Trait))
+    
+    plot.list.binorm[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+      geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+      labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+      scale_x_continuous(limits = c(-3, 3))+
+      scale_y_continuous(limits = c(-3, 3))+
+      theme_minimal(base_family = "LM Roman 10", base_size = 10)
+    
+    
+  }
+  
+  
+  plots <- wrap_plots(plot.list.binorm)
+  
+  Res[[s]] <- plots + plot_annotation(
+    title = 'Bimodal Normal Distribution',
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+  )
 }
 
-plot.list.binorm <- list()
-
-for (i in 1:9){
-  
-  data <- last.year.list.binorm[last.year.list.binorm$run == i, ]
-  
-  color.palette <- mako(length(data$Adult_Trait))
-  
-  plot.list.binorm[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
-    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
-    labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
-    scale_x_continuous(limits = c(-3, 3))+
-    scale_y_continuous(limits = c(-3, 3))+
-    theme_minimal(base_family = "LM Roman 10", base_size = 10)
-  
-  
-}
-
-
-plots <- wrap_plots(plot.list.binorm)
-
-plots + plot_annotation(
-  title = 'Bimodal Normal Distribution',
-  theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-)
-
+Res[[6]]
 
 
 # Choose Run -------------------------
