@@ -255,8 +255,8 @@ im <-  0.5
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
-mutProb <- 0.0005
-mutVar <- 0.05
+mutProb <- 0
+mutVar <- 0
 time.steps <- 50000
 iniP <- 0
 iniPJ <- 0
@@ -266,6 +266,13 @@ threshold <-  0.005
 maxTr = 3
 minTr = -3
 
+# For No mutation:
+nmorphs <- 4
+
+iniP <- c(-2, -1, 1, 2)
+
+iniPA <- c(-0.5, -0.52, 0.49, 0.51)
+iniPJ <- c(-1, 0.9, -0.9, 1.1)
 
 # -------------------------
 
@@ -274,7 +281,7 @@ minTr = -3
 
 # Even
 
-job::job(even.im = {
+job::job(even.stat = {
   
   Total.species.SLC.single.even <- c()
   
@@ -289,7 +296,7 @@ job::job(even.im = {
   Total.species.SLC.even <- list()
   Total.endpoint.SLC.even <- list()
   
-  for(r in 1:10) {
+  for(r in 1:3) {
     
     id <- 1
     
@@ -344,7 +351,7 @@ job::job(even.im = {
   Total.endpoint.CLC.even <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:3){
     print(paste0("loop ", a, " started"))
     
     id <- 1
@@ -405,7 +412,7 @@ job::job(even.im = {
 
 # Normal 
 
-job::job(norm.im = {
+job::job(norm.stat = {
   
   Total.species.SLC.single.norm <- c()
   
@@ -420,7 +427,7 @@ job::job(norm.im = {
   Total.species.SLC.norm <- list()
   Total.endpoint.SLC.norm <- list()
   
-  for(r in 1:10) {
+  for(r in 1:3) {
     
     id <- 1
     
@@ -475,7 +482,7 @@ job::job(norm.im = {
   Total.endpoint.CLC.norm <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:3){
     print(paste0("loop ", a, " started"))
     
     id <- 1
@@ -538,7 +545,7 @@ job::job(norm.im = {
 # Skewed
 
 
-job::job(skew.im = {
+job::job(skew.stat = {
   
   Total.species.SLC.single.skew <- c()
   
@@ -553,7 +560,7 @@ job::job(skew.im = {
   Total.species.SLC.skew <- list()
   Total.endpoint.SLC.skew <- list()
   
-  for(r in 1:10) {
+  for(r in 1:3) {
     
     id <- 1
     
@@ -608,7 +615,7 @@ job::job(skew.im = {
   Total.endpoint.CLC.skew <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:3){
     print(paste0("loop ", a, " started"))
     
     id <- 1
@@ -667,7 +674,7 @@ job::job(skew.im = {
 
 # Bimodal Normal
 
-job::job(binorm.im = {
+job::job(binorm.stat= {
   
   Total.species.SLC.single.binorm <- c()
   
@@ -682,7 +689,7 @@ job::job(binorm.im = {
   Total.species.SLC.binorm <- list()
   Total.endpoint.SLC.binorm <- list()
   
-  for(r in 1:10) {
+  for(r in 1:3) {
     
     id <- 1
     
@@ -737,7 +744,7 @@ job::job(binorm.im = {
   Total.endpoint.CLC.binorm <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:3){
     print(paste0("loop ", a, " started"))
     
     id <- 1
@@ -831,7 +838,7 @@ df.SLC <- data.frame(
 
 df.combined <- rbind(df.CLC, df.SLC)
 
-color_palette <- plasma(length(sigma))
+color_palette <- magma(length(sigma)+1)
 
 even.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.7)) +
   geom_point(data = ~filter(.x, Cycle == "Simple"),size = 7, position = position_dodge(0.2), color = "black") +
@@ -1616,10 +1623,10 @@ plots + plot_annotation(
 
 # Saving data -----------------------------------
 
-save(norm, file = "norm.RESULT")
-save(even, file = "even.RESULT")
-save(skew, file = "skew.RESULT")
-save(binorm, file = "binorm.RESULT")
+save(norm.im, file = "norm.im.RESULT")
+save(even.im, file = "even.im.RESULT")
+save(skew.im, file = "skew.im.RESULT")
+save(binorm.im, file = "binorm.im.RESULT")
 
 
 

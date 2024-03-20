@@ -191,7 +191,7 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 job::job(output.Even.SLC = {
   output.Even.SLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, 
-                                           resGen=matrix(c(0.15,0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+                                           resGen=matrix(c(0.2,0.2)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
   
   # Control what is returned to the main session
   job::export(output.Even.SLC)
