@@ -78,4 +78,27 @@ Species <- ggplot(statdataCLC, aes(x=Year)) +
 
 all.plots <- (Abund / Species)
 
+# Over time plot
+
+
+outputCLC <- output.Even.CLC$output.Even.CLC
+
+phenodataCLC <- data.frame(
+  Year = outputCLC$phenotypes[, 1],
+  Adult_Trait = outputCLC$phenotypes[, 3],
+  Juvenile_Trait = outputCLC$phenotypes[, 4],
+  Num_Individuals = outputCLC$phenotypes[, 2]
+)
+
+
+
+ggplot(phenodataCLC, aes(x = Adult_Trait, y = Juvenile_Trait)) +
+  geom_point(aes(size=Num_Individuals, color = Year)) +                                  # Add points
+  geom_point(data = ~filter(.x, Year == max(phenodataCLC$Year)), color = "#7700b3", shape = 4, size = 3) + 
+  labs(x = "Adult Trait", y = " Juvenile Trait ", size = "Number of individuals", color = " Time") +# Labels for the axes
+  scale_color_viridis(option = "A") +
+  guides(size = "none") +                  
+  theme_minimal(base_family = "LM Roman 10", base_size = 18) 
+  
+
 

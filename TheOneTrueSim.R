@@ -271,8 +271,8 @@ nmorphs <- 4
 
 iniP <- c(-2, -1, 1, 2)
 
-iniPA <- c(-0.5, -0.52, 0.49, 0.51)
-iniPJ <- c(-1, 0.9, -0.9, 1.1)
+iniPA <- c(-1.5, -1.52, 1.49, 1.51)
+iniPJ <- c(-2, 1.9, -1.9, 2.1)
 
 # -------------------------
 
@@ -804,9 +804,24 @@ job::job(binorm.stat= {
 
 # -------------------------------------------------
 
+
+
+
+
 # Plotting Mean number of Species ----------------------------------------------
 
+# Name change for plotting reasons ( be sure to save previous run before writing over)
+
+even <- even.stat
+norm <- norm.stat
+skew <- skew.stat
+binorm <- binorm.stat
+
+
 # Even
+
+
+
 
 Total.mean.CLC.even <- even$Total.mean.CLC.even
 Total.mean.SLC.even <- even$Total.mean.SLC.even
@@ -838,7 +853,7 @@ df.SLC <- data.frame(
 
 df.combined <- rbind(df.CLC, df.SLC)
 
-color_palette <- magma(length(sigma)+1)
+color_palette <- magma(length(sigma))
 
 even.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.7)) +
   geom_point(data = ~filter(.x, Cycle == "Simple"),size = 7, position = position_dodge(0.2), color = "black") +
@@ -1033,6 +1048,8 @@ all.plots + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A",
 
 Res <- list()
 
+pdf("plots.even.combined.pdf", width = 14, height = 8)
+
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
   
@@ -1042,7 +1059,7 @@ for(s in 1:length(sigma)){
   
   last.year.list.even <- data.frame()
   
-  for(i in 1:10){
+  for(i in 1:length(even$Total.endpoint.CLC.even)){
     this.run <- even$Total.endpoint.CLC.even[[i]]
     this.run$run <- rep(i, time = nrow(this.run))
     this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
@@ -1052,7 +1069,7 @@ for(s in 1:length(sigma)){
   
   plot.list.even <- list()
   
-  for (i in 1:9){
+  for (i in 1:3){
     
     data <- last.year.list.even[last.year.list.even$run == i, ]
     
@@ -1077,10 +1094,15 @@ for(s in 1:length(sigma)){
     title = 'Even Distribution',
     theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   )
+  
+  print(Res[[s]])
+  
 
-}
+} 
 
-Res[[6]]
+dev.off()
+
+
 
 # Choose Run -------------------------
 run <- sample(x = 1:10, size = 1)
@@ -1183,6 +1205,8 @@ plots + plot_annotation(
 
 Res <- list()
 
+pdf("plots.norm.combined.pdf", width = 14, height = 8)
+
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
   
@@ -1191,7 +1215,7 @@ for(s in 1:length(sigma)){
   
   last.year.list.norm <- data.frame()
   
-  for(i in 1:10){
+  for(i in 1:length(norm$Total.endpoint.CLC.norm)){
     this.run <- norm$Total.endpoint.CLC.norm[[i]]
     this.run$run <- rep(i, time = nrow(this.run))
     this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
@@ -1201,7 +1225,7 @@ for(s in 1:length(sigma)){
   
   plot.list.norm <- list()
   
-  for (i in 1:9){
+  for (i in 1:3){
     
     data <- last.year.list.norm[last.year.list.norm$run == i, ]
     
@@ -1224,9 +1248,12 @@ for(s in 1:length(sigma)){
     title = 'Normal Distribution',
     theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   )
-}
+  print(Res[[s]])
+  
+  
+} 
 
-Res[[6]]
+dev.off()
 
 
 # Choose Run -------------------------
@@ -1331,6 +1358,8 @@ plots + plot_annotation(
 # Adult = Juvenile sigma
 Res <- list()
 
+pdf("plots.skew.combined.pdf", width = 14, height = 8)
+
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
   
@@ -1339,7 +1368,7 @@ for(s in 1:length(sigma)){
   
   last.year.list.skew <- data.frame()
   
-  for(i in 1:10){
+  for(i in 1:length(skew$Total.endpoint.CLC.skew)){
     this.run <- skew$Total.endpoint.CLC.skew[[i]]
     this.run$run <- rep(i, time = nrow(this.run))
     this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
@@ -1349,7 +1378,7 @@ for(s in 1:length(sigma)){
   
   plot.list.skew <- list()
   
-  for (i in 1:9){
+  for (i in 1:3){
     
     data <- last.year.list.skew[last.year.list.skew$run == i, ]
     
@@ -1372,9 +1401,13 @@ for(s in 1:length(sigma)){
     title = 'Skewed Distribution',
     theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   )
-}
+  print(Res[[s]])
+  
+  
+} 
 
-Res[[6]]
+dev.off()
+
 
 
 # Choose Run -------------------------
@@ -1479,6 +1512,8 @@ plots + plot_annotation(
 # Adult = Juvenile sigma
 Res <- list()
 
+pdf("plots.binorm.combined.pdf", width = 14, height = 8)
+
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
 
@@ -1487,7 +1522,7 @@ for(s in 1:length(sigma)){
   
   last.year.list.binorm <- data.frame()
   
-  for(i in 1:10){
+  for(i in 1:length(binorm$Total.endpoint.CLC.binorm)){
     this.run <- binorm$Total.endpoint.CLC.binorm[[i]]
     this.run$run <- rep(i, time = nrow(this.run))
     this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
@@ -1497,7 +1532,7 @@ for(s in 1:length(sigma)){
   
   plot.list.binorm <- list()
   
-  for (i in 1:9){
+  for (i in 1:3){
     
     data <- last.year.list.binorm[last.year.list.binorm$run == i, ]
     
@@ -1520,9 +1555,13 @@ for(s in 1:length(sigma)){
     title = 'Bimodal Normal Distribution',
     theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   )
-}
+  print(Res[[s]])
+  
+  
+} 
 
-Res[[6]]
+dev.off()
+
 
 
 # Choose Run -------------------------
@@ -1623,10 +1662,10 @@ plots + plot_annotation(
 
 # Saving data -----------------------------------
 
-save(norm.im, file = "norm.im.RESULT")
-save(even.im, file = "even.im.RESULT")
-save(skew.im, file = "skew.im.RESULT")
-save(binorm.im, file = "binorm.im.RESULT")
+save(norm.stat, file = "norm.stat.RESULT")
+save(even.stat, file = "even.stat.RESULT")
+save(skew.stat, file = "skew.stat.RESULT")
+save(binorm.stat, file = "binorm.stat.RESULT")
 
 
 

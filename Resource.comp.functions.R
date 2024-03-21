@@ -4,8 +4,8 @@
 # Simple -------------
 
 
-resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), im = 0, 
-                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=5, 
+resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), im = 0, 
+                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.0005, mutVar=0.05, time.steps=50000, iniP=0, 
                                    threshold = 0.005, nmorphs = 1, maxTr = 3, minTr = -3){
   
   pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
@@ -181,8 +181,8 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
 # Complex -------------------------
 
 
-resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 2, 
-                                   kA = 0.5, kJ = 0.5,mutProb=0.0001, mutVar=0.05, time.steps=200, iniPA=5, iniPJ=5, 
+resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), fmax = 2, 
+                                   kA = 0.5, kJ = 0.5,mutProb=0.0005, mutVar=0.05, time.steps=50000, iniPA=0, iniPJ=0, 
                                    threshold = 0.005, nmorphs = 1, im = 0, maxTr = 3, minTr = -3){
   
   
