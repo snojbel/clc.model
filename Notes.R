@@ -98,7 +98,8 @@ ggplot(phenodataCLC, aes(x = Adult_Trait, y = Juvenile_Trait)) +
   labs(x = "Adult Trait", y = " Juvenile Trait ", size = "Number of individuals", color = " Time") +# Labels for the axes
   scale_color_viridis(option = "A") +
   guides(size = "none") +                  
-  theme_minimal(base_family = "LM Roman 10", base_size = 18) 
+  theme_minimal(base_family = "LM Roman 10", base_size = 18)+
+  coord_fixed()
   
 
 

@@ -251,28 +251,32 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 popSize <- 10
 sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
+sigma <- seq(from = 0.05, to = 0.2, length.out = 6) 
 im <-  0.5 
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
-mutProb <- 0
-mutVar <- 0
+mutProb <- 0.005
+mutVar <- 0.05
 time.steps <- 50000
-iniP <- 0
-iniPJ <- 0
-iniPA <- 0
+iniP <- 2
+iniPJ <- 2
+iniPA <- 2
 nmorphs <-  1
 threshold <-  0.005
 maxTr = 3
 minTr = -3
 
 # For No mutation:
-nmorphs <- 4
+nmorphs <- 200
 
-iniP <- c(-2, -1, 1, 2)
+iniP <- runif(200, min = minTr, max = maxTr)
 
-iniPA <- c(-1.5, -1.52, 1.49, 1.51)
-iniPJ <- c(-2, 1.9, -1.9, 2.1)
+
+iniPA <- runif(200, min = minTr, max = maxTr)
+iniPJ <- runif(200, min = minTr, max = maxTr)
+
+
 
 # -------------------------
 
@@ -297,6 +301,7 @@ job::job(even.stat = {
   Total.endpoint.SLC.even <- list()
   
   for(r in 1:3) {
+    
     
     id <- 1
     
@@ -354,6 +359,7 @@ job::job(even.stat = {
   for(a in 1:3){
     print(paste0("loop ", a, " started"))
     
+    
     id <- 1
     
     species.CLC.even <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
@@ -405,7 +411,7 @@ job::job(even.stat = {
   
   job::export(list(Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, Total.sd.SLC.even, Total.endpoint.SLC.even, Total.endpoint.CLC.even))
 }, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, resource.prop.even.slc, resource.freq.even.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
-              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold))
+              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
 
 
@@ -428,6 +434,7 @@ job::job(norm.stat = {
   Total.endpoint.SLC.norm <- list()
   
   for(r in 1:3) {
+    
     
     id <- 1
     
@@ -485,6 +492,7 @@ job::job(norm.stat = {
   for(a in 1:3){
     print(paste0("loop ", a, " started"))
     
+    
     id <- 1
     
     species.CLC.norm <- matrix(data = NA, nrow = length(sigma), ncol = length(sigma))
@@ -536,7 +544,7 @@ job::job(norm.stat = {
   
   job::export(list(Total.mean.CLC.norm, Total.sd.CLC.norm, Total.mean.SLC.norm, Total.sd.SLC.norm, Total.endpoint.SLC.norm, Total.endpoint.CLC.norm))
 }, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
-              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold))
+              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
 
 
@@ -561,6 +569,7 @@ job::job(skew.stat = {
   Total.endpoint.SLC.skew <- list()
   
   for(r in 1:3) {
+    
     
     id <- 1
     
@@ -616,6 +625,8 @@ job::job(skew.stat = {
   
   
   for(a in 1:3){
+    
+    
     print(paste0("loop ", a, " started"))
     
     id <- 1
@@ -669,7 +680,7 @@ job::job(skew.stat = {
   
   job::export(list(Total.mean.CLC.skew, Total.sd.CLC.skew, Total.mean.SLC.skew, Total.sd.SLC.skew, Total.endpoint.SLC.skew, Total.endpoint.CLC.skew))
 }, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, resource.prop.skew.slc, resource.freq.skew.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
-              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold))
+              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
 
 # Bimodal Normal
@@ -690,6 +701,7 @@ job::job(binorm.stat= {
   Total.endpoint.SLC.binorm <- list()
   
   for(r in 1:3) {
+    
     
     id <- 1
     
@@ -798,7 +810,7 @@ job::job(binorm.stat= {
   
   job::export(list(Total.mean.CLC.binorm, Total.sd.CLC.binorm, Total.mean.SLC.binorm, Total.sd.SLC.binorm, Total.endpoint.SLC.binorm, Total.endpoint.CLC.binorm))
 }, import = c(resPropMatrix.binorm.clc, resFreqMatrix.binorm.clc, resourceCompetitionCLC, resource.prop.binorm.slc, resource.freq.binorm.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
-              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold))
+              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
 
 
@@ -1048,7 +1060,7 @@ all.plots + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A",
 
 Res <- list()
 
-pdf("plots.even.combined.pdf", width = 14, height = 8)
+pdf("plots.even.combined.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1080,6 +1092,7 @@ for(s in 1:length(sigma)){
       labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
       scale_x_continuous(limits = c(-3, 3))+
       scale_y_continuous(limits = c(-3, 3))+
+      theme(aspect.ratio=1) +
       theme_minimal(base_family = "LM Roman 10", base_size = 10)
     
     
@@ -1093,7 +1106,7 @@ for(s in 1:length(sigma)){
   Res[[s]] <- plots + plot_annotation(
     title = 'Even Distribution',
     theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-  )
+  )+ coord_fixed()
   
   print(Res[[s]])
   
@@ -1102,7 +1115,7 @@ for(s in 1:length(sigma)){
 
 dev.off()
 
-
+plot.list.even[[2]]
 
 # Choose Run -------------------------
 run <- sample(x = 1:10, size = 1)
@@ -1205,7 +1218,7 @@ plots + plot_annotation(
 
 Res <- list()
 
-pdf("plots.norm.combined.pdf", width = 14, height = 8)
+pdf("plots.norm.combined.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1247,7 +1260,7 @@ for(s in 1:length(sigma)){
   Res[[s]] <- plots + plot_annotation(
     title = 'Normal Distribution',
     theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-  )
+  )+ coord_fixed()
   print(Res[[s]])
   
   
@@ -1358,7 +1371,7 @@ plots + plot_annotation(
 # Adult = Juvenile sigma
 Res <- list()
 
-pdf("plots.skew.combined.pdf", width = 14, height = 8)
+pdf("plots.skew.combined.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1400,7 +1413,7 @@ for(s in 1:length(sigma)){
   Res[[s]] <- plots + plot_annotation(
     title = 'Skewed Distribution',
     theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-  )
+  )+ coord_fixed()
   print(Res[[s]])
   
   
@@ -1512,7 +1525,7 @@ plots + plot_annotation(
 # Adult = Juvenile sigma
 Res <- list()
 
-pdf("plots.binorm.combined.pdf", width = 14, height = 8)
+pdf("plots.binorm.combined.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1554,7 +1567,7 @@ for(s in 1:length(sigma)){
   Res[[s]] <- plots + plot_annotation(
     title = 'Bimodal Normal Distribution',
     theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-  )
+  )+ coord_fixed()
   print(Res[[s]])
   
   
