@@ -81,7 +81,7 @@ all.plots <- (Abund / Species)
 # Over time plot
 
 
-outputCLC <- output.Even.CLC$output.Even.CLC
+outputCLC <- output.Even.CLC.1$output.Even.CLC
 
 phenodataCLC <- data.frame(
   Year = outputCLC$phenotypes[, 1],
@@ -99,6 +99,7 @@ ggplot(phenodataCLC, aes(x = Adult_Trait, y = Juvenile_Trait)) +
   scale_color_viridis(option = "A") +
   guides(size = "none") +                  
   theme_minimal(base_family = "LM Roman 10", base_size = 18)+
+  scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
   coord_fixed()
   
 
