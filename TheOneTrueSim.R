@@ -250,7 +250,7 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 
 popSize <- 10
-sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
+#sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
 sigma <- seq(from = 0.05, to = 0.2, length.out = 6) 
 im <-  0.5 
 fmax <-  2
@@ -285,7 +285,7 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 # Even
 
-job::job(even.stat = {
+job::job(even = {
   
   Total.species.SLC.single.even <- c()
   
@@ -418,7 +418,7 @@ job::job(even.stat = {
 
 # Normal 
 
-job::job(norm.stat = {
+job::job(norm = {
   
   Total.species.SLC.single.norm <- c()
   
@@ -553,7 +553,7 @@ job::job(norm.stat = {
 # Skewed
 
 
-job::job(skew.stat = {
+job::job(skew = {
   
   Total.species.SLC.single.skew <- c()
   
@@ -685,7 +685,7 @@ job::job(skew.stat = {
 
 # Bimodal Normal
 
-job::job(binorm.stat= {
+job::job(binorm= {
   
   Total.species.SLC.single.binorm <- c()
   
@@ -824,10 +824,10 @@ job::job(binorm.stat= {
 
 # Name change for plotting reasons ( be sure to save previous run before writing over)
 
-even <- even.stat
-norm <- norm.stat
-skew <- skew.stat
-binorm <- binorm.stat
+#even <- even.stat
+#norm <- norm.stat
+#skew <- skew.stat
+#binorm <- binorm.stat
 
 
 # Even
@@ -1092,6 +1092,7 @@ for(s in 1:length(sigma)){
       labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
       scale_x_continuous(limits = c(-3, 3))+
       scale_y_continuous(limits = c(-3, 3))+
+      scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
       theme(aspect.ratio=1) +
       theme_minimal(base_family = "LM Roman 10", base_size = 10)
     
@@ -1115,7 +1116,7 @@ for(s in 1:length(sigma)){
 
 dev.off()
 
-plot.list.even[[2]]
+even$Total.endpoint.CLC.even
 
 # Choose Run -------------------------
 run <- sample(x = 1:10, size = 1)
@@ -1249,6 +1250,7 @@ for(s in 1:length(sigma)){
       labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
       scale_x_continuous(limits = c(-3, 3))+
       scale_y_continuous(limits = c(-3, 3))+
+      scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
       theme_minimal(base_family = "LM Roman 10", base_size = 10)
     
     
@@ -1402,6 +1404,7 @@ for(s in 1:length(sigma)){
       labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
       scale_x_continuous(limits = c(-3, 3))+
       scale_y_continuous(limits = c(-3, 3))+
+      scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
       theme_minimal(base_family = "LM Roman 10", base_size = 10)
     
     
@@ -1556,6 +1559,7 @@ for(s in 1:length(sigma)){
       labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
       scale_x_continuous(limits = c(-3, 3))+
       scale_y_continuous(limits = c(-3, 3))+
+      scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
       theme_minimal(base_family = "LM Roman 10", base_size = 10)
     
     
@@ -1675,10 +1679,10 @@ plots + plot_annotation(
 
 # Saving data -----------------------------------
 
-save(norm.stat, file = "norm.stat.RESULT")
-save(even.stat, file = "even.stat.RESULT")
-save(skew.stat, file = "skew.stat.RESULT")
-save(binorm.stat, file = "binorm.stat.RESULT")
+save(norm, file = "norm.stat.full.RESULT")
+save(even, file = "even.stat.full.RESULT")
+save(skew, file = "skew.stat.full.RESULT")
+save(binorm, file = "binorm.stat.full.RESULT")
 
 
 
