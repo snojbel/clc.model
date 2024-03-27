@@ -300,7 +300,7 @@ job::job(even.im = {
   Total.species.SLC.even <- list()
   Total.endpoint.SLC.even <- list()
   
-  for(r in 1:3) {
+  for(r in 1:10) {
     
     
     id <- 1
@@ -356,7 +356,7 @@ job::job(even.im = {
   Total.endpoint.CLC.even <- list()
   
   
-  for(a in 1:3){
+  for(a in 1:10){
     print(paste0("loop ", a, " started"))
     
     
@@ -433,7 +433,7 @@ job::job(norm.im = {
   Total.species.SLC.norm <- list()
   Total.endpoint.SLC.norm <- list()
   
-  for(r in 1:3) {
+  for(r in 1:10) {
     
     
     id <- 1
@@ -489,7 +489,7 @@ job::job(norm.im = {
   Total.endpoint.CLC.norm <- list()
   
   
-  for(a in 1:3){
+  for(a in 1:10){
     print(paste0("loop ", a, " started"))
     
     
@@ -568,7 +568,7 @@ job::job(skew.im = {
   Total.species.SLC.skew <- list()
   Total.endpoint.SLC.skew <- list()
   
-  for(r in 1:3) {
+  for(r in 1:10) {
     
     
     id <- 1
@@ -624,7 +624,7 @@ job::job(skew.im = {
   Total.endpoint.CLC.skew <- list()
   
   
-  for(a in 1:3){
+  for(a in 1:10){
     
     
     print(paste0("loop ", a, " started"))
@@ -700,7 +700,7 @@ job::job(binorm.im= {
   Total.species.SLC.binorm <- list()
   Total.endpoint.SLC.binorm <- list()
   
-  for(r in 1:3) {
+  for(r in 1:10) {
     
     
     id <- 1
@@ -756,7 +756,7 @@ job::job(binorm.im= {
   Total.endpoint.CLC.binorm <- list()
   
   
-  for(a in 1:3){
+  for(a in 1:10){
     print(paste0("loop ", a, " started"))
     
     id <- 1
