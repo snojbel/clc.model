@@ -199,9 +199,9 @@ job::job(output.Even.SLC = {
 
 # CLC
 
-job::job(output.Even.CLC.1 = {
-  output.Even.CLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, iniPA = iniPA, iniPJ = iniPJ, resFreq=resFreqMatrix.even.clc, 
-                                           resGen=matrix(c(0.2,0.2)), nmorphs = nmorphs, popSize = 10, mutProb=0, mutVar=0, time.steps = 50000)
+job::job(output.Even.CLC.0 = {
+  output.Even.CLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, iniPA =0, iniPJ =0, resFreq=resFreqMatrix.even.clc, 
+                                           resGen=matrix(c(0.05,0.05)), nmorphs = 1, popSize = 10, mutProb=0.005, mutVar=0.05, time.steps = 50000)
   
   # Control what is returned to the main session
   job::export(output.Even.CLC)

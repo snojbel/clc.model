@@ -252,7 +252,7 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 popSize <- 10
 #sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
 sigma <- seq(from = 0.05, to = 0.2, length.out = 6) 
-im <-  0.5 
+im <-  0      #Relates to number of immigrants formula: im*0.05*totpopsize
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
@@ -923,7 +923,7 @@ df.combined <- rbind(df.CLC, df.SLC)
 norm.plot <- ggplot(df.combined, aes(x = Adult.trait, y = Richness, shape = Cycle, color = Juvenile.trait, stroke = 1.7)) +
   geom_point(data = ~filter(.x, Cycle == "Simple"),size = 7, position = position_dodge(0.2), color = "black") +
   geom_point(data = ~filter(.x, Cycle == "Complex"),size = 7, position = position_dodge(0.2)) +
-  #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.05) +   #position=position_dodge(.9)
+  #geom_errorbar(aes(ymin=Richness-sd, ymax=Richness+sd), width=.1) +   #position=position_dodge(.9)
   scale_y_continuous(limits = c(0, 30)) +
   xlab("Adult Generalism") +
   ylab("Number of species") +
@@ -1116,7 +1116,6 @@ for(s in 1:length(sigma)){
 
 dev.off()
 
-even$Total.endpoint.CLC.even
 
 # Choose Run -------------------------
 run <- sample(x = 1:10, size = 1)
@@ -1679,10 +1678,10 @@ plots + plot_annotation(
 
 # Saving data -----------------------------------
 
-save(norm, file = "norm.stat.full.RESULT")
-save(even, file = "even.stat.full.RESULT")
-save(skew, file = "skew.stat.full.RESULT")
-save(binorm, file = "binorm.stat.full.RESULT")
+save(norm, file = "norm.22.sigma.small.RESULT")
+save(even, file = "even.22.sigma.small.RESULT")
+save(skew, file = "skew.22.sigma.small.RESULT")
+save(binorm, file = "binorm.22.sigma.small.RESULT")
 
 
 

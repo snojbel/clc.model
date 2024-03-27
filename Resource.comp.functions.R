@@ -122,9 +122,9 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
-    for(m in 1:20){
-    if (runif(1) < im){
-      
+    num.of.im <- im*0.05*sum(pop[,1])
+    
+    for(m in 1:num.of.im){
       trait <- runif(1, min = minTr, max = maxTr)
       
       if(sum(pop[,2] == trait) == 0) {                   # Checks whether a exact match of immigrant already exists
@@ -134,7 +134,6 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
         pop[same,1] <- pop[same,1]+1
       }
       
-    }
     }
     
     # extract stats and phenotype ---------------------------------------------
@@ -310,8 +309,10 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
+    num.of.im <- im*0.05*sum(pop[,1])
+    
     for(m in 1:20) {
-    if (runif(1) < im){
+    
       Atrait <- trait <- runif(1, min = minTr, max = maxTr)
       Jtrait <- trait <- runif(1, min = minTr, max = maxTr)
       
@@ -322,7 +323,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
         pop[same,1] <- pop[same,1]+1
       }
       
-    }
+    
     }
     
     
