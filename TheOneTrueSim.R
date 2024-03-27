@@ -250,18 +250,18 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 
 popSize <- 10
-#sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
-sigma <- seq(from = 0.05, to = 0.2, length.out = 6) 
-im <-  0      #Relates to number of immigrants formula: im*0.05*totpopsize
+sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
+#sigma <- seq(from = 0.05, to = 0.2, length.out = 6) 
+im <-  1      #Relates to number of immigrants formula: im*0.05*totpopsize
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.005
 mutVar <- 0.05
 time.steps <- 50000
-iniP <- 2
-iniPJ <- 2
-iniPA <- 2
+iniP <- 0
+iniPJ <- 0
+iniPA <- 0
 nmorphs <-  1
 threshold <-  0.005
 maxTr = 3
@@ -285,7 +285,7 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 # Even
 
-job::job(even = {
+job::job(even.im = {
   
   Total.species.SLC.single.even <- c()
   
@@ -418,7 +418,7 @@ job::job(even = {
 
 # Normal 
 
-job::job(norm = {
+job::job(norm.im = {
   
   Total.species.SLC.single.norm <- c()
   
@@ -553,7 +553,7 @@ job::job(norm = {
 # Skewed
 
 
-job::job(skew = {
+job::job(skew.im = {
   
   Total.species.SLC.single.skew <- c()
   
@@ -685,7 +685,7 @@ job::job(skew = {
 
 # Bimodal Normal
 
-job::job(binorm= {
+job::job(binorm.im= {
   
   Total.species.SLC.single.binorm <- c()
   

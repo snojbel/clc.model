@@ -81,7 +81,7 @@ all.plots <- (Abund / Species)
 # Over time plot
 
 
-outputCLC <- output.Even.CLC.1$output.Even.CLC
+outputCLC <- output.Even.CLC.0$output.Even.CLC
 
 phenodataCLC <- data.frame(
   Year = outputCLC$phenotypes[, 1],

@@ -311,7 +311,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     num.of.im <- im*0.05*sum(pop[,1])
     
-    for(m in 1:20) {
+    for(m in 1:num.of.im) {
     
       Atrait <- trait <- runif(1, min = minTr, max = maxTr)
       Jtrait <- trait <- runif(1, min = minTr, max = maxTr)
