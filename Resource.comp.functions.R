@@ -309,22 +309,24 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
-    num.of.im <- im*0.05*sum(pop[,1])
+    #num.of.im <- im*0.05*sum(pop[,1])
     
-    for(m in 1:num.of.im) {
+    #for(m in 1:num.of.im) {
     
-      Atrait <- trait <- runif(1, min = minTr, max = maxTr)
-      Jtrait <- trait <- runif(1, min = minTr, max = maxTr)
+    #Remove hashtags for several immigrants
+    
+      Atrait  <- runif(1, min = minTr, max = maxTr)
+      Jtrait  <- runif(1, min = minTr, max = maxTr)
       
       if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks whether a exact match of immigrant already exists
-        rbind(pop, c(1, Atrait, Jtrait, NA))
+        pop <- rbind(pop, c(1, Atrait, Jtrait, NA))
       } else{
         same <- which(pop[,2] == Atrait & pop[,3] == Jtrait)
         pop[same,1] <- pop[same,1]+1
       }
       
     
-    }
+    #}
     
     
     # extract stats and phenotype ---------------------------------------------
