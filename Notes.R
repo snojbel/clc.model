@@ -84,7 +84,7 @@ all.plots <- (Abund / Species)
 
 # Regular plot
 
-outputCLC <- output.Even.CLC.0$output.Even.CLC
+outputCLC <- output.Even.CLC.IMI$output.Even.CLC
 
 phenodataCLC <- data.frame(
   Year = outputCLC$phenotypes[, 1],
@@ -97,11 +97,11 @@ last.year.data.CLC <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), 
 
 ggplot(last.year.data.CLC, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   geom_point(aes(size=Num_Individuals), color = "violet", show.legend = FALSE) + 
-  labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  labs(title = substitute(sigma == value, list(value = 0.05)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
   scale_x_continuous(limits = c(-3, 3))+
   scale_y_continuous(limits = c(-3, 3))+
   scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
-  theme(aspect.ratio=1) +
+  coord_fixed() +
   theme_minimal(base_family = "LM Roman 10", base_size = 10)
 
 
