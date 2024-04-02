@@ -128,7 +128,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       trait <- runif(1, min = minTr, max = maxTr)
       
       if(sum(pop[,2] == trait) == 0) {                   # Checks whether a exact match of immigrant already exists
-        rbind(pop, c(1, trait, NA))
+        pop <- rbind(pop, c(1, trait, NA))
       } else{
         same <- which(pop[,2] == trait)
         pop[same,1] <- pop[same,1]+1
