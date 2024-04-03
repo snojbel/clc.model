@@ -250,15 +250,15 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 
 popSize <- 10
-sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
-#sigma <- seq(from = 0.05, to = 0.2, length.out = 6) 
-im <-  1      #Relates to number of immigrants formula: im*0.05*totpopsize
+#sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
+sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
+im <-  0      #Relates to number of immigrants formula: im*0.05*totpopsize
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
-mutProb <- 0.005
+mutProb <- 0.00005
 mutVar <- 0.00005
-time.steps <- 50000
+time.steps <- 70000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
@@ -285,7 +285,9 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 # Even
 
-job::job(even.im = {
+job::job(even = {
+  
+  rep <- 3
   
   Total.species.SLC.single.even <- c()
   
@@ -300,7 +302,7 @@ job::job(even.im = {
   Total.species.SLC.even <- list()
   Total.endpoint.SLC.even <- list()
   
-  for(r in 1:10) {
+  for(r in 1:rep) {
     
     
     id <- 1
@@ -356,7 +358,7 @@ job::job(even.im = {
   Total.endpoint.CLC.even <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:rep){
     print(paste0("loop ", a, " started"))
     
     
@@ -418,7 +420,9 @@ job::job(even.im = {
 
 # Normal 
 
-job::job(norm.im = {
+job::job(norm = {
+  
+  rep <- 3
   
   Total.species.SLC.single.norm <- c()
   
@@ -433,7 +437,7 @@ job::job(norm.im = {
   Total.species.SLC.norm <- list()
   Total.endpoint.SLC.norm <- list()
   
-  for(r in 1:10) {
+  for(r in 1:rep) {
     
     
     id <- 1
@@ -489,7 +493,7 @@ job::job(norm.im = {
   Total.endpoint.CLC.norm <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:rep){
     print(paste0("loop ", a, " started"))
     
     
@@ -553,7 +557,9 @@ job::job(norm.im = {
 # Skewed
 
 
-job::job(skew.im = {
+job::job(skew = {
+  
+  rep <- 3
   
   Total.species.SLC.single.skew <- c()
   
@@ -568,7 +574,7 @@ job::job(skew.im = {
   Total.species.SLC.skew <- list()
   Total.endpoint.SLC.skew <- list()
   
-  for(r in 1:10) {
+  for(r in 1:rep) {
     
     
     id <- 1
@@ -624,7 +630,7 @@ job::job(skew.im = {
   Total.endpoint.CLC.skew <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:rep){
     
     
     print(paste0("loop ", a, " started"))
@@ -685,7 +691,9 @@ job::job(skew.im = {
 
 # Bimodal Normal
 
-job::job(binorm.im= {
+job::job(binorm = {
+  
+  rep <- 3
   
   Total.species.SLC.single.binorm <- c()
   
@@ -700,7 +708,7 @@ job::job(binorm.im= {
   Total.species.SLC.binorm <- list()
   Total.endpoint.SLC.binorm <- list()
   
-  for(r in 1:10) {
+  for(r in 1:rep) {
     
     
     id <- 1
@@ -756,7 +764,7 @@ job::job(binorm.im= {
   Total.endpoint.CLC.binorm <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:rep){
     print(paste0("loop ", a, " started"))
     
     id <- 1
