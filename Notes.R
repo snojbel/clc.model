@@ -80,6 +80,19 @@ Species <- ggplot(statdataCLC, aes(x=Year)) +
 
 all.plots <- (Abund / Species)
 
+#Checking number of species SLC
+
+outputSLC <- output.Even.SLC.IMI$output.Even.SLC
+
+phenodataSLC <- data.frame(
+  Year = outputSLC$phenotypes[, 1],
+  Trait = outputSLC$phenotypes[, 3],
+  Num_Individuals = outputSLC$phenotypes[, 2]
+)
+
+last.year.data.SLC <- phenodataSLC[phenodataSLC$Year == max(phenodataSLC$Year), ]
+
+nrow(last.year.data.SLC)
 
 
 # Regular plot
@@ -90,13 +103,9 @@ sigma = 0.2
 plasma(5)
 #"#0D0887FF" "#7E03A8FF" "#CC4678FF" "#F89441FF" "#F0F921FF"
 
-outputCLC <- output.Even.CLC.IMI$output.Even.CLC
+outputCLC <- output.Norm.CLC$output.Norm.CLC
 
-outputSLC <- output.Even.CLC.IMI$output.Even.CLC
 
-outputSLC <- outputSLC$stats
-
-outputSLC
 
 phenodataCLC <- data.frame(
   Year = outputCLC$phenotypes[, 1],
@@ -106,6 +115,7 @@ phenodataCLC <- data.frame(
 )
 
 last.year.data.CLC <- phenodataCLC[phenodataCLC$Year == max(phenodataCLC$Year), ]
+nrow(last.year.data.CLC)
 
 ggplot(last.year.data.CLC, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   geom_point(aes(size=Num_Individuals), color = "#CC4678FF", show.legend = FALSE) + 
