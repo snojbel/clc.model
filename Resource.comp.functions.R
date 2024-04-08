@@ -6,7 +6,7 @@
 
 resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), im = 0, 
                                    fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.0005, mutVar=0.05, time.steps=50000, iniP=0, 
-                                   threshold = 0.005, nmorphs = 1, maxTr = 3, minTr = -3){
+                                   threshold = 0.001, nmorphs = 1, maxTr = 3, minTr = -3){
   
   pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -151,26 +151,33 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       break
     }
     
-    stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]))) 
+    if(t == time.steps){
+      # Removing any morphs of very low abundance for last time step
+      pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
+      
+      stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]))) 
+      
+      pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2])
+      phenotypes <- rbind(phenotypes, pStats) 
+      
+    }else{
+      stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]))) 
+      
+      pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2])
+      phenotypes <- rbind(phenotypes, pStats)
+      
+    }
     
-    pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2])
-    phenotypes <- rbind(phenotypes, pStats)
     
     
   }
+  
+  
   
   #return output  ------------------------------------------------------------
   colnames(stats) <- c("year", "Adult Population size", "Juvenile Population Size", "Number of morphs", "mean trait", "var trait")
   rownames(phenotypes) <- NULL
   
-  # Removing any morphs of very low abundance
-  #pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
-  
-  #LastStats <- cbind(time.steps, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2])) 
-  #LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2])
-  
-  #colnames(LastStats) <- c("year", "population size", "Number of morphs", "mean trait", "var trait")
-  #colnames(LastPheno) <- c("Year", "Number of indivduals", "Trait")  
   
   
   return(list(stats=stats, phenotypes=phenotypes))                                 #returns both the stats and the phenotype
@@ -346,23 +353,29 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     }
     
     
-    stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]), 
-                            mean(pop[,3]), var(pop[,3]))) 
-    
-    pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2], pop[,3])
-    phenotypes <- rbind(phenotypes, pStats)
+    if(t == time.steps){
+      # Removing any morphs of very low abundance for last time step
+      pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
+      
+      stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]), 
+                              mean(pop[,3]), var(pop[,3]))) 
+      
+      pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2], pop[,3])
+      phenotypes <- rbind(phenotypes, pStats)
+      
+    }else{
+      stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]), 
+                              mean(pop[,3]), var(pop[,3]))) 
+      
+      pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2], pop[,3])
+      phenotypes <- rbind(phenotypes, pStats)
+      
+      }
     
     
   }
   
-  # Removing any morphs of very low abundance
-  #pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
-  
-  #LastStats <- cbind(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]),  mean(pop[,3]), var(pop[,3]))
-  #LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2], pop[,3])
-  
-  #colnames(LastStats) <- c("Year", "Population size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
-  #colnames(LastPheno) <- c("Year", "Number of indivduals", "Adult Trait", "Juvenile Trait")  
+
   
   #return output  ------------------------------------------------------------
   colnames(stats) <- c("year", "Adult population size","Juvenile Population Size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")

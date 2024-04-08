@@ -257,8 +257,8 @@ fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.00005
-mutVar <- 0.00005
-time.steps <- 70000
+mutVar <- 0.05
+time.steps <- 50000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
