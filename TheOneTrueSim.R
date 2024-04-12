@@ -280,15 +280,15 @@ rm(resource.property.skew.clc)
 
 
 popSize <- 10
-#sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
-sigma <- 0.05
+sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
+# For current even sigma <- 0.05
 #sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
-im <-  0      #Relates to number of immigrants formula: im*0.05*totpopsize
+im <-  1      #Relates to number of immigrants formula: im*0.05*totpopsize
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
-#mutProb <- 0.00001
-mutProb <- seq(0.0001, 0.01 , length.out = 5)
+mutProb <- 0.00000
+# For current even mutProb <- seq(0.0001, 0.01 , length.out = 5)
 mutVar <- 0.05
 time.steps <- 50000
 iniP <- 0
@@ -317,9 +317,7 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 # Even
 
-job::job(even = {
-  
-  sigma <- mutProb
+job::job(even.im = {
   
   rep <- 3
   
@@ -446,15 +444,15 @@ job::job(even = {
   
   
   job::export(list(Total.mean.CLC.even, Total.sd.CLC.even, Total.mean.SLC.even, Total.sd.SLC.even, Total.endpoint.SLC.even, Total.endpoint.CLC.even))
-}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, resource.prop.even.slc, resource.freq.even.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
-              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, resource.prop.even.slc, resource.freq.even.slc, resourceCompetitionSLC, 
+              clc.groups, slc.groups, sigma, popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
 
 
 
 # Normal 
 
-job::job(norm = {
+job::job(norm.im = {
   
   rep <- 3
   
@@ -581,8 +579,8 @@ job::job(norm = {
   
   
   job::export(list(Total.mean.CLC.norm, Total.sd.CLC.norm, Total.mean.SLC.norm, Total.sd.SLC.norm, Total.endpoint.SLC.norm, Total.endpoint.CLC.norm))
-}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
-              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
+}, import = c(resPropMatrix.norm.clc, resFreqMatrix.norm.clc, resourceCompetitionCLC, resource.prop.norm.slc, resource.freq.norm.slc, resourceCompetitionSLC, 
+              clc.groups, slc.groups, sigma, popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
 
 
@@ -591,7 +589,7 @@ job::job(norm = {
 # Skewed
 
 
-job::job(skew = {
+job::job(skew.im = {
   
   rep <- 3
   
@@ -719,13 +717,13 @@ job::job(skew = {
   
   
   job::export(list(Total.mean.CLC.skew, Total.sd.CLC.skew, Total.mean.SLC.skew, Total.sd.SLC.skew, Total.endpoint.SLC.skew, Total.endpoint.CLC.skew))
-}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, resource.prop.skew.slc, resource.freq.skew.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
-              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
+}, import = c(resPropMatrix.skew.clc, resFreqMatrix.skew.clc, resourceCompetitionCLC, resource.prop.skew.slc, resource.freq.skew.slc, resourceCompetitionSLC, 
+              clc.groups, slc.groups, sigma, popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
 
 # Bimodal Normal
 
-job::job(binorm = {
+job::job(binorm.im = {
   
   rep <- 3
   
@@ -851,8 +849,8 @@ job::job(binorm = {
   
   
   job::export(list(Total.mean.CLC.binorm, Total.sd.CLC.binorm, Total.mean.SLC.binorm, Total.sd.SLC.binorm, Total.endpoint.SLC.binorm, Total.endpoint.CLC.binorm))
-}, import = c(resPropMatrix.binorm.clc, resFreqMatrix.binorm.clc, resourceCompetitionCLC, resource.prop.binorm.slc, resource.freq.binorm.slc, resourceCompetitionSLC, clc.groups, slc.groups, sigma,
-              popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
+}, import = c(resPropMatrix.binorm.clc, resFreqMatrix.binorm.clc, resourceCompetitionCLC, resource.prop.binorm.slc, resource.freq.binorm.slc, 
+              resourceCompetitionSLC, clc.groups, slc.groups, sigma, popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
 
 
