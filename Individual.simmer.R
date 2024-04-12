@@ -191,7 +191,7 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 job::job(output.Even.SLC = {
   output.Even.SLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, 
-                                           resGen=matrix(c(0.2,0.2)), popSize = 10, mutProb=0, mutVar=0, time.steps = 50000, 
+                                           resGen=matrix(c(0.05,0.05)), popSize = 10, mutProb=0, mutVar=0, time.steps = 50000, 
                                            im = 1)
   
   # Control what is returned to the main session
@@ -200,9 +200,9 @@ job::job(output.Even.SLC = {
 
 # CLC
 
-job::job(output.Even.CLC = {
-  output.Even.CLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, iniPA =2, iniPJ =2, resFreq=resFreqMatrix.even.clc, 
-                                           resGen=matrix(c(0.2,0.2)), nmorphs = 1, popSize = 10, mutProb=0.005, mutVar=0.05, time.steps = 50000,
+job::job(output.Even.CLC.mutprob0.005.200 = {
+  output.Even.CLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, iniPA = 0 , iniPJ = 0, resFreq=resFreqMatrix.even.clc, 
+                                           resGen=matrix(c(0.05,0.05)), nmorphs = 1, popSize = 10, mutProb=0.005, mutVar=0.05, time.steps = 200000,
                                            im = 0)
   
   # Control what is returned to the main session

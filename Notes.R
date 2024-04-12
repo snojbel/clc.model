@@ -98,12 +98,12 @@ nrow(last.year.data.SLC)
 # Regular plot
 
 #Set sigma 
-sigma = 0.2
+sigma = 0.05
 
-plasma(5)
+#plasma(5)
 #"#0D0887FF" "#7E03A8FF" "#CC4678FF" "#F89441FF" "#F0F921FF"
 
-outputCLC <- output.Norm.CLC.big$output.Norm.CLC
+outputCLC <- output.Even.CLC.mutprob0.005.200$output.Even.CLC
 
 
 

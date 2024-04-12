@@ -242,7 +242,37 @@ resPropMatrix.2res <- matrix(resource.prop, nrow=2, ncol=length(resource.prop), 
 
 rownames(resPropMatrix.2res)<-c("Adult", "Juvenile")
 colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
+# Console clean up -------------
 
+rm(high.midpoint)
+rm(i)
+rm(low.midpoint)
+rm(m)
+rm(m1)
+rm(m2)
+rm(mid.add)
+rm(midpoint)
+rm(N.resource.frequency)
+rm(N.resource.property)
+rm(res.Abund)
+rm(resource.abundance.adults)
+rm(resource.abundance.adults.binorm.clc)
+rm(resource.abundance.adults.even.clc)
+rm(resource.abundance.adults.norm.clc)
+rm(resource.abundance.juveniles)
+rm(resource.abundance.juveniles.binorm.clc)
+rm(resource.abundance.juveniles.even.clc)
+rm(resource.abundance.juveniles.norm.clc)
+rm(resource.frequency.even.clc)
+rm(resource.frequency.skew.clc)
+rm(s)
+rm(tot)
+rm(x)
+rm(Bi.resource.frequency)
+rm(Bi.resource.property)
+rm(resource.property.even.clc)
+rm(resource.property.skew.clc)
+# ------------------------
 
 # ------------------------
 
@@ -251,12 +281,14 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 popSize <- 10
 #sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
-sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
+sigma <- 0.05
+#sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
 im <-  0      #Relates to number of immigrants formula: im*0.05*totpopsize
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
-mutProb <- 0.00005
+#mutProb <- 0.00001
+mutProb <- seq(0.0001, 0.01 , length.out = 5)
 mutVar <- 0.05
 time.steps <- 50000
 iniP <- 0
@@ -286,6 +318,8 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 # Even
 
 job::job(even = {
+  
+  sigma <- mutProb
   
   rep <- 3
   

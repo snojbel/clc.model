@@ -166,7 +166,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   #Removing last time step
   
   stats <- stats[stats[, 1] != time.steps, , drop = FALSE] 
-  phenotypes <- phenotypes[phenotypes[,1 != time.steps, , drop = FALSE]]
+  phenotypes <- phenotypes[phenotypes[,1] != time.steps, , drop = FALSE]
   
   # Removing any morphs of very low abundance for last time step
   pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
@@ -372,7 +372,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   #Removing last time step
   
   stats <- stats[stats[, 1] != time.steps, , drop = FALSE] 
-  phenotypes <- phenotypes[phenotypes[,1 != time.steps, , drop = FALSE]]
+  phenotypes <- phenotypes[phenotypes[, 1] != time.steps, , drop = FALSE]
   
   
   # Removing any morphs of very low abundance for last time step
