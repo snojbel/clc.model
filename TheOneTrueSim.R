@@ -288,7 +288,7 @@ fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.00000
-# For current even mutProb <- seq(0.0001, 0.01 , length.out = 5)
+#mutProb <- seq(0.00001, 0.01 , length.out = 5)
 mutVar <- 0.05
 time.steps <- 50000
 iniP <- 0
@@ -317,7 +317,7 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 # Even
 
-job::job(even.im = {
+job::job(even.imi= {
   
   rep <- 3
   
@@ -864,10 +864,10 @@ job::job(binorm.im = {
 
 # Name change for plotting reasons ( be sure to save previous run before writing over)
 
-#even <- even.stat
-#norm <- norm.stat
-#skew <- skew.stat
-#binorm <- binorm.stat
+even <- even.im
+norm <- norm.im
+skew <- skew.im
+binorm <- binorm.im
 
 
 # Even

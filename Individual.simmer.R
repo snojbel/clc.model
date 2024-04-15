@@ -200,9 +200,9 @@ job::job(output.Even.SLC = {
 
 # CLC
 
-job::job(output.Even.CLC.mutprob0.005.200 = {
+job::job(output.Even.CLC.mutprob0.00001.50 = {
   output.Even.CLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, iniPA = 0 , iniPJ = 0, resFreq=resFreqMatrix.even.clc, 
-                                           resGen=matrix(c(0.05,0.05)), nmorphs = 1, popSize = 10, mutProb=0.005, mutVar=0.05, time.steps = 200000,
+                                           resGen=matrix(c(0.05,0.05)), nmorphs = 1, popSize = 10, mutProb=0.00001, mutVar=0.05, time.steps = 50000,
                                            im = 0)
   
   # Control what is returned to the main session

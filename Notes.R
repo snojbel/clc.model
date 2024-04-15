@@ -1,7 +1,7 @@
 
 
 
-outputCLC <- output.Even.CLC.0$output.Even.CLC
+outputCLC <- output.Even.CLC.mutprob0.00001.50$output.Even.CLC
 
 
 phenodataCLC <- data.frame(
@@ -119,7 +119,7 @@ nrow(last.year.data.CLC)
 
 ggplot(last.year.data.CLC, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   geom_point(aes(size=Num_Individuals), color = "#CC4678FF", show.legend = FALSE) + 
-  labs(title = substitute(sigma == value, list(value = 0.2)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  labs(title = substitute(sigma == value, list(value = sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
   scale_x_continuous(limits = c(-3, 3))+
   scale_y_continuous(limits = c(-3, 3))+
   scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +

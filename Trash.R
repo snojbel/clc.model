@@ -62,6 +62,8 @@ job::job(even = {
 
 even$Total.endpoint.CLC.even[[1]]
 
+
+
 Res <- list()
 
 pdf("plots.even.combined.pdf")
@@ -72,9 +74,8 @@ for(s in 1:length(mutProb)){
   last.year.list.even <- data.frame()
   
   for(i in 1:length(even$Total.endpoint.CLC.even)){
-    this.run <- even$Total.endpoint.CLC.even[[i]]
-    this.run$run <- rep(i, times= nrow(this.run))
-    this.run$mutProb <- this.run[this.run$ID == s, ]
+    this.run <- even$Total.endpoint.CLC.even[[i]][[s]]
+    this.run$run <- i
     last.year.list.even <- rbind(last.year.list.even, this.run)
   }
   
@@ -88,7 +89,7 @@ for(s in 1:length(mutProb)){
     
     plot.list.even[[i]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
       geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
-      labs(title = substitute(sigma == value, list(value = mutProb)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+      labs(title = substitute(sigma == value, list(value = adu.mutProb)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
       scale_x_continuous(limits = c(-3, 3))+
       scale_y_continuous(limits = c(-3, 3))+
       scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
@@ -112,5 +113,37 @@ for(s in 1:length(mutProb)){
   
   
 } 
+
+dev.off()
+
+
+
+
+Res <- list()
+
+pdf("plots.even.combined.mutprob.pdf")
+
+for(i in 1:length(even$Total.endpoint.CLC.even)){
+  
+  
+  placeholder <- even$Total.endpoint.CLC.even[[i]][[1]]
+  placeholder$run <- i
+  
+  
+  
+  
+  
+  Res[[s]] <- plots + plot_annotation(
+    title = 'Even Distribution',
+    theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
+  )+ coord_fixed()
+  
+  print(Res[[s]])
+  
+  
+  
+}
+
+
 
 dev.off()
