@@ -272,6 +272,10 @@ rm(Bi.resource.frequency)
 rm(Bi.resource.property)
 rm(resource.property.even.clc)
 rm(resource.property.skew.clc)
+rm(resource.prop)
+rm(resource.frequency)
+rm(resource.frequency.as)
+
 # ------------------------
 
 # ------------------------
@@ -287,7 +291,7 @@ im <-  1      #Relates to number of immigrants formula: im*0.05*totpopsize
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
-mutProb <- 0.00000
+mutProb <- 0.00001
 #mutProb <- seq(0.00001, 0.01 , length.out = 5)
 mutVar <- 0.05
 time.steps <- 50000
@@ -863,7 +867,127 @@ job::job(binorm.im = {
 # -------------------------------------------------
 
 
+# Two resources ------------------------------------
 
+# Symmetric
+
+job::job(two.res.sym = {
+  
+  rep <- 3
+  
+  Total.species.CLC.single.even <- c()
+  
+  
+  # SLC
+  
+  Total.species.CLC.even <- list()
+  Total.endpoint.CLC.even <- list()
+  
+  for(r in 1:rep) {
+    
+    
+    id <- 1
+    
+    print(paste0("loop ", r, " started"))
+    
+    Number.species.CLC.even <- c()
+    endpoint.CLC.even <- list()
+    
+    for(i in 1:length(sigma)){
+      
+      
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.2res, resFreq=resFreqMatrix.2res, iniPA = iniPA, iniPJ = iniPJ, resGen=matrix(c(sigma[i],sigma[i])), 
+                                          popSize = popSize, mutProb=mutProb, mutVar=mutVar, time.steps = time.steps, im = im, fmax = fmax, kA = kA, nmorphs = nmorphs,
+                                          threshold = threshold)
+      
+      
+      #Filter out similar "species" and collect number of species data
+      
+      final.data.CLC.even <- clc.groups(output = outputCLC)
+      Number.species.CLC.even[i] <- nrow(final.data.CLC.even)
+      
+      #Collect endpoint data
+      final.data.CLC.even$ID <- c(rep(id, times = nrow(final.data.CLC.even)))
+      
+      
+      endpoint.CLC.even[[i]] <- final.data.CLC.even 
+      id <- id + 1 
+    }
+    
+    Total.species.CLC.even[[r]] <- Number.species.CLC.even
+    Total.endpoint.CLC.even[[r]] <- endpoint.CLC.even
+  }
+  
+  
+  
+  
+  
+  job::export(list(Total.endpoint.CLC.even))
+}, import = c(resPropMatrix.2res, resFreqMatrix.2res, resourceCompetitionCLC, clc.groups, sigma, popSize, 
+              im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
+
+
+
+# Asymmteric
+
+job::job(two.res,asym = {
+  
+  rep <- 3
+  
+  Total.species.CLC.single.even <- c()
+  
+  
+  # SLC
+  
+  Total.species.CLC.even <- list()
+  Total.endpoint.CLC.even <- list()
+  
+  for(r in 1:rep) {
+    
+    
+    id <- 1
+    
+    print(paste0("loop ", r, " started"))
+    
+    Number.species.CLC.even <- c()
+    endpoint.CLC.even <- list()
+    
+    for(i in 1:length(sigma)){
+      
+      
+      outputCLC <- resourceCompetitionCLC(resProp=resPropMatrix.2res, resFreq=resFreqMatrixAs.2res, iniPA = iniPA, iniPJ = iniPJ, resGen=matrix(c(sigma[i],sigma[i])), 
+                                          popSize = popSize, mutProb=mutProb, mutVar=mutVar, time.steps = time.steps, im = im, fmax = fmax, kA = kA, nmorphs = nmorphs,
+                                          threshold = threshold)
+      
+      
+      #Filter out similar "species" and collect number of species data
+      
+      final.data.CLC.even <- clc.groups(output = outputCLC)
+      Number.species.CLC.even[i] <- nrow(final.data.CLC.even)
+      
+      #Collect endpoint data
+      final.data.CLC.even$ID <- c(rep(id, times = nrow(final.data.CLC.even)))
+      
+      
+      endpoint.CLC.even[[i]] <- final.data.CLC.even 
+      id <- id + 1 
+    }
+    
+    Total.species.CLC.even[[r]] <- Number.species.CLC.even
+    Total.endpoint.CLC.even[[r]] <- endpoint.CLC.even
+  }
+  
+  
+  
+  
+  
+  job::export(list(Total.endpoint.CLC.even))
+}, import = c(resPropMatrix.2res, resFreqMatrixAs.2res, resourceCompetitionCLC, clc.groups, sigma, popSize, im, 
+              fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
+
+
+
+# ---------------------------------------------------
 
 
 # Plotting Mean number of Species ----------------------------------------------

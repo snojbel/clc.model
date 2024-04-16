@@ -57,8 +57,8 @@ job::job(even = {
   
   
   job::export(list(Total.endpoint.CLC.even))
-}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, resource.prop.even.slc, resource.freq.even.slc, resourceCompetitionSLC, 
-              clc.groups, slc.groups, sigma, popSize, im, fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC,clc.groups, sigma, popSize, im, 
+              fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
 even$Total.endpoint.CLC.even[[1]]
 
