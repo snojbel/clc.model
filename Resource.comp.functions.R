@@ -122,22 +122,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
-<<<<<<< HEAD
-    if (runif(1) < im){
-      trait <- sample(x = posstrait, size = 1)
-      
-      if(sum(pop[,2] == trait) == 0) {                   # Checks whether a exact match of immigrant already exists
-        rbind(pop, c(1, trait, NA))
-      } else{
-        same <- which(pop[,2] == trait)
-        pop[same,1] <- pop[same,1]+1
-      }
-      
-    }
-=======
     #num.of.im <- im*0.05*sum(pop[,1])
->>>>>>> 435c9a20580419d5ea61eb12bbee50fd5627195c
-    
     #for(m in 1:num.of.im){
     
     if(im == 1) {
@@ -338,11 +323,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
-<<<<<<< HEAD
-    if (runif(1) < im){
-      Atrait <- sample(x = possAtrait, size = 1)
-      Jtrait <- sample(x = possJtrait, size = 1)
-=======
+
     #num.of.im <- im*0.05*sum(pop[,1])
     
     #for(m in 1:num.of.im) {
@@ -352,7 +333,6 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     if(im == 1) {
       Atrait  <- runif(1, min = minTr, max = maxTr)
       Jtrait  <- runif(1, min = minTr, max = maxTr)
->>>>>>> 435c9a20580419d5ea61eb12bbee50fd5627195c
       
       if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks whether a exact match of immigrant already exists
         pop <- rbind(pop, c(1, Atrait, Jtrait, NA))
