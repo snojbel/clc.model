@@ -124,7 +124,6 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     # Adding immigrants ---------------------------------------------------------------------
     
     if (runif(1) < im){
-      print("immigration!")
       trait <- sample(x = posstrait, size = 1)
       
       if(sum(pop[,2] == trait) == 0) {                   # Checks whether a exact match of immigrant already exists
@@ -312,7 +311,6 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     # Adding immigrants ---------------------------------------------------------------------
     
     if (runif(1) < im){
-      print("immigration!")
       Atrait <- sample(x = possAtrait, size = 1)
       Jtrait <- sample(x = possJtrait, size = 1)
       

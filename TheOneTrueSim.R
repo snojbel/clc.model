@@ -193,13 +193,13 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 popSize <- 10
 sigma <- seq(from = 0.05, to = 1.25, length.out = 6)
-im <-  0 
+im <-  0.0000 
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.0005
-mutVar <- 0.05
-time.steps <- 50000
+mutVar <- 0.001
+time.steps <- 100000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
@@ -229,7 +229,7 @@ job::job(even = {
   Total.species.SLC.even <- list()
   Total.endpoint.SLC.even <- list()
   
-  for(r in 1:10) {
+  for(r in 1:2) {
     
     id <- 1
     
@@ -284,7 +284,7 @@ job::job(even = {
   Total.endpoint.CLC.even <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:2){
     print(paste0("loop ", a, " started"))
     
     id <- 1
@@ -360,7 +360,7 @@ job::job(norm = {
   Total.species.SLC.norm <- list()
   Total.endpoint.SLC.norm <- list()
   
-  for(r in 1:10) {
+  for(r in 1:2) {
     
     id <- 1
     
@@ -415,7 +415,7 @@ job::job(norm = {
   Total.endpoint.CLC.norm <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:2){
     print(paste0("loop ", a, " started"))
     
     id <- 1
@@ -493,7 +493,7 @@ job::job(skew = {
   Total.species.SLC.skew <- list()
   Total.endpoint.SLC.skew <- list()
   
-  for(r in 1:10) {
+  for(r in 1:2) {
     
     id <- 1
     
@@ -548,7 +548,7 @@ job::job(skew = {
   Total.endpoint.CLC.skew <- list()
   
   
-  for(a in 1:10){
+  for(a in 1:2){
     print(paste0("loop ", a, " started"))
     
     id <- 1
@@ -1187,6 +1187,20 @@ plots + plot_annotation(
 
 #-------------------------------------------------
 
+
+# Export data -----------------------------------
+
+save.image(file='even.RData')
+save.image(file='norm.RData')
+save.image(file='skew.RData')
+
+
+# Reopen:
+
+
+load('myEnvironment.RData')
+
+# -----------------------------------------------
 
 
 
