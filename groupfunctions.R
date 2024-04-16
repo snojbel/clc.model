@@ -4,7 +4,7 @@
 # SLC -------------------------
 
 
-slc.groups <- function(output = outputSLC, threshold = 0.2){
+slc.groups <- function(output = outputSLC, threshold = 0.15){
   outputSLC <- output
   
   phenodataSLC <- data.frame(
@@ -121,7 +121,7 @@ slc.groups <- function(output = outputSLC, threshold = 0.2){
 # CLC --------------------------------------------------------
 
 
-clc.groups <- function(output = outputCLC, threshold = 0.2){
+clc.groups <- function(output = outputCLC, threshold = 0.15){
   
   outputCLC <- output
   phenodataCLC <- data.frame(

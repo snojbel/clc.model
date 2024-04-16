@@ -4,9 +4,9 @@
 # Simple -------------
 
 
-resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.1,0.1),ncol=1, nrow=2), im = 0, 
-                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.001, mutVar=0.1, time.steps=200, iniP=5, 
-                                   threshold = 0.005, nmorphs = 1){
+resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), im = 0, 
+                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.0005, mutVar=0.05, time.steps=50000, iniP=0, 
+                                   threshold = 0.001, nmorphs = 1, maxTr = 3, minTr = -3){
   
   pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -22,7 +22,6 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Trait")                                        
   
   epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
-  posstrait <- seq(from = min(resProp)-1, to = max(resProp)+1, by = mutVar)
   
   for (t in 1:time.steps){
     
@@ -123,6 +122,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
+<<<<<<< HEAD
     if (runif(1) < im){
       trait <- sample(x = posstrait, size = 1)
       
@@ -134,7 +134,24 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       }
       
     }
+=======
+    #num.of.im <- im*0.05*sum(pop[,1])
+>>>>>>> 435c9a20580419d5ea61eb12bbee50fd5627195c
     
+    #for(m in 1:num.of.im){
+    
+    if(im == 1) {
+      
+        trait <- runif(1, min = minTr, max = maxTr)
+        
+        if(sum(pop[,2] == trait) == 0) {                   # Checks whether a exact match of immigrant already exists
+          pop <- rbind(pop, c(1, trait, NA))
+        } else{
+          same <- which(pop[,2] == trait)
+          pop[same,1] <- pop[same,1]+1
+        }
+      } 
+    #}
     
     # extract stats and phenotype ---------------------------------------------
     
@@ -148,26 +165,38 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       break
     }
     
-    stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]))) 
     
-    pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2])
-    phenotypes <- rbind(phenotypes, pStats)
+      stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]))) 
+      
+      pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2])
+      phenotypes <- rbind(phenotypes, pStats)
+      
+    
+    
     
     
   }
+  
+  #Removing last time step
+  
+  stats <- stats[stats[, 1] != time.steps, , drop = FALSE] 
+  phenotypes <- phenotypes[phenotypes[,1] != time.steps, , drop = FALSE]
+  
+  # Removing any morphs of very low abundance for last time step
+  pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
+  
+  
+  #Re-adding modified last time step
+  
+  stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]))) 
+  
+  pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2])
+  phenotypes <- rbind(phenotypes, pStats) 
   
   #return output  ------------------------------------------------------------
   colnames(stats) <- c("year", "Adult Population size", "Juvenile Population Size", "Number of morphs", "mean trait", "var trait")
   rownames(phenotypes) <- NULL
   
-  # Removing any morphs of very low abundance
-  #pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
-  
-  #LastStats <- cbind(time.steps, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2])) 
-  #LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2])
-  
-  #colnames(LastStats) <- c("year", "population size", "Number of morphs", "mean trait", "var trait")
-  #colnames(LastPheno) <- c("Year", "Number of indivduals", "Trait")  
   
   
   return(list(stats=stats, phenotypes=phenotypes))                                 #returns both the stats and the phenotype
@@ -180,9 +209,9 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
 # Complex -------------------------
 
 
-resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), fmax = 2, 
-                                   kA = 0.5, kJ = 0.5,mutProb=0.0001, mutVar=0.05, time.steps=200, iniPA=5, iniPJ=5, 
-                                   threshold = 0.005, nmorphs = 1, im = 0){
+resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), fmax = 2, 
+                                   kA = 0.5, kJ = 0.5,mutProb=0.0005, mutVar=0.05, time.steps=50000, iniPA=0, iniPJ=0, 
+                                   threshold = 0.001, nmorphs = 1, im = 0, maxTr = 3, minTr = -3){
   
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
@@ -199,8 +228,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Adult trait", "Juvenile trait")                                        
   
   epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
-  possAtrait <- seq(from = min(resProp[1,])-1, to = max(resProp[1,])+1, by = mutVar)  # Used when generating immigrants
-  possJtrait <- seq(from = min(resProp[2,])-1, to = max(resProp[2,])+1, by = mutVar)
+
   
   
   for (t in 1:time.steps){
@@ -310,19 +338,31 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
+<<<<<<< HEAD
     if (runif(1) < im){
       Atrait <- sample(x = possAtrait, size = 1)
       Jtrait <- sample(x = possJtrait, size = 1)
+=======
+    #num.of.im <- im*0.05*sum(pop[,1])
+    
+    #for(m in 1:num.of.im) {
+    
+    #Remove hashtags for several immigrants
+    
+    if(im == 1) {
+      Atrait  <- runif(1, min = minTr, max = maxTr)
+      Jtrait  <- runif(1, min = minTr, max = maxTr)
+>>>>>>> 435c9a20580419d5ea61eb12bbee50fd5627195c
       
       if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks whether a exact match of immigrant already exists
-        rbind(pop, c(1, Atrait, Jtrait, NA))
+        pop <- rbind(pop, c(1, Atrait, Jtrait, NA))
       } else{
         same <- which(pop[,2] == Atrait & pop[,3] == Jtrait)
         pop[same,1] <- pop[same,1]+1
       }
-      
-    }
+      }
     
+    #}
     
     
     # extract stats and phenotype ---------------------------------------------
@@ -339,28 +379,37 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     
     stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]), 
-                            mean(pop[,3]), var(pop[,3]))) 
-    
+                              mean(pop[,3]), var(pop[,3]))) 
+      
     pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2], pop[,3])
     phenotypes <- rbind(phenotypes, pStats)
+      
+      
     
     
   }
   
-  # Removing any morphs of very low abundance
-  #pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
+  #Removing last time step
   
-  #LastStats <- cbind(t, sum(pop[,1]), nrow(pop), mean(pop[,2]), var(pop[,2]),  mean(pop[,3]), var(pop[,3]))
-  #LastPheno <- cbind(rep(time.steps, nrow(pop)), pop[,1], pop[,2], pop[,3])
+  stats <- stats[stats[, 1] != time.steps, , drop = FALSE] 
+  phenotypes <- phenotypes[phenotypes[, 1] != time.steps, , drop = FALSE]
   
-  #colnames(LastStats) <- c("Year", "Population size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
-  #colnames(LastPheno) <- c("Year", "Number of indivduals", "Adult Trait", "Juvenile Trait")  
+  
+  # Removing any morphs of very low abundance for last time step
+  pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
+  
+  # Readding modified last time step
+  stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]), 
+                          mean(pop[,3]), var(pop[,3]))) 
+  
+  pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2], pop[,3])
+  phenotypes <- rbind(phenotypes, pStats)
   
   #return output  ------------------------------------------------------------
   colnames(stats) <- c("year", "Adult population size","Juvenile Population Size", "Number of morphs", "mean A trait", "var A", "mean J trait", "var J")
   rownames(phenotypes) <- NULL
   
-  return(list(stats=stats, phenotypes=phenotypes))  # LastPheno = LastPheno, LastStats = LastStats Add if we want to remove low abundance morphs                               #returns both the stats and the phenotype
+  return(list(stats=stats, phenotypes=phenotypes))   #returns both the stats and the phenotype
   
   
 }

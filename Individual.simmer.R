@@ -191,7 +191,8 @@ colnames(resFreqMatrix.2res)  <- paste0("Resource ", 1:ncol(resPropMatrix.2res))
 
 job::job(output.Even.SLC = {
   output.Even.SLC <- resourceCompetitionSLC(resProp=resource.prop.even.slc, iniP = 0, resFreq=resource.freq.even.slc, 
-                                           resGen=matrix(c(0.15,0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+                                           resGen=matrix(c(0.05,0.05)), popSize = 10, mutProb=0, mutVar=0, time.steps = 50000, 
+                                           im = 1)
   
   # Control what is returned to the main session
   job::export(output.Even.SLC)
@@ -199,13 +200,14 @@ job::job(output.Even.SLC = {
 
 # CLC
 
-job::job(output.Even.CLC = {
-  output.Even.CLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, iniPA = 0, iniPJ = 0, resFreq=resFreqMatrix.even.clc, 
-                                           resGen=matrix(c(0.15,0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+job::job(output.Even.CLC.mutprob0.00001.50 = {
+  output.Even.CLC <- resourceCompetitionCLC(resProp=resPropMatrix.even.clc, iniPA = 0 , iniPJ = 0, resFreq=resFreqMatrix.even.clc, 
+                                           resGen=matrix(c(0.05,0.05)), nmorphs = 1, popSize = 10, mutProb=0.00001, mutVar=0.05, time.steps = 50000,
+                                           im = 0)
   
   # Control what is returned to the main session
   job::export(output.Even.CLC)
-}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC))
+}, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC, iniPA, iniPJ, nmorphs))
 
 
 
@@ -223,9 +225,9 @@ job::job(output.Norm.SLC = {
 
 # CLC
 
-job::job(output.Norm.CLC = {
-  output.Norm.CLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, iniPA = 0, iniPJ = 0, resFreq=resFreqMatrix.norm.clc, 
-                                           resGen=matrix(c(0.15,0.15)), popSize = 10, mutProb=0.0005, mutVar=0.05, time.steps = 50000)
+job::job(output.Norm.CLC.big = {
+  output.Norm.CLC <- resourceCompetitionCLC(resProp=resPropMatrix.norm.clc, iniPA = 2, iniPJ = 2, resFreq=resFreqMatrix.norm.clc, 
+                                           resGen=matrix(c(0.3,0.3)), popSize = 10, mutProb=0.005, mutVar=0.05, time.steps = 50000)
   
   # Control what is returned to the main session
   job::export(output.Norm.CLC)

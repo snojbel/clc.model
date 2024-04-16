@@ -16,7 +16,8 @@ library(plot3D)
 # Resources ------------------
 
 
-quantiles <- seq(from = -2.5, to = 2.5, length.out = 17)
+
+quantiles <- seq(from = -2.5, to = 2.5, length.out = 16)
 
 
 resource_prop_1 <- c()
@@ -81,9 +82,11 @@ hist3d()
 
 # Function ------------------
 
-resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=matrix(c(0.15,0.15),ncol=1, nrow=2), im = 0, 
-                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.05, mutVar=0.005, time.steps=50000, iniP1=0, 
-                                   iniP2 = 0, threshold = 0.005, nmorphs = 1, cov = 0){
+
+resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=matrix(c(0.05, 0.05),ncol=1, nrow=2), im = 0, 
+                                   fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.05, mutVar=0.05, time.steps=200, iniP1=0, 
+                                   iniP2 = 0, threshold = 0.005, nmorphs = 1, cov = 0, minTr = -3, maxTr = 3){
+
   
   pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
   
@@ -227,18 +230,16 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
     
     #Adding immigrants ---------------------------------------------------------------------
     
-    if (runif(1) < im){
+    if(im == 1) {
+      Atrait  <- runif(1, min = minTr, max = maxTr)
+      Jtrait  <- runif(1, min = minTr, max = maxTr)
       
-      trait1 <- sample(x = posstrait1, size = 1)
-      trait2 <- sample(x = posstrait2, size = 1)
-      
-      if(sum(pop[,2] == trait1 & pop[,3] == trait2) == 0) {                   # Checks whether a exact match of immigrant already exists
-        rbind(pop, c(1, trait1, trait2, 0))
+      if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks whether a exact match of immigrant already exists
+        pop <- rbind(pop, c(1, Atrait, Jtrait, NA))
       } else{
-        same <- which(pop[,2] == trait1 & pop[,3] == trait2)
-        pop[same,1] <- pop[same,1] + 1
+        same <- which(pop[,2] == Atrait & pop[,3] == Jtrait)
+        pop[same,1] <- pop[same,1]+1
       }
-      
     }
     
     
@@ -272,8 +273,9 @@ resourceCompetition2dr <- function(popSize, resProp1, resProp2, resFreq, resGen=
 # Make it a job to free up R console
 
 job::job(output2dr = {
-  output2dr <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreq, 
-                                      time.steps = 70000, resGen=matrix(c(0.05,0.05)), mutProb=0.05)
+
+  output2dr <- resourceCompetition2dr(popSize = 10, iniP1=-2, iniP2 = -2, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreq, 
+                                      time.steps = 50000, resGen=matrix(c(0.05,0.05)), mutProb=0.00001, im = 0 )
 
 # Control what is returned to the main session
   job::export(output2dr)
@@ -283,8 +285,10 @@ job::job(output2dr = {
 
 # Even job
 job::job(output2drEven = {
-  output2drEven <- resourceCompetition2dr(popSize = 10, iniP1=0, iniP2 = 0, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreqE, 
-                                      time.steps = 70000, resGen=matrix(c(0.05,0.05)))
+
+  output2drEven <- resourceCompetition2dr(popSize = 10, iniP1=-2, iniP2 = 2, resProp1 = resProp1, resProp2 = resProp2, resFreq = resFreqE, 
+                                      time.steps = 50000, resGen=matrix(c(0.05,0.05)), mutProb=0.00001, im = 0)
+
   
   # Control what is returned to the main session
   job::export(output2drEven)
