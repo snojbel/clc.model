@@ -103,7 +103,7 @@ sigma = 0.05
 #plasma(5)
 #"#0D0887FF" "#7E03A8FF" "#CC4678FF" "#F89441FF" "#F0F921FF"
 
-outputCLC <- output.Even.CLC.mutprob0.005.200$output.Even.CLC
+outputCLC <- output.Even.CLC.mutprob0.00001.50.3x$output.Even.CLC
 
 
 

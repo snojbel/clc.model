@@ -285,9 +285,10 @@ rm(resource.frequency.as)
 
 popSize <- 10
 sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
-# For current even sigma <- 0.05
+# Used for 2res runs sigma <- seq(from = 0.1, to = 0.4, length.out = 6)
+#sigma <- 0.05
 #sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
-im <-  1      #Relates to number of immigrants formula: im*0.05*totpopsize
+im <-  0      #Determines how if there is immigration or not, can be 0 or 1
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
@@ -321,9 +322,9 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 # Even
 
-job::job(even.imi= {
+job::job(even = {
   
-  rep <- 3
+  rep <- 10
   
   Total.species.SLC.single.even <- c()
   
@@ -458,9 +459,9 @@ job::job(even.imi= {
 
 # Normal 
 
-job::job(norm.im = {
+job::job(norm = {
   
-  rep <- 3
+  rep <- 10
   
   Total.species.SLC.single.norm <- c()
   
@@ -598,9 +599,9 @@ job::job(norm.im = {
 # Skewed
 
 
-job::job(skew.im = {
+job::job(skew = {
   
-  rep <- 3
+  rep <- 10
   
   Total.species.SLC.single.skew <- c()
   
@@ -733,9 +734,9 @@ job::job(skew.im = {
 
 # Bimodal Normal
 
-job::job(binorm.im = {
+job::job(binorm = {
   
-  rep <- 3
+  rep <- 10
   
   Total.species.SLC.single.binorm <- c()
   
@@ -873,7 +874,7 @@ job::job(binorm.im = {
 
 job::job(two.res.sym = {
   
-  rep <- 3
+  rep <- 10
   
   Total.species.CLC.single.even <- c()
   
@@ -932,12 +933,11 @@ job::job(two.res.sym = {
 
 job::job(two.res.asym = {
   
-  rep <- 3
+  rep <- 10
   
   Total.species.CLC.single.even <- c()
   
-  
-  # SLC
+
   
   Total.species.CLC.even <- list()
   Total.endpoint.CLC.even <- list()
@@ -980,8 +980,8 @@ job::job(two.res.asym = {
   
   
   
-  
-  job::export(list(Total.endpoint.CLC.even))
+list(Total.endpoint.CLC.even) |>
+  job::export()
 }, import = c(resPropMatrix.2res, resFreqMatrixAs.2res, resourceCompetitionCLC, clc.groups, sigma, popSize, im, 
               fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
@@ -1876,7 +1876,7 @@ for(s in 1:length(sigma)){
   
   plot.list.even <- list()
   
-  for (i in 1:3){
+  for (i in 1:9){
     
     data <- last.year.list.even[last.year.list.even$run == i, ]
     
@@ -1939,7 +1939,7 @@ for(s in 1:length(sigma)){
   
   plot.list.even <- list()
   
-  for (i in 1:3){
+  for (i in 1:9){
     
     data <- last.year.list.even[last.year.list.even$run == i, ]
     
@@ -1963,7 +1963,7 @@ for(s in 1:length(sigma)){
   
   
   Res[[s]] <- plots + plot_annotation(
-    title = 'Even Distribution',
+    title = 'Asymmteric Distribution',
     theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
   )+ coord_fixed()
   
@@ -1980,8 +1980,8 @@ dev.off()
 
 # Export data -----------------------------------
 
-save.image(file='even.RData')
-save.image(file='norm.RData')
+save.image(file='two.res.asym.RData')
+save.image(file='two.res.sym.RData')
 save.image(file='skew.RData')
 
 
@@ -1995,7 +1995,7 @@ save(binorm, file = "binorm.22.sigma.small.RESULT")
 # Reopen:
 
 
-load('myEnvironment.RData')
+load('two.res.asym.RData')
 
 
 
