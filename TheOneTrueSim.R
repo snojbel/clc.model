@@ -293,7 +293,7 @@ fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.00001
-#mutProb <- seq(0.00001, 0.01 , length.out = 5)
+mutProb <- seq(0.00001, 0.01 , length.out = 5)
 mutVar <- 0.05
 time.steps <- 50000
 iniP <- 0
