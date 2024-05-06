@@ -5,7 +5,7 @@
 job::job(even = {
   
   
-  rep <- 3
+  rep <- 9
   
   Total.species.CLC.single.even <- c()
 
@@ -66,7 +66,7 @@ even$Total.endpoint.CLC.even[[1]]
 
 Res <- list()
 
-pdf("plots.even.combined.pdf")
+pdf("plots.even.combinedq.2.pdf")
 
 for(s in 1:length(mutProb)){
   adu.mutProb <- mutProb[s]
