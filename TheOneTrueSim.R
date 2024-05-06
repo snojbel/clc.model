@@ -288,11 +288,12 @@ sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
 # Used for 2res runs sigma <- seq(from = 0.1, to = 0.4, length.out = 6)
 #sigma <- 0.05
 #sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
-im <-  0      #Determines how if there is immigration or not, can be 0 or 1
+im <-  1      #Determines how if there is immigration or not, can be 0 or 1
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.00001
+mutProb <- 0 #When immigration
 #mutProb <- seq(0.00001, 0.01 , length.out = 5)
 mutVar <- 0.05
 time.steps <- 50000
@@ -322,7 +323,7 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 # Even
 
-job::job(even = {
+job::job(even.IM = {
   
   rep <- 10
   
@@ -459,7 +460,7 @@ job::job(even = {
 
 # Normal 
 
-job::job(norm = {
+job::job(norm.IM = {
   
   rep <- 10
   
@@ -599,7 +600,7 @@ job::job(norm = {
 # Skewed
 
 
-job::job(skew = {
+job::job(skew.IM = {
   
   rep <- 10
   
@@ -734,7 +735,7 @@ job::job(skew = {
 
 # Bimodal Normal
 
-job::job(binorm = {
+job::job(binorm.IM = {
   
   rep <- 10
   
@@ -1251,7 +1252,7 @@ for(s in 1:length(sigma)){
   
   plot.list.even <- list()
   
-  for (i in 1:3){
+  for (i in 1:9){
     
     data <- last.year.list.even[last.year.list.even$run == i, ]
     
@@ -1408,7 +1409,7 @@ for(s in 1:length(sigma)){
   
   plot.list.norm <- list()
   
-  for (i in 1:3){
+  for (i in 1:9){
     
     data <- last.year.list.norm[last.year.list.norm$run == i, ]
     
@@ -1562,7 +1563,7 @@ for(s in 1:length(sigma)){
   
   plot.list.skew <- list()
   
-  for (i in 1:3){
+  for (i in 1:9){
     
     data <- last.year.list.skew[last.year.list.skew$run == i, ]
     
@@ -1717,7 +1718,7 @@ for(s in 1:length(sigma)){
   
   plot.list.binorm <- list()
   
-  for (i in 1:3){
+  for (i in 1:9){
     
     data <- last.year.list.binorm[last.year.list.binorm$run == i, ]
     
@@ -1987,10 +1988,10 @@ save.image(file='skew.RData')
 
 # Saving data -----------------------------------
 
-save(norm, file = "norm.22.sigma.small.RESULT")
-save(even, file = "even.22.sigma.small.RESULT")
-save(skew, file = "skew.22.sigma.small.RESULT")
-save(binorm, file = "binorm.22.sigma.small.RESULT")
+save(norm, file = "norm.mutprob0.00001.RESULT")
+save(even, file = "even.mutprob0.00001.RESULT")
+save(skew, file = "skew.mutprob0.00001.RESULT")
+save(binorm, file = "binorm.mutprob0.00001.RESULT")
 
 # Reopen:
 
