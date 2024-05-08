@@ -5,7 +5,7 @@
 job::job(even = {
   
   
-  rep <- 9
+  rep <- 10
   
   Total.species.CLC.single.even <- c()
 
@@ -66,7 +66,7 @@ even$Total.endpoint.CLC.even[[1]]
 
 Res <- list()
 
-pdf("plots.even.combinedq.2.pdf")
+pdf("plots.even.combined.7.pdf")
 
 for(s in 1:length(mutProb)){
   adu.mutProb <- mutProb[s]
@@ -81,7 +81,7 @@ for(s in 1:length(mutProb)){
   
   plot.list.even <- list()
   
-  for (i in 1:3){
+  for (i in 1:6){
     
     data <- last.year.list.even[last.year.list.even$run == i, ]
     
@@ -117,6 +117,10 @@ for(s in 1:length(mutProb)){
 dev.off()
 
 
+
+
+
+save(even, file = "even.mutprob.vary.RESULT")
 
 
 Res <- list()
