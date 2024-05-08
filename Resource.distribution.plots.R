@@ -164,12 +164,7 @@ binorm.res.plot <- ggplot(data = binorm.res, aes(x = Property, y = Frequency)) +
 
 
 
-res.plots <- (even.res.plot + norm.res.plot + skew.res.plot + binorm.res.plot) #& xlab(NULL) & ylab(NULL) &theme(plot.margin = margin(5.5, 5.5, 0, 0))
+res.plots <- (even.res.plot + norm.res.plot + skew.res.plot + binorm.res.plot) 
 
-res.plots + plot_layout(ncol = 4, nrow = 1) #+
-  #labs(tag = c("Resource characteristic")) +
-  #theme(
-  #  plot.tag = element_text(size = rel(1)),
-   # plot.tag.position = c("bottom")
-  #)
+res.plots + plot_layout(ncol = 4, nrow = 1) 
 
