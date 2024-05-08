@@ -286,16 +286,16 @@ rm(resource.frequency.as)
 popSize <- 10
 sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
 # Used for 2res runs sigma <- seq(from = 0.1, to = 0.4, length.out = 6)
-#sigma <- 0.05
+sigma <- 0.05
 #sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
 im <-  0      #Determines how if there is immigration or not, can be 0 or 1
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.00001
-mutProb <- seq(0.00001, 0.01 , length.out = 5)
+mutProb <- seq(0.000001, 0.00001 , length.out = 8)
 mutVar <- 0.05
-time.steps <- 50000
+time.steps <- 70000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
