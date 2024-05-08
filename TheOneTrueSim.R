@@ -285,7 +285,8 @@ rm(resource.frequency.as)
 
 popSize <- 10
 sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
-# Used for 2res runs sigma <- seq(from = 0.1, to = 0.4, length.out = 6)
+#Used for 2res runs 
+sigma <- seq(from = 0.1, to = 0.4, length.out = 6)
 sigma <- 0.05
 #sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
 im <-  0      #Determines how if there is immigration or not, can be 0 or 1

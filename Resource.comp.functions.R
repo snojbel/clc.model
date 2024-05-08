@@ -1,52 +1,55 @@
 
 # Resource competition Models
 
-# Simple -------------
+# Simple life cylce -------------
 
 
 resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), im = 0, 
                                    fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.0005, mutVar=0.05, time.steps=50000, iniP=0, 
                                    threshold = 0.001, nmorphs = 1, maxTr = 3, minTr = -3){
   
-  pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
+  pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                            # Each column in this matrix is one species.
   
-  pop[,1] <- popSize
-  pop[,2] <- iniP
+  pop[,1] <- popSize                                                            # Number of individuals per species is first row.
+  pop[,2] <- iniP                                                               # Phenotype for species is second row.
   
   
-  colnames(pop) <- c("Number of indivduals", "Trait", "Proxy")
+  colnames(pop) <- c("Number of indivduals", "Trait", "Proxy")                  # Third row is where f and m are stored to calculcate fecundity and maturation.
   
   stats         <- matrix(data = c(0, sum(pop[,1]), 0, nrow(pop), mean(pop[,2]), var(pop[,2])) 
-                          , nrow = 1, ncol = 6)                                                             #Where we will eventually save our stats and phenotypes
-  phenotypes <- matrix(data = c(0, popSize, iniP), nrow = 1, ncol = 3)
+                          , nrow = 1, ncol = 6)                                 # Where we will eventually save our data on number of species etc
+  phenotypes <- matrix(data = c(0, popSize, iniP), nrow = 1, ncol = 3)          # Where information on each different species is stored
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Trait")                                        
   
-  epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
+  epsilon <- .Machine$double.eps^10                                             # Added when there is risk of r rounding a number down to 0, very small number
   
   for (t in 1:time.steps){
     
     # Deterministic fecundity proxy alpha ------------------------------------
     
-    adults    <- pop                                                            
-    alphaA    <- NULL                                                           # Will create a matrix with all alpha values
+    adults    <- pop                                                            # The adults matrix is only created so it easier to mentally seperate adult and juvenile step, also if the adult population wants to be extracted at end of timestep                                                            
+    alphaA    <- NULL                                                           # Will create a matrix with all alpha values, is nullified so previous time step is overwritten
     alphaSumA <- NULL
     
     
-    resPropAduMatrix <- matrix(data = resProp, ncol = length(resProp), nrow = nrow(adults), byrow = T)
+    resPropAduMatrix <- matrix(data = resProp, ncol = length(resProp),          # Resource property is made into a matrix here so that matrix calculatsion can be used.
+                               nrow = nrow(adults), byrow = T)
     aduTrait <- adults[, 2]
-    aduTraitMatrix <- matrix(data = rep(aduTrait, each = length(resProp)), ncol = length(resProp), nrow = nrow(adults), byrow = T)
+    aduTraitMatrix <- matrix(data = rep(aduTrait, each = length(resProp)),      # Made into matrix so matrix calculcations can be used
+                             ncol = length(resProp), nrow = nrow(adults), 
+                             byrow = T)
     
-    alphaA           <- (1/(sqrt(2*pi*resGen[1,1]^2)))*exp(-(((aduTraitMatrix-resPropAduMatrix)^2)/(2*resGen[1,1])^2)) + epsilon                 # Calculation of individual alpha
-    adultAbund       <- adults[,1]
+    alphaA           <- (1/(sqrt(2*pi*resGen[1,1]^2)))*exp(-(((aduTraitMatrix-resPropAduMatrix)^2)/(2*resGen[1,1])^2)) + epsilon                 # Calculation of individual alpha values, equation 2
+    adultAbund       <- adults[,1]                                             
     adultAbundMatrix <- matrix(data = rep(adultAbund, each = length(resProp)), ncol = length(resProp), nrow = nrow(adults), byrow = T)  # Creation of a matrix with population size of each type in the rows
-    alphaSumA        <- colSums((alphaA*adultAbundMatrix))                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
+    alphaSumA        <- colSums((alphaA*adultAbundMatrix))                      # Creates the denominator for equation 3. Which is each INDIVIDUALS alphaA added together for each resource type, so each column is one resource, each row is one species. 
     
     
-    RdivAlphaSumA       <- resFreq/alphaSumA
-    RdivAlphaSumATrans  <- matrix(data = RdivAlphaSumA)
+    RdivAlphaSumA       <- resFreq/alphaSumA                                    
+    RdivAlphaSumATrans  <- matrix(data = RdivAlphaSumA)                         # Is transformed so that matrix caluclations can be done 
     
-    Fec <- alphaA%*%RdivAlphaSumATrans
-    adults[,3] <- fmax*(Fec/(kA+Fec)) 
+    Fec <- alphaA%*%RdivAlphaSumATrans                                          # The result is a vector with each species total energy consumption, equation 4. 
+    adults[,3] <- fmax*(Fec/(kA+Fec))                                           # Gives f (fecundity) equation 5a
     
     
     
@@ -54,10 +57,11 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     juveniles <- adults                                                         # Create a matrix were we will add juveniles into
     
-    juveniles[,1] <- rpois(n = nrow(juveniles), lambda = juveniles[,1]*juveniles[,3]) 
+    juveniles[,1] <- rpois(n = nrow(juveniles),                                 # The number of juveniles is drawn from a poisson distribution with mean f x species abundance
+                           lambda = juveniles[,1]*juveniles[,3])                # Since each individual of a species has offspring  
     
     juvenile.pop <- c()
-    juvenile.pop <- sum(juveniles[,1])   # To extract number of juveniles
+    juvenile.pop <- sum(juveniles[,1])                                          # To extract number of juveniles if that wants to be analysed
     
     
     # Mutation of offspring -------------------------------------------------
@@ -191,7 +195,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
 
 
 
-# Complex -------------------------
+# Complex life cycle -------------------------
 
 
 resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), fmax = 2, 
