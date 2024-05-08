@@ -23,11 +23,11 @@ even.res <- data.frame(
 
 even.res.plot <- ggplot(data = even.res, aes(x = Property, y = Frequency)) +
   geom_bar(color = "#C33D80FF" , fill = "#C33D80FF", stat = "identity", width=0.25) + 
-  labs(title = "Even Resource Distribution", x = "Resource characteristic", y = "Resource abundance") +                 # Labels for the axes
+  labs(title = "Even Distribution", x = "Resource characteristic", y = "Resource abundance") +                 # Labels for the axes
   scale_x_continuous(limits = c(-2.7, 2.7))+
   scale_y_continuous(limits = c(0, 7000))+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  theme_minimal(base_family = "LM Roman 10", base_size = 10)+
+  theme(plot.title = element_text(size = 18)) 
 
 
 
@@ -70,11 +70,11 @@ norm.res <- data.frame(
 
 norm.res.plot <- ggplot(data = norm.res, aes(x = Property, y = Frequency)) +
   geom_bar(color = "#D35171FF" , fill = "#D35171FF", stat = "identity", width=0.25) + 
-  labs(title = "Normal Resource Distribution", x = "Resource characteristic", y = "Resource abundance") +                 # Labels for the axes
-  scale_x_continuous(limits = c(-2.7, 2.7))+
-  scale_y_continuous(limits = c(0, 7000))+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  labs(title = "Normal Distribution", x = "Resource characteristic", y = "Resource abundance") +                 # Labels for the axes
+  scale_x_continuous(limits = c(-2.7, 2.7)) +
+  scale_y_continuous(limits = c(0, 7000)) +
+  theme_minimal(base_family = "LM Roman 10", base_size = 10) +
+  theme(plot.title = element_text(size = 18)) 
 
 
 # Skewed resource distribution
@@ -100,11 +100,11 @@ skew.res <- data.frame(
 
 skew.res.plot <- ggplot(data = skew.res, aes(x = Property, y = Frequency)) +
   geom_bar(color = "#E16462FF" , fill = "#E16462FF", stat = "identity", width=0.25) + 
-  labs(title = "Skewed Resource Distribution", x = "Resource characteristic", y = "Resource abundance") +                 # Labels for the axes
+  labs(title = "Skewed  Distribution", x = "Resource characteristic", y = "Resource abundance") +                 # Labels for the axes
   scale_x_continuous(limits = c(-2.7, 2.7))+
   scale_y_continuous(limits = c(0, 7000))+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  theme_minimal(base_family = "LM Roman 10", base_size = 10) +
+  theme(plot.title = element_text(size = 18))
 
 
 
@@ -155,11 +155,11 @@ binorm.res <- data.frame(
 
 binorm.res.plot <- ggplot(data = binorm.res, aes(x = Property, y = Frequency)) +
   geom_bar(color = "#ED7953FF" , fill = "#ED7953FF", stat = "identity", width=0.25) + 
-  labs(title = "Bimodal Normal Resource Distribution", x = "Resource characteristic", y = "Resource abundance") +                 # Labels for the axes
+  labs(title = "Bimodal Normal Distribution", x = "Resource characteristic", y = "Resource abundance") +                 # Labels for the axes
   scale_x_continuous(limits = c(-2.7, 2.7))+
   scale_y_continuous(limits = c(0, 7000))+
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme_minimal(base_family = "LM Roman 10", base_size = 10)
+  theme_minimal(base_family = "LM Roman 10", base_size = 10) +
+  theme(plot.title = element_text( size = 18))
 
 
 
