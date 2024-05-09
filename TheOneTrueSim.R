@@ -1993,6 +1993,9 @@ save(even, file = "even.22.sigma.small.RESULT")
 save(skew, file = "skew.22.sigma.small.RESULT")
 save(binorm, file = "binorm.22.sigma.small.RESULT")
 
+save(two.res.asym, file = "2.res.asym.RESULT")
+save(two.res.sym, file = "2.res.sym.RESULT")
+
 # Reopen:
 
 
