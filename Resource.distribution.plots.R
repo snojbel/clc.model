@@ -168,3 +168,49 @@ res.plots <- (even.res.plot + norm.res.plot + skew.res.plot + binorm.res.plot)
 
 res.plots + plot_layout(ncol = 4, nrow = 1) 
 
+
+# Community shape plots
+
+#Three communities: Single Axes, Double axes, and Mixed
+
+mutational.probability <- round(seq(0.000001, 0.00001 , length.out = 8), digits = 8)
+
+comm.data <- matrix(data = NA, nrow = 3, ncol = 8)
+
+colnames(comm.data) <- mutational.probability
+rownames(comm.data) <- c("Single Axis", "Mixed", "Double axes")
+
+comm.data[,1] <- c(5, 1, 0)
+comm.data[,2] <- c(0, 3, 3)
+comm.data[,3] <- c(0, 1, 5)
+comm.data[,4] <- c(0, 1, 5)
+comm.data[,5] <- c(0, 1, 5)
+comm.data[,6] <- c(0, 2, 4)
+comm.data[,7] <- c(0, 1, 5)
+comm.data[,8] <- c(0, 0, 6)
+comm.data[,9] <- c()
+comm.data[,10] <- c()
+
+
+
+Community <- data.frame(
+  Mutational.Probability = rep(mutational.probability, times = 3),
+  Community = rep(c("Single Axis", "Mixed", "Double Axes"), each = 8),
+  Times =c(comm.data[1,],comm.data[2,], comm.data[3,] )
+)
+
+color_palette <- magma(6)
+"#000004FF" "#3B0F70FF" "#8C2981FF" "#DE4968FF" "#FE9F6DFF" "#FCFDBFFF"
+
+
+ggplot(data = Community, aes(x = Mutational.Probability, y = Times, color = Community)) +
+  geom_line(size = 1,) +
+  xlab("Mutational Probability") +
+  ylab("Community Occurance") +
+  labs(color = "Community") +
+  scale_color_manual(values = c("#FE9F6DFF", "#DE4968FF", "#8C2981FF"))+
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))
+
+
+ 

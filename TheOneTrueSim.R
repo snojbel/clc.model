@@ -2,7 +2,7 @@
 
 # Simulation runner for the purpose of only running one sim and extracting all results. 
 
-# Loading libaries
+# Loading libraries
 
 library(job)
 library(gganimate)
@@ -286,7 +286,7 @@ rm(resource.frequency.as)
 popSize <- 10
 sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
 #Used for 2res runs 
-sigma <- seq(from = 0.1, to = 0.4, length.out = 6)
+sigma <- seq(from = 0.05, to = 0.4, length.out = 8)
 sigma <- 0.05
 #sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
 im <-  0      #Determines how if there is immigration or not, can be 0 or 1
@@ -294,9 +294,9 @@ fmax <-  2
 kA <-  0.5
 kJ <-  0.5
 mutProb <- 0.00001
-mutProb <- seq(0.000001, 0.00001 , length.out = 8)
+mutProb <- seq(0.000001, 0.00001 , length.out = 10)
 mutVar <- 0.05
-time.steps <- 70000
+time.steps <- 50000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
@@ -325,7 +325,7 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 job::job(even = {
   
-  rep <- 10
+  rep <- 3
   
   Total.species.SLC.single.even <- c()
   
@@ -462,7 +462,7 @@ job::job(even = {
 
 job::job(norm = {
   
-  rep <- 10
+  rep <- 3
   
   Total.species.SLC.single.norm <- c()
   
@@ -602,7 +602,7 @@ job::job(norm = {
 
 job::job(skew = {
   
-  rep <- 10
+  rep <- 3
   
   Total.species.SLC.single.skew <- c()
   
@@ -737,7 +737,7 @@ job::job(skew = {
 
 job::job(binorm = {
   
-  rep <- 10
+  rep <- 3
   
   Total.species.SLC.single.binorm <- c()
   
@@ -1231,7 +1231,7 @@ all.plots + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A",
 
 Res <- list()
 
-pdf("plots.even.combined.pdf")
+pdf("plots.even.combined.side.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1389,7 +1389,7 @@ plots + plot_annotation(
 
 Res <- list()
 
-pdf("plots.norm.combined.pdf")
+pdf("plots.norm.combined.side.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1543,7 +1543,7 @@ plots + plot_annotation(
 # Adult = Juvenile sigma
 Res <- list()
 
-pdf("plots.skew.combined.pdf")
+pdf("plots.skew.combined.side.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1854,7 +1854,7 @@ plots + plot_annotation(
 
 Res <- list()
 
-pdf("plots.2res.sym.pdf")
+pdf("plots.2res.sym.low.sigma.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1917,7 +1917,7 @@ dev.off()
 
 Res <- list()
 
-pdf("plots.2res.asym.pdf")
+pdf("plots.2res.asym.low.sigma.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1993,8 +1993,8 @@ save(even, file = "even.22.sigma.small.RESULT")
 save(skew, file = "skew.22.sigma.small.RESULT")
 save(binorm, file = "binorm.22.sigma.small.RESULT")
 
-save(two.res.asym, file = "2.res.asym.RESULT")
-save(two.res.sym, file = "2.res.sym.RESULT")
+save(two.res.asym, file = "2.res.asym.lowsigma.RESULT")
+save(two.res.sym, file = "2.res.sym.lowsigma.RESULT")
 
 # Reopen:
 

@@ -60,7 +60,6 @@ job::job(even = {
 }, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC,clc.groups, sigma, popSize, im, 
               fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
-even$Total.endpoint.CLC.even[[1]]
 
 
 
