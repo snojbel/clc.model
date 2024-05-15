@@ -338,12 +338,88 @@ for(s in 1:length(sigma)){
     coord_fixed()
     
     
-  }
+ }
 
 plot.list.even[[1]] + plot.list.even[[2]] + plot.list.even[[3]] + plot.list.even[[4]] + plot.list.even[[5]] + plot.list.even[[6]] +
   plot.list.even.SLC[[1]] + plot.list.even.SLC [[2]] + plot.list.even.SLC [[3]] + plot.list.even.SLC [[4]] + plot.list.even.SLC [[5]] + plot.list.even.SLC [[6]] + 
-    plot_layout(ncol = 6, heights = c(3, 1) ) %>%
-  annotate_figure(top=text_grob("h"))
+    plot_layout(ncol = 6, heights = c(3, 1) ) +
+    plot_annotation(title = "Gradual Evolution",
+                  theme= theme(plot.title = element_text(hjust = 0.5, size = 16, family = "LM Roman 10")))
+  
+
+# Immigration
+
+# SLC
+
+sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
+plot.list.even.SLC.IM <- list()
+
+for(s in 1:length(sigma)){
+  adu.sigma <- sigma[s]
+  
+  this.run <- even.IM$Total.endpoint.SLC.even[[1]][[s]]
+  
+  data <- this.run
+  data$Y <- 0
+  
+  color.palette <- magma(length(data$Trait))
+  
+  plot.list.even.SLC.IM[[s]] <- ggplot(data, aes(x =Trait, y = Y)) +
+    geom_hline(yintercept = 0, color = "grey")+ 
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    scale_x_continuous(limits = c(-3, 3))+
+    ylim(0,0)+
+    scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
+    theme_minimal(base_family = "LM Roman 10", base_size = 10) +
+    theme(plot.title = element_text(hjust = 0.5), 
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.title = element_blank(),
+          axis.text.x = element_text(size = 14),
+          panel.grid = element_blank())
+  
+  
+}
+plot.list.even.SLC.IM[[1]]
+
+# CLC
+
+sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
+plot.list.even.IM <- list()
+
+for(s in 1:length(sigma)){
+  adu.sigma <- sigma[s]
+  
+  juv.sigma <- adu.sigma
+  
+  this.run <- even.IM$Total.endpoint.CLC.even[[1]]
+  this.run <- this.run[this.run$Adult.gen == adu.sigma, ]
+  this.run <- this.run[this.run$Juv.gen == juv.sigma, ]
+  
+  data <- this.run
+  
+  color.palette <- magma(length(data$Adult_Trait))
+  
+  plot.list.even.IM[[s]] <- ggplot(data, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+    geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+    labs(title = substitute(sigma == value, list(value = adu.sigma)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+    scale_x_continuous(limits = c(-3, 3))+
+    scale_y_continuous(limits = c(-3, 3))+
+    scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
+    theme_minimal(base_family = "LM Roman 10", base_size = 10) +
+    theme(plot.title = element_text(hjust = 0.5, size = 16),
+          axis.title = element_blank(),
+          axis.text = element_text(size = 14)) +
+    coord_fixed()
+  
+  
+}
+
+plot.list.even.IM[[1]] + plot.list.even.IM[[2]] + plot.list.even.IM[[3]] + plot.list.even.IM[[4]] + plot.list.even.IM[[5]] + plot.list.even.IM[[6]] +
+  plot.list.even.SLC.IM[[1]] + plot.list.even.SLC.IM[[2]] + plot.list.even.SLC.IM[[3]] + plot.list.even.SLC.IM[[4]] + plot.list.even.SLC.IM[[5]] + plot.list.even.SLC.IM[[6]] + 
+  plot_layout(ncol = 6, heights = c(3, 1) )+
+  plot_annotation(title = "Immigration",
+                  theme= theme(plot.title = element_text(hjust = 0.5, size = 16, family = "LM Roman 10")))
 
 
 # Four distribution phase plane plot
@@ -409,11 +485,69 @@ binorm.plot <- ggplot(data = binorm.data, aes(x = Juvenile_Trait, y = Adult_Trai
   coord_fixed()
 
 
-even.plot + norm.plot + skew.plot + binorm.plot + plot_layout()
-
+plots <- even.plot + norm.plot + skew.plot + binorm.plot + plot_layout(nrow = 1)
 plots + plot_annotation(
   tag_levels = "A",
   tag_prefix = "(",
   tag_suffix = ")")
+
+
+
+
+
+
+even.data.1 <- even$Total.endpoint.CLC.even[[1]]
+even.data.1 <- even.data.1[even.data.1$Adult.gen == 0.2, ]
+even.data.1 <- even.data.1[even.data.1$Juv.gen == 0.2, ]
+
+even.data.2 <- even$Total.endpoint.CLC.even[[7]]
+even.data.2 <- even.data.2[even.data.2$Adult.gen == 0.2, ]
+even.data.2 <- even.data.2[even.data.2$Juv.gen == 0.2, ]
+
+even.data.3 <- even$Total.endpoint.CLC.even[[5]]
+even.data.3 <- even.data.3[even.data.3$Adult.gen == 0.2, ]
+even.data.3 <- even.data.3[even.data.3$Juv.gen == 0.2, ]
+
+
+color.palette <- magma(length(even.data.1$Adult_Trait))
+
+even.plot.1 <- ggplot(data = even.data.1, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+  labs(title = substitute(sigma == value, list(value = 0.2)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  scale_x_continuous(limits = c(-3, 3))+
+  scale_y_continuous(limits = c(-3, 3))+
+  scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
+  theme_minimal(base_family = "LM Roman 10", base_size = 10)+
+  coord_fixed()
+
+color.palette <- magma(length(even.data.2$Adult_Trait))
+
+even.plot.2 <- ggplot(data = even.data.2, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+  labs(title = substitute(sigma == value, list(value = 0.2)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  scale_x_continuous(limits = c(-3, 3))+
+  scale_y_continuous(limits = c(-3, 3))+
+  scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
+  theme_minimal(base_family = "LM Roman 10", base_size = 10)+
+  coord_fixed()
+
+color.palette <- magma(length(even.data.3$Adult_Trait))
+
+even.plot.3 <- ggplot(data = even.data.3, aes(x = Juvenile_Trait, y = Adult_Trait)) +
+  geom_point(aes(size=Num_Individuals), color = color.palette, show.legend = FALSE) + 
+  labs(title = substitute(sigma == value, list(value = 0.2)), x = "Juvenile Trait", y = "Adult Trait", size = "Number of individuals") +                 # Labels for the axes
+  scale_x_continuous(limits = c(-3, 3))+
+  scale_y_continuous(limits = c(-3, 3))+
+  scale_size_continuous(limits=c(1,40000),breaks=c(seq(from = 0, to = 40000, by = 5000))) +
+  theme_minimal(base_family = "LM Roman 10", base_size = 10)+
+  coord_fixed()
+
+
+plots <- even.plot.1 + even.plot.2 + even.plot.3+ plot_layout(nrow = 1)
+plots
+
+
+
+
 
  
