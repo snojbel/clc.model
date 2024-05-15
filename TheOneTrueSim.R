@@ -280,7 +280,7 @@ rm(resource.frequency.as)
 
 # ------------------------
 
-# Parameter initializations ----------------------------
+# Parameter initialization ----------------------------
 
 
 popSize <- 10

@@ -65,7 +65,7 @@ job::job(even = {
 
 Res <- list()
 
-pdf("plots.even.combined.7.pdf")
+pdf("plots.even.mutprob.vary.pdf")
 
 for(s in 1:length(mutProb)){
   adu.mutProb <- mutProb[s]
@@ -80,7 +80,7 @@ for(s in 1:length(mutProb)){
   
   plot.list.even <- list()
   
-  for (i in 1:6){
+  for (i in 1:10){
     
     data <- last.year.list.even[last.year.list.even$run == i, ]
     
