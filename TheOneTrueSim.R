@@ -22,6 +22,7 @@ library(dplyr)
 library(grid)
 library(FamilyRank)
 
+citation("FamilyRank")
 
 
 # Resource initializations -------------------
@@ -293,7 +294,7 @@ im <-  0      #Determines how if there is immigration or not, can be 0 or 1
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
-mutProb <- 0.00001
+mutProb <- 0.0001
 mutProb <- seq(0.000001, 0.00001 , length.out = 10)
 mutVar <- 0.05
 time.steps <- 50000
@@ -301,7 +302,7 @@ iniP <- 0
 iniPJ <- 0
 iniPA <- 0
 nmorphs <-  1
-threshold <-  0.005
+threshold <-  0.0005
 maxTr = 3
 minTr = -3
 
@@ -1854,7 +1855,7 @@ plots + plot_annotation(
 
 Res <- list()
 
-pdf("plots.2res.sym.low.sigma.pdf")
+pdf("plots.2res.sym.high.mutprob.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1917,7 +1918,7 @@ dev.off()
 
 Res <- list()
 
-pdf("plots.2res.asym.low.sigma.pdf")
+pdf("plots.2res.asym.high.mutprob.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
