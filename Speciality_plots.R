@@ -213,7 +213,9 @@ summary(lm(Community$Times~Community$Mutational.Probability*Community$Community)
 ggplot(data = Community, aes(x = Mutational.Probability, y = Times, color = Community)) +
   #geom_point()+
   #geom_line(linetype = "solid", linewidth = 1) +
-  geom_smooth(method = "lm") +
+  geom_smooth(data = ~filter(.x, Community == "Single Axis"), method = "lm")+
+  geom_smooth(data = ~filter(.x, Community == "Mixed"), method = "lm", formula = y ~ poly(x, 2)) +
+  geom_smooth(data = ~filter(.x, Community == "Double Axes"), method = "lm")+
   xlab("Mutational Probability") +
   ylab("Community Occurance") +
   labs(color = "Community") +

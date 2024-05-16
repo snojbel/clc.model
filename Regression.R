@@ -30,7 +30,7 @@ mixed <- filter(Community, Community == "Mixed")
 double <- filter(Community, Community == "Double Axes")
 
 single.test <- summary(lm(single$Times~single$Mutational.Probability))
-mixed.test <- summary(lm(mixed$Times~mixed$Mutational.Probability))
+mixed.test <- summary(lm(mixed$Times~mixed$Mutational.Probability, formula= y ~ poly(x, 2)))
 double.test <- summary(lm(double$Times~double$Mutational.Probability))
 
 
