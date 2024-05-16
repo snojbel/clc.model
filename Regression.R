@@ -29,8 +29,8 @@ single <- filter(Community, Community == "Single Axis")
 mixed <- filter(Community, Community == "Mixed")
 double <- filter(Community, Community == "Double Axes")
 
-summary(lm(single$Times~single$Mutational.Probability))
-summary(lm(mixed$Times~mixed$Mutational.Probability))
-summary(lm(double$Times~double$Mutational.Probability))
+single.test <- summary(lm(single$Times~single$Mutational.Probability))
+mixed.test <- summary(lm(mixed$Times~mixed$Mutational.Probability))
+double.test <- summary(lm(double$Times~double$Mutational.Probability))
 
 
