@@ -212,6 +212,7 @@ summary(lm(Community$Times~Community$Mutational.Probability*Community$Community)
 
 ggplot(data = Community, aes(x = Mutational.Probability, y = Times, color = Community)) +
   geom_point()+
+  geom_line(linetype = "dotted") +
   geom_smooth(method = "lm") +
   xlab("Mutational Probability") +
   ylab("Community Occurance") +
