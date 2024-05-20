@@ -285,23 +285,21 @@ rm(resource.frequency.as)
 
 popSize <- 10
 sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
-#Used for 2res runs 
-sigma <- seq(from = 0.1, to = 0.4, length.out = 6)
 sigma <- 0.05
 #sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
-im <-  0      #Determines how if there is immigration or not, can be 0 or 1
+im <-  1      #Determines how if there is immigration or not, can be 0 or 1
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
-mutProb <- 0.00001
+mutProb <- 0
 mutProb <- seq(0.000001, 0.00001 , length.out = 8)
 mutVar <- 0.05
-time.steps <- 70000
+time.steps <- 50000
 iniP <- 0
 iniPJ <- 0
 iniPA <- 0
 nmorphs <-  1
-threshold <-  0.005
+threshold <-  0.0005
 maxTr = 3
 minTr = -3
 
@@ -323,7 +321,7 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 # Even
 
-job::job(even = {
+job::job(even.IM.2 = {
   
   rep <- 10
   
@@ -460,7 +458,7 @@ job::job(even = {
 
 # Normal 
 
-job::job(norm = {
+job::job(norm.IM.2 = {
   
   rep <- 10
   
@@ -600,7 +598,7 @@ job::job(norm = {
 # Skewed
 
 
-job::job(skew = {
+job::job(skew.IM.2 = {
   
   rep <- 10
   
@@ -735,7 +733,7 @@ job::job(skew = {
 
 # Bimodal Normal
 
-job::job(binorm = {
+job::job(binorm.IM.2 = {
   
   rep <- 10
   
@@ -995,10 +993,10 @@ list(Total.endpoint.CLC.even) |>
 
 # Name change for plotting reasons ( be sure to save previous run before writing over)
 
-even <- even.im
-norm <- norm.im
-skew <- skew.im
-binorm <- binorm.im
+even <- even.IM
+norm <- norm.IM
+skew <- skew.IM
+binorm <- binorm.IM
 
 
 # Even
@@ -1231,7 +1229,7 @@ all.plots + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A",
 
 Res <- list()
 
-pdf("plots.even.combined.pdf")
+pdf("plots.even.immigration.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1252,7 +1250,7 @@ for(s in 1:length(sigma)){
   
   plot.list.even <- list()
   
-  for (i in 1:3){
+  for (i in 1:9){
     
     data <- last.year.list.even[last.year.list.even$run == i, ]
     
@@ -1389,7 +1387,7 @@ plots + plot_annotation(
 
 Res <- list()
 
-pdf("plots.norm.combined.pdf")
+pdf("plots.norm.immigration..pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1543,7 +1541,7 @@ plots + plot_annotation(
 # Adult = Juvenile sigma
 Res <- list()
 
-pdf("plots.skew.combined.pdf")
+pdf("plots.skew.immigration.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1698,7 +1696,7 @@ plots + plot_annotation(
 # Adult = Juvenile sigma
 Res <- list()
 
-pdf("plots.binorm.combined.pdf")
+pdf("plots.binorm.immigration.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1988,10 +1986,10 @@ save.image(file='skew.RData')
 
 # Saving data -----------------------------------
 
-save(norm, file = "norm.22.sigma.small.RESULT")
-save(even, file = "even.22.sigma.small.RESULT")
-save(skew, file = "skew.22.sigma.small.RESULT")
-save(binorm, file = "binorm.22.sigma.small.RESULT")
+save(norm.IM, file = "norm.immi.Last.RESULT")
+save(even.IM, file = "even.immi.Last.RESULT")
+save(skew.IM, file = "skew.immi.Last.RESULT")
+save(binorm.IM, file = "binorm.immi.Last.RESULT")
 
 save(two.res.asym, file = "2.res.asym.RESULT")
 save(two.res.sym, file = "2.res.sym.RESULT")
