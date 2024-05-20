@@ -1,7 +1,7 @@
 
 
 
-outputCLC <- output.Even.CLC.mutprob0.00001.50$output.Even.CLC
+outputCLC <- output.Even.CLC.mutprob0.00001.50.sigma.0.2$output.Even.CLC
 
 
 phenodataCLC <- data.frame(
@@ -141,10 +141,10 @@ phenodataCLC <- data.frame(
 
 
 
-ggplot(phenodataCLC, aes(x = Adult_Trait, y = Juvenile_Trait)) +
+ggplot(phenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait)) +
   geom_point(aes(size=Num_Individuals, color = Year)) +                                  # Add points
   geom_point(data = ~filter(.x, Year == max(phenodataCLC$Year)), color = "#7700b3", shape = 4, size = 3) + 
-  labs(x = "Adult Trait", y = " Juvenile Trait ", size = "Number of individuals", color = " Time") +# Labels for the axes
+  labs(x = "Juvenile Trait", y = "Adult Trait ", size = "Number of individuals", color = " Time") +# Labels for the axes
   scale_color_viridis(option = "A") +
   guides(size = "none") +                  
   theme_minimal(base_family = "LM Roman 10", base_size = 18)+

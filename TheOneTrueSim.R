@@ -2,7 +2,7 @@
 
 # Simulation runner for the purpose of only running one sim and extracting all results. 
 
-# Loading libaries
+# Loading libraries
 
 library(job)
 library(gganimate)
@@ -22,6 +22,7 @@ library(dplyr)
 library(grid)
 library(FamilyRank)
 
+citation("FamilyRank")
 
 
 # Resource initializations -------------------
@@ -280,19 +281,29 @@ rm(resource.frequency.as)
 
 # ------------------------
 
-# Parameter initializations ----------------------------
+# Parameter initialization ----------------------------
 
 
 popSize <- 10
 sigma <- seq(from = 0.05, to = 0.8, length.out = 6)
+<<<<<<< HEAD
+=======
+#Used for 2res runs 
+sigma <- seq(from = 0.05, to = 0.4, length.out = 8)
+>>>>>>> 71f600c1e1be11a163ce0cc416d04d1b5048bc57
 sigma <- 0.05
 #sigma <- seq(from = 0.05, to = 0.2, length.out = 3) 
 im <-  1      #Determines how if there is immigration or not, can be 0 or 1
 fmax <-  2
 kA <-  0.5
 kJ <-  0.5
+<<<<<<< HEAD
 mutProb <- 0
 mutProb <- seq(0.000001, 0.00001 , length.out = 8)
+=======
+mutProb <- 0.0001
+mutProb <- seq(0.000001, 0.00001 , length.out = 10)
+>>>>>>> 71f600c1e1be11a163ce0cc416d04d1b5048bc57
 mutVar <- 0.05
 time.steps <- 50000
 iniP <- 0
@@ -323,7 +334,7 @@ iniPJ <- runif(200, min = minTr, max = maxTr)
 
 job::job(even.IM.2 = {
   
-  rep <- 10
+  rep <- 3
   
   Total.species.SLC.single.even <- c()
   
@@ -460,7 +471,7 @@ job::job(even.IM.2 = {
 
 job::job(norm.IM.2 = {
   
-  rep <- 10
+  rep <- 3
   
   Total.species.SLC.single.norm <- c()
   
@@ -600,7 +611,7 @@ job::job(norm.IM.2 = {
 
 job::job(skew.IM.2 = {
   
-  rep <- 10
+  rep <- 3
   
   Total.species.SLC.single.skew <- c()
   
@@ -735,7 +746,7 @@ job::job(skew.IM.2 = {
 
 job::job(binorm.IM.2 = {
   
-  rep <- 10
+  rep <- 3
   
   Total.species.SLC.single.binorm <- c()
   
@@ -1229,7 +1240,11 @@ all.plots + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A",
 
 Res <- list()
 
+<<<<<<< HEAD
 pdf("plots.even.immigration.pdf")
+=======
+pdf("plots.even.combined.side.pdf")
+>>>>>>> 71f600c1e1be11a163ce0cc416d04d1b5048bc57
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1387,7 +1402,11 @@ plots + plot_annotation(
 
 Res <- list()
 
+<<<<<<< HEAD
 pdf("plots.norm.immigration..pdf")
+=======
+pdf("plots.norm.combined.side.pdf")
+>>>>>>> 71f600c1e1be11a163ce0cc416d04d1b5048bc57
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1541,7 +1560,11 @@ plots + plot_annotation(
 # Adult = Juvenile sigma
 Res <- list()
 
+<<<<<<< HEAD
 pdf("plots.skew.immigration.pdf")
+=======
+pdf("plots.skew.combined.side.pdf")
+>>>>>>> 71f600c1e1be11a163ce0cc416d04d1b5048bc57
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1852,7 +1875,7 @@ plots + plot_annotation(
 
 Res <- list()
 
-pdf("plots.2res.sym.pdf")
+pdf("plots.2res.sym.high.mutprob.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1915,7 +1938,7 @@ dev.off()
 
 Res <- list()
 
-pdf("plots.2res.asym.pdf")
+pdf("plots.2res.asym.high.mutprob.pdf")
 
 for(s in 1:length(sigma)){
   adu.sigma <- sigma[s]
@@ -1991,8 +2014,8 @@ save(even.IM, file = "even.immi.Last.RESULT")
 save(skew.IM, file = "skew.immi.Last.RESULT")
 save(binorm.IM, file = "binorm.immi.Last.RESULT")
 
-save(two.res.asym, file = "2.res.asym.RESULT")
-save(two.res.sym, file = "2.res.sym.RESULT")
+save(two.res.asym, file = "2.res.asym.lowsigma.RESULT")
+save(two.res.sym, file = "2.res.sym.lowsigma.RESULT")
 
 # Reopen:
 
