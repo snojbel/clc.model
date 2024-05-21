@@ -26,9 +26,10 @@ even.res.plot <- ggplot(data = even.res, aes(x = Property, y = Frequency)) +
   labs(title = "Even Distribution", x = "Resource characteristic", y = "Resource abundance") +                 # Labels for the axes
   scale_x_continuous(limits = c(-2.7, 2.7))+
   scale_y_continuous(limits = c(0, 7000))+
+  #stat_function(fun = dnorm, args = list(mean = 0, sd = 0.5))+
   theme_minimal(base_family = "LM Roman 10", base_size = 10)+
-  theme(plot.title = element_text(size = 18)) 
-
+  theme(plot.title = element_text(size = 18))
+  
 
 
 

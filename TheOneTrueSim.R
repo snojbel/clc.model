@@ -22,7 +22,6 @@ library(dplyr)
 library(grid)
 library(FamilyRank)
 
-citation("FamilyRank")
 
 
 # Resource initializations -------------------
