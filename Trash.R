@@ -60,12 +60,13 @@ job::job(even = {
 }, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC,clc.groups, sigma, popSize, im, 
               fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
+even$Total.endpoint.CLC.even[[1]]
 
 
 
 Res <- list()
 
-pdf("plots.even.mutprob.vary.pdf")
+pdf("plots.even.combined.7.pdf")
 
 for(s in 1:length(mutProb)){
   adu.mutProb <- mutProb[s]
@@ -80,7 +81,7 @@ for(s in 1:length(mutProb)){
   
   plot.list.even <- list()
   
-  for (i in 1:10){
+  for (i in 1:6){
     
     data <- last.year.list.even[last.year.list.even$run == i, ]
     
@@ -150,3 +151,6 @@ for(i in 1:length(even$Total.endpoint.CLC.even)){
 
 
 dev.off()
+
+"#000004FF" "#150E37FF" "#3B0F70FF" "#641A80FF" "#8C2981FF" "#B63679FF" "#DE4968FF" "#F76F5CFF" "#FE9F6DFF" "#FECE91FF" "#FCFDBFFF"
+
