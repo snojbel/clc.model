@@ -1,12 +1,13 @@
 
 # Resource competition Models
+# This is the the actual simulation algorithm where competition and evolution occurs. 
 
-# Simple life cylce -------------
+# Simple life cycle -------------
 
 
 resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), im = 0, 
                                    fmax = 2, kA = 0.5, kJ = 0.5, mutProb=0.0005, mutVar=0.05, time.steps=50000, iniP=0, 
-                                   threshold = 0.001, nmorphs = 1, maxTr = 3, minTr = -3){
+                                   threshold = 0.0005, nmorphs = 1, maxTr = 3, minTr = -3){
   
   pop <- matrix(data = NA, ncol = 3, nrow = nmorphs)                            # Each column in this matrix is one species.
   
@@ -14,7 +15,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   pop[,2] <- iniP                                                               # Phenotype for species is second row.
   
   
-  colnames(pop) <- c("Number of indivduals", "Trait", "Proxy")                  # Third row is where f and m are stored to calculcate fecundity and maturation.
+  colnames(pop) <- c("Number of indivduals", "Trait", "Proxy")                  # Third row is where f and m are stored to calculate fecundity and maturation.
   
   stats         <- matrix(data = c(0, sum(pop[,1]), 0, nrow(pop), mean(pop[,2]), var(pop[,2])) 
                           , nrow = 1, ncol = 6)                                 # Where we will eventually save our data on number of species etc
@@ -66,8 +67,8 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Mutation of offspring -------------------------------------------------
     
-    probs <- juveniles[,1]/sum(juveniles[, 1])  # Generates probability of morph being mutated based upon number of individuals.
-    N.mut <- as.numeric(rbinom(n = 1, size = sum(juveniles[, 1]), prob = mutProb))
+    probs <- juveniles[,1]/sum(juveniles[, 1])    # Generates probability of morph being mutated based upon number of individuals.
+    N.mut <- as.numeric(rbinom(n = 1, size = sum(juveniles[, 1]), prob = mutProb)) # Draws the number of mutations this generation
     
     
     if(N.mut > 0){
@@ -76,7 +77,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       
       for (m in 1:length(N.mut)){
         random.choice <- rmultinom(n = 1 , size = 1, prob = probs)              # Randomly chooses which morphs to mutate based on probs
-        mutation.pos[m] <- as.numeric(which(random.choice == 1))
+        mutation.pos[m] <- as.numeric(which(random.choice == 1))                
       }
       
       for (i in  1:length(mutation.pos)){
@@ -93,8 +94,9 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     
     
-    # Kill off offspring -----------------------------------------------------
+    # Maturation off offspring -----------------------------------------------------
     
+    # The calculation of alphaJ is the same as the caluclation of alphaA see above comments for clarifications
     
     alphaSumJ <- NULL
     alphaJ    <- NULL
@@ -105,8 +107,8 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     alphaJ            <- (1/(sqrt(2*pi*resGen[2,1]^2)))*exp(-(((juvTraitMatrix-resPropJuvMatrix)^2)/(2*resGen[2,1]^2))) + epsilon
     juvenAbund        <- juveniles[,1]
-    juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = length(resProp)), ncol = length(resProp), nrow = nrow(juveniles), byrow = T)  # Creation of a matrix with population size of each type in the rows
-    alphaSumJ         <- colSums(alphaJ*juvenAbundMatrix)                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
+    juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = length(resProp)), ncol = length(resProp), nrow = nrow(juveniles), byrow = T)
+    alphaSumJ         <- colSums(alphaJ*juvenAbundMatrix)                                                                         
     
     
     RdivAlphaSumJ     <- resFreq/alphaSumJ
@@ -114,7 +116,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     
     Sur <- alphaJ%*%RdivAlphaSumJTrans
-    juveniles[,3] <- (Sur/(kJ+Sur)) 
+    juveniles[,3] <- (Sur/(kJ+Sur))                                             # Gives m, equation 5b
     
     
     
@@ -126,21 +128,19 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Adding immigrants ---------------------------------------------------------------------
     
-    #num.of.im <- im*0.05*sum(pop[,1])
-    #for(m in 1:num.of.im){
-    
+    # Only done when im = 1
     if(im == 1) {
       
-        trait <- runif(1, min = minTr, max = maxTr)
+        trait <- runif(1, min = minTr, max = maxTr)                             # Creates phenotype of immigrant
         
-        if(sum(pop[,2] == trait) == 0) {                   # Checks whether a exact match of immigrant already exists
-          pop <- rbind(pop, c(1, trait, NA))
+        if(sum(pop[,2] == trait) == 0) {                                        # Checks whether a exact match of immigrant already exists
+          pop <- rbind(pop, c(1, trait, NA))                                    # If no duplicate is found, a new species is added to the pop matrix
         } else{
           same <- which(pop[,2] == trait)
-          pop[same,1] <- pop[same,1]+1
+          pop[same,1] <- pop[same,1]+1                                          # If so it is just added to that species
         }
       } 
-    #}
+
     
     # extract stats and phenotype ---------------------------------------------
     
@@ -149,24 +149,22 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       break
     }
     
-    if(sum(which(is.na(pop[,1])) != 0)){                                                          # Checks whether population has reached zero, then it breaks the for loop.                                   
+    if(sum(which(is.na(pop[,1])) != 0)){                                         # Checks whether population has reached zero, then it breaks the for loop.                                   
       print("Population extinction")
       break
     }
     
+    # Extracts the results from this generation into the stats and phenotypes matrices. 
     
       stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]))) 
       
       pStats <- cbind(rep(t, nrow(pop)), pop[,1], pop[,2])
       phenotypes <- rbind(phenotypes, pStats)
-      
-    
-    
-    
+ 
     
   }
   
-  #Removing last time step
+  # Removing last time step
   
   stats <- stats[stats[, 1] != time.steps, , drop = FALSE] 
   phenotypes <- phenotypes[phenotypes[,1] != time.steps, , drop = FALSE]
@@ -175,7 +173,7 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   pop <- pop[pop[, 1] > threshold*stats[nrow(stats), 2], , drop = FALSE] 
   
   
-  #Re-adding modified last time step
+  # Re-adding modified last time step
   
   stats <- rbind(stats, c(t, sum(adults[,1]), juvenile.pop, nrow(pop), mean(pop[,2]), var(pop[,2]))) 
   
@@ -197,17 +195,19 @@ resourceCompetitionSLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
 
 # Complex life cycle -------------------------
 
+# The simple life cycle function is more thoroughly commented, the same methods are used here, please consult above for explanations.
+# Only code that differs is explained here. 
 
 resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.2,0.2),ncol=1, nrow=2), fmax = 2, 
                                    kA = 0.5, kJ = 0.5,mutProb=0.0005, mutVar=0.05, time.steps=50000, iniPA=0, iniPJ=0, 
-                                   threshold = 0.001, nmorphs = 1, im = 0, maxTr = 3, minTr = -3){
+                                   threshold = 0.0005, nmorphs = 1, im = 0, maxTr = 3, minTr = -3){
   
   
-  pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                             # Each column in this matrix is one phenotype combination.
+  pop <- matrix(data = NA, ncol = 4, nrow = nmorphs)                            # Each column in this matrix is one phenotype combination.
   
   pop[,1] <- popSize
-  pop[,2] <- iniPA
-  pop[,3] <- iniPJ
+  pop[,2] <- iniPA                                                              # Adult trait is stored in second row and 
+  pop[,3] <- iniPJ                                                              # juvenile trait in third row.
   
   colnames(pop) <- c("Number of indivduals", "Adult trait", "Juvenile trait", "Proxy")
   
@@ -216,7 +216,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
   phenotypes <- matrix(data = c(0, popSize, iniPA, iniPJ), nrow = 1, ncol = 4)
   colnames(phenotypes) <- c("Year", "Number of indivduals", "Adult trait", "Juvenile trait")                                        
   
-  epsilon <- .Machine$double.eps^10  #Added when some number become zero, very small number
+  epsilon <- .Machine$double.eps^10                                             # Added when some number become zero, very small number
 
   
   
@@ -256,7 +256,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     # Mutation of offspring -------------------------------------------------
     
-    probs <- juveniles[,1]/sum(juveniles[, 1])  # Generates probability of morph being mutated based upon number of individuals.
+    probs <- juveniles[,1]/sum(juveniles[, 1])    # Generates probability of morph being mutated based upon number of individuals.
     N.mut <- as.numeric(rbinom(n = 1, size = sum(juveniles[, 1]), prob = mutProb))
     
     
@@ -265,16 +265,16 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       mutation.pos <- c()
       
       for (m in 1:length(N.mut)){
-        random.choice <- rmultinom(n = 1 , size = 1, prob = probs)    # Randomly chooses which morphs to mutate based on probs
+        random.choice <- rmultinom(n = 1 , size = 1, prob = probs)              # Randomly chooses which morphs to mutate based on probs
         mutation.pos[m] <- as.numeric(which(random.choice == 1))
       }
       
       for (i in  1:length(mutation.pos)){
         
         mutChange <- rnorm(n=1, mean=0, sd=mutVar)
-        juveniles[mutation.pos[i], 1] <- juveniles[mutation.pos[i], 1] - 1         # Removes the mutated individual from the morph
+        juveniles[mutation.pos[i], 1] <- juveniles[mutation.pos[i], 1] - 1      # Removes the mutated individual from the morph
         
-        if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                            # Randomly choose whether adult or juvenile trait gets morphed.
+        if(rbinom(n = 1, size = 1, prob = 0.5) == 0){                           # Randomly choose whether adult or juvenile trait gets morphed.
           
           
           new.morph <- matrix(data = c(1, juveniles[mutation.pos[i], 2] + mutChange, #Changes adult trait to a new trait and adds it to the juveniles
@@ -296,7 +296,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     
     
-    # Kill off offspring -----------------------------------------------------
+    # Maturation off offspring -----------------------------------------------------
     
     alphaSumJ <- NULL
     alphaJ    <- NULL
@@ -307,8 +307,8 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     
     alphaJ            <- (1/(sqrt(2*pi*resGen[2,1]^2)))*exp(-(((juvTraitMatrix-resPropJuvMatrix)^2)/(2*resGen[2,1]^2))) + epsilon
     juvenAbund        <- juveniles[,1]
-    juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)  # Creation of a matrix with population size of each type in the rows
-    alphaSumJ         <- colSums(alphaJ*juvenAbundMatrix)                                                                         # Creation of matrix that reflects both the trait but also number of individuals in type
+    juvenAbundMatrix  <- matrix(data = rep(juvenAbund, each = ncol(resProp)), ncol = ncol(resProp), nrow = nrow(juveniles), byrow = T)  
+    alphaSumJ         <- colSums(alphaJ*juvenAbundMatrix)                                                                               
     
     
     RdivAlphaSumJ     <- resFreq[2,]/alphaSumJ
@@ -328,25 +328,20 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
     # Adding immigrants ---------------------------------------------------------------------
     
 
-    #num.of.im <- im*0.05*sum(pop[,1])
-    
-    #for(m in 1:num.of.im) {
-    
-    #Remove hashtags for several immigrants
     
     if(im == 1) {
       Atrait  <- runif(1, min = minTr, max = maxTr)
       Jtrait  <- runif(1, min = minTr, max = maxTr)
       
-      if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                   # Checks whether a exact match of immigrant already exists
-        pop <- rbind(pop, c(1, Atrait, Jtrait, NA))
-      } else{
-        same <- which(pop[,2] == Atrait & pop[,3] == Jtrait)
-        pop[same,1] <- pop[same,1]+1
-      }
+      if(sum(pop[,2] == Atrait & pop[,3] == Jtrait) == 0) {                     # Checks whether a exact match of immigrant already exists, both traits are checked in complex
+           pop <- rbind(pop, c(1, Atrait, Jtrait, NA))
+          } else{
+            same <- which(pop[,2] == Atrait & pop[,3] == Jtrait)
+            pop[same,1] <- pop[same,1]+1
+            }
       }
     
-    #}
+   
     
     
     # extract stats and phenotype ---------------------------------------------
@@ -356,7 +351,7 @@ resourceCompetitionCLC <- function(popSize, resProp, resFreq, resGen=matrix(c(0.
       break
     }
     
-    if(sum(which(is.na(pop[,1])) != 0)){                                                          # Checks whether population has reached zero, then it breaks the for loop.                                   
+    if(sum(which(is.na(pop[,1])) != 0)){                                         # Checks whether population has reached zero, then it breaks the for loop.                                   
       print("Population extinction")
       break
     }

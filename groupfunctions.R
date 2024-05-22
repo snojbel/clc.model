@@ -1,11 +1,14 @@
 # Grouping functions
-
+# These functions are used at the end of a simulation to ensure very closely clustered species 
+# are grouped into one. 
 
 # SLC -------------------------
 
 
 slc.groups <- function(output = outputSLC, threshold = 0.15){
   outputSLC <- output
+  
+  # Prepare the data
   
   phenodataSLC <- data.frame(
   Year = outputSLC$phenotypes[, 1],
@@ -21,34 +24,32 @@ slc.groups <- function(output = outputSLC, threshold = 0.15){
   rownames(last_year_dataS) <- NULL
   rownames(last_year_dataSLC) <- NULL
   
+  # Creates a matrix where each entry indicates distances between two species.
   
   distance_matrix <- as.matrix(dist(last_year_dataS[, 1, drop = FALSE], method = "euclidean"))
   
+  # Removes duplicates in lower diagnoal
   
-  distance_matrix[lower.tri(distance_matrix)] <- NA
+  distance_matrix[lower.tri(distance_matrix)] <- NA 
   
-  
-
-  # Find indices of individuals to keep
-
   
   if(sum(which(distance_matrix < threshold)) == 0){
 
     return(last_year_dataSLC)
-  } # Checks if there are zero individuals who are alike.
+  } # Checks if there are zero individuals who are alike, then the function is stopped.
   
  
-  
-  same <- which(distance_matrix < threshold, arr.ind = T)
+  # Find indices of individuals to keep
+  same <- which(distance_matrix < threshold, arr.ind = T) # Creates groups of species that are clustered togerther
   
  
-  same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
+  same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]   # Removes the rows indicating a species itself is to similar to itself.
   rownames(same) <- NULL
 
   
   if(sum(same) == 0){
     return(last_year_dataSLC)
-  }
+  }  # Checks if there are zero individuals who are alike, then the function is stopped.
 
   
  
@@ -124,6 +125,9 @@ slc.groups <- function(output = outputSLC, threshold = 0.15){
 clc.groups <- function(output = outputCLC, threshold = 0.15){
   
   outputCLC <- output
+  
+  # Prepare the data
+  
   phenodataCLC <- data.frame(
     Year = outputCLC$phenotypes[, 1],
     Adult_Trait = outputCLC$phenotypes[, 3],
@@ -137,32 +141,33 @@ clc.groups <- function(output = outputCLC, threshold = 0.15){
   rownames(last_year_dataCLC) <- NULL
   rownames(last_year_dataC) <- NULL
   
+  # Creates a matrix where each entry indicates distances between two species.
   
   distance_matrix_adult <- as.matrix(dist(last_year_dataC[, 1, drop = FALSE], method = "euclidean"))
   distance_matrix_juvenile <- as.matrix(dist(last_year_dataC[, 2, drop = FALSE], method = "euclidean"))
+  
+  # The lower diagonal is removed as it is a duplicate
   
   distance_matrix_adult[lower.tri(distance_matrix_adult)] <- NA
   distance_matrix_juvenile[lower.tri(distance_matrix_juvenile)] <- NA
   
   
-  # Set a threshold for similarity (adjust as needed)
-  threshold <- 0.2
-  
-  # Find indices of individuals to keep
+ 
   
   if(sum(which(distance_matrix_adult < threshold & distance_matrix_juvenile < threshold)) == 0){
     return(last_year_dataCLC)
   }   # Checks if there are zero individuals who are alike.
   
- 
+  # Checks which individuals are closer than the threshold distance, indicating they are too similar. 
   
   same <- which(distance_matrix_adult < threshold & distance_matrix_juvenile < threshold, arr.ind = T)
-  same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]
+  same <- same[same[, 1]-same[,2] != 0, , drop = FALSE]  # Removes the rows indicating a species is to similar to itself. 
   rownames(same) <- NULL
   
   if(sum(same) == 0){
     return(last_year_dataCLC)
   }
+  # Check is there are zero species that are the same and stops function if that is the case.
   
  
   
