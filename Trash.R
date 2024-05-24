@@ -1,8 +1,8 @@
+# I run simulations where I change mutation probability here
+# Requires that resource and parameters are already loaded
+#Simulations below
 
-
-
-
-job::job(even = {
+job::job(even.mutprob = {
   
   
   rep <- 10
@@ -60,13 +60,12 @@ job::job(even = {
 }, import = c(resPropMatrix.even.clc, resFreqMatrix.even.clc, resourceCompetitionCLC,clc.groups, sigma, popSize, im, 
               fmax, kA, kJ, mutProb, mutVar, time.steps, iniP, iniPA, iniPJ, nmorphs, threshold, maxTr, minTr))
 
-even$Total.endpoint.CLC.even[[1]]
 
 
 
 Res <- list()
 
-pdf("plots.even.combined.7.pdf")
+pdf("plots.even.mutation.prob.change.pdf")
 
 for(s in 1:length(mutProb)){
   adu.mutProb <- mutProb[s]
@@ -118,39 +117,6 @@ dev.off()
 
 
 
-
-
 save(even, file = "even.mutprob.vary.RESULT")
 
-
-Res <- list()
-
-pdf("plots.even.combined.mutprob.pdf")
-
-for(i in 1:length(even$Total.endpoint.CLC.even)){
-  
-  
-  placeholder <- even$Total.endpoint.CLC.even[[i]][[1]]
-  placeholder$run <- i
-  
-  
-  
-  
-  
-  Res[[s]] <- plots + plot_annotation(
-    title = 'Even Distribution',
-    theme = theme(plot.title = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"), plot.subtitle = element_text(hjust = 0.5, size = 15, family = "LM Roman 10"))
-  )+ coord_fixed()
-  
-  print(Res[[s]])
-  
-  
-  
-}
-
-
-
-dev.off()
-
-"#000004FF" "#150E37FF" "#3B0F70FF" "#641A80FF" "#8C2981FF" "#B63679FF" "#DE4968FF" "#F76F5CFF" "#FE9F6DFF" "#FECE91FF" "#FCFDBFFF"
 

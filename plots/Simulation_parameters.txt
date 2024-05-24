@@ -1,4 +1,4 @@
-OS (Official Sim conditions):
+Standard parameters (Official Sim conditions):
 
 Number of Resource types: 16
 Abundance of Resources: 50 000
@@ -7,7 +7,7 @@ Time steps: 50 000
 
 iniP = 0
 initial popSize = 10
-mutProb = 0.0005 / 0.00001
+mutProb = 0.00001
 mutVar = 0.05
 time.steps = 50000
 fmax = 2
