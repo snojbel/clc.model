@@ -711,6 +711,53 @@ ggplot(phenodataCLC, aes(x = Juvenile_Trait, y = Adult_Trait)) +
 
 
 
+# Tile plot
+
+Total.mean.CLC.even <- even$Total.mean.CLC.even
+Total.mean.SLC.even <- even$Total.mean.SLC.even
+
+Total.sd.CLC.even <-  even$Total.sd.CLC.even
+Total.sd.SLC.even <-  even$Total.sd.SLC.even
+
+x <- as.factor(sigma)
+
+
+
+df.CLC <- data.frame(
+  Juvenile.trait = rep(x, each = length(x)),
+  Adult.trait = rep(x, times = length(x)),
+  Richness = as.vector(Total.mean.CLC.even),
+  sd = as.vector(Total.sd.CLC.even),
+  Cycle = rep("Complex", times = length(x)*length(x))
+)
+
+df.SLC <- data.frame(
+  Juvenile.trait = x,
+  Adult.trait = x,
+  Richness = as.vector(Total.mean.SLC.even),
+  sd = as.vector(Total.sd.SLC.even),
+  Cycle = rep("Simple", times = length(x))
+)
+
+
+
+df.combined <- rbind(df.CLC, df.SLC)
+
+
+ggplot(df.CLC, aes(x = Juvenile.trait, y = Adult.trait)) +
+  geom_tile(aes(fill = Richness))+
+  xlab("Juvenile Niche Width") +
+  ylab("Adult Niche Width") +
+  ggtitle("Even Resource distribution") +
+  scale_fill_gradient(low = "#FCFDBFFF", high = "#3B0F70FF") +
+  theme_minimal(base_family = "LM Roman 10", base_size = 15) +
+  theme(plot.title = element_text(size = 18))+
+  coord_fixed()
+
+
+
+
+
 
 
 
